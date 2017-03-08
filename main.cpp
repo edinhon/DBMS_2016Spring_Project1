@@ -5,7 +5,7 @@
 
 using namespace std;
 
-
+enum class CommandType {CREATE, INSERT, SELECT};
 
 int main () {
 
@@ -14,11 +14,23 @@ int main () {
 	CommandSet commandSet = new CommandSet();
 	
 	input_testcase.open ("input testcase.txt", ios::in);
-	
 	commandSet = parser.ParseAllCommands(input_testcase);
+	
+	Command command;
 	while(!commandSet.isEmpty()){
-		parser.ParseSingleCommand(commandSet.popCommand());
+		command = parser.ParseSingleCommand(commandSet.popCommand());
 		
+		switch(command.type){
+			case CommandType::CREATE :
+				
+				break;
+			case CommandType::INSERT :
+				
+				break;
+			case CommandType::SELECT :
+				
+				break;
+		}
 		//TODO: Deal with the command.
 	}
 	

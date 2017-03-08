@@ -12,10 +12,10 @@ CommandSet Parser::ParseAllCommands(fstream inputFile)
 }
 
 //---------------------------
-// vector<string> ParseSingleCommand(Command)
+// Command ParseSingleCommand(Command)
 //		Parse single command into command terms set.
 //---------------------------
-vector<string> Parser::ParseSingleCommand(Command c)
+Command Parser::ParseSingleCommand(Command c)
 {
 	
 }

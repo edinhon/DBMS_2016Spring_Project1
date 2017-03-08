@@ -26,4 +26,6 @@ class Command {
 		string commandString;
 		
 		vector<string> termTokens*;
+		
+		int type;
 }

@@ -19,10 +19,10 @@ class Parser {
 		CommandSet ParseAllCommands(fstream inputFile);
 		
 		//---------------------------
-		// vector<string> ParseSingleCommand(Command)
+		// Command ParseSingleCommand(Command)
 		//		Parse single command into command terms set.
 		//---------------------------
-		vector<string> ParseSingleCommand(Command c);
+		Command ParseSingleCommand(Command c);
 		
 	private:
 		
