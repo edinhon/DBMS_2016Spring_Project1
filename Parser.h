@@ -1,5 +1,7 @@
 #include <iostream>
+#include <fstream>
 #include <string>
+#include <vector>
 #include <Command.h>
 #include <CommandSet.h>
 
@@ -17,10 +19,10 @@ class Parser {
 		CommandSet ParseAllCommands(fstream inputFile);
 		
 		//---------------------------
-		// StringTokens ParseSingleCommand(Command)
+		// vector<string> ParseSingleCommand(Command)
 		//		Parse single command into command terms set.
 		//---------------------------
-		void ParseSingleCommand(Command c);
+		vector<string> ParseSingleCommand(Command c);
 		
 	private:
 		
