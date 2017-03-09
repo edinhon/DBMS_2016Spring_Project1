@@ -1,0 +1,4 @@
+CREATE TABLE Person ( 
+person_id int PRIMARY KEY, 
+name varchar(20),
+gender varchar(1));
