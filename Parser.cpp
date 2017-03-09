@@ -17,5 +17,7 @@ InstructionSet Parser::ParseAllInstructions(fstream inputFile)
 //---------------------------
 Instruction Parser::ParseSingleInstruction(Instruction c)
 {
-	
+	//TODO: Decide which type of this instruction, 
+	//	and new a corresponding instruction class, 
+	//	and push it into instructionSet.
 }
