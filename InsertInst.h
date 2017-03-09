@@ -1,6 +1,10 @@
+#ifndef INSERTINST_H
+#define INSERTINST_H
+
 #include <iostream>
 #include <string>
 #include <vector>
+#include "Instruction.h"
 
 using namespace std;
 
@@ -18,4 +22,5 @@ class InsertInst : public Instruction {
 	private:
 		
 		
-}
+};
+#endif

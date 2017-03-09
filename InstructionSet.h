@@ -1,6 +1,9 @@
+#ifndef INSTRUCTIONSET_H
+#define INSTRUCTIONSET_H
+
 #include <iostream>
 #include <queue>
-#include <Instruction.h>
+#include "Instruction.h"
 
 using namespace std;
 
@@ -21,7 +24,7 @@ class InstructionSet {
 		// void pushInstruction(Instruction)
 		//		Push a instruction into queue.
 		//--------------
-		void pushInstruction(Instruction c);
+		void pushInstruction(Instruction);
 		
 		//--------------
 		// bool isEmpty()
@@ -31,5 +34,6 @@ class InstructionSet {
 		
 	private:
 	
-		queue<Instruction> instructionQueue*;
-}
+		queue<Instruction> *instructionQueue;
+};
+#endif

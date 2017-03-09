@@ -1,3 +1,6 @@
+#ifndef INSTRUCTION_H
+#define INSTRUCTION_H
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -27,7 +30,7 @@ class Instruction {
 		// void setTermTokens(vector<string>);
 		//		Set tokens from instruction string.
 		//----------------
-		void setTermTokens(vector<string> v*);
+		void setTermTokens(vector<string>*);
 		
 		//----------------
 		// vector<string> getTermTokens();
@@ -43,6 +46,7 @@ class Instruction {
 		
 		string instructionString;
 		
-		vector<string> termTokens*;
+		vector<string> *termTokens;
 		
-}
+};
+#endif

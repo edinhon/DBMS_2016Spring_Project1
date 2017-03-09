@@ -1,5 +1,5 @@
 #include <iostream>
-#include <Instruction.h>
+#include "Instruction.h"
 
 Instruction::Instruction()
 {
@@ -34,7 +34,7 @@ string Instruction::getInstructionString()
 // void setTermTokens(vector<string>);
 //		Set tokens from instruction string.
 //----------------
-void Instruction::setTermTokens(vector<string> v*)
+void Instruction::setTermTokens(vector<string> *v)
 {
 	termTokens = v;
 }
@@ -45,5 +45,5 @@ void Instruction::setTermTokens(vector<string> v*)
 //----------------
 vector<string> Instruction::getTermTokens()
 {
-	return termTokens;
+	return *termTokens;
 }

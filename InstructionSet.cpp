@@ -1,5 +1,5 @@
 #include <iostream>
-#include <InstructionSet.h>
+#include "InstructionSet.h"
 
 InstructionSet::InstructionSet()
 {
