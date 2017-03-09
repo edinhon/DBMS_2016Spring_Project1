@@ -10,20 +10,19 @@ enum InstructionType {CREATE, INSERT, SELECT};
 
 int main () {
 
-	fstream* input_testcase = new fstream();
+	ifstream* input_testcase= new ifstream();
 	input_testcase->open ("input testcase.txt", ios::in);
 
-	Parser *parser = new Parser();
-	InstructionSet instructionSet;// = new InstructionSet();
+	Parser parser;
+	InstructionSet* instructionSet;// = new InstructionSet();
 	
-	//input_testcase.open ("input testcase.txt", ios::in);
-	instructionSet = parser->ParseAllInstructions(input_testcase);
+	instructionSet = parser.ParseAllInstructions(input_testcase);
 	
-	Instruction instruction;
-	while(!instructionSet.isEmpty()){
-		instruction = parser->ParseSingleInstruction(instructionSet.popInstruction());
+	while(!instructionSet->isEmpty()){
+
+		Instruction* instruction = parser.ParseSingleInstruction(instructionSet->popInstruction());
 		
-		switch(instruction.type){
+		switch(instruction->type){
 			case CREATE :
 				
 				break;
