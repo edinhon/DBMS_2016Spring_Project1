@@ -20,7 +20,7 @@ class Parser {
 		// InstructionSet ParseAllInstructions(fstream)
 		//		Parse all input instructions into single instructions set.
 		//---------------------------
-		InstructionSet* ParseAllInstructions(ifstream* inputFile);
+		InstructionSet* ParseAllInstructions(fstream* inputFile);
 		
 		//---------------------------
 		// Instruction ParseSingleInstruction(Instruction)

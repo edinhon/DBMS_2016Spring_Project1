@@ -10,7 +10,7 @@ enum InstructionType {CREATE, INSERT, SELECT};
 
 int main () {
 
-	ifstream* input_testcase= new ifstream();
+	fstream* input_testcase= new fstream();
 	input_testcase->open ("input testcase.txt", ios::in);
 
 	Parser parser;
