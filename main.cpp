@@ -5,33 +5,33 @@
 
 using namespace std;
 
-enum class CommandType {CREATE, INSERT, SELECT};
+enum class InstructionType {CREATE, INSERT, SELECT};
 
 int main () {
 
 	fstream input_testcase;
 	Parser parser = new Parser();
-	CommandSet commandSet = new CommandSet();
+	InstructionSet instructionSet = new InstructionSet();
 	
 	input_testcase.open ("input testcase.txt", ios::in);
-	commandSet = parser.ParseAllCommands(input_testcase);
+	instructionSet = parser.ParseAllInstructions(input_testcase);
 	
-	Command command;
-	while(!commandSet.isEmpty()){
-		command = parser.ParseSingleCommand(commandSet.popCommand());
+	Instruction instruction;
+	while(!instructionSet.isEmpty()){
+		instruction = parser.ParseSingleInstruction(instructionSet.popInstruction());
 		
-		switch(command.type){
-			case CommandType::CREATE :
+		switch(instruction.type){
+			case InstructionType::CREATE :
 				
 				break;
-			case CommandType::INSERT :
+			case InstructionType::INSERT :
 				
 				break;
-			case CommandType::SELECT :
+			case InstructionType::SELECT :
 				
 				break;
 		}
-		//TODO: Deal with the command.
+		//TODO: Deal with the instruction.
 	}
 	
 	input_testcase.close ();

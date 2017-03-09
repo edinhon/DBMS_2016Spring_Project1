@@ -3,19 +3,19 @@
 
 
 //---------------------------
-// CommandSet ParseAllCommands(fstream)
-//		Parse all input commands into single commands set.
+// InstructionSet ParseAllInstructions(fstream)
+//		Parse all input instructions into single instructions set.
 //---------------------------
-CommandSet Parser::ParseAllCommands(fstream inputFile)
+InstructionSet Parser::ParseAllInstructions(fstream inputFile)
 {
 	
 }
 
 //---------------------------
-// Command ParseSingleCommand(Command)
-//		Parse single command into command terms set.
+// Instruction ParseSingleInstruction(Instruction)
+//		Parse single instruction into instruction terms set.
 //---------------------------
-Command Parser::ParseSingleCommand(Command c)
+Instruction Parser::ParseSingleInstruction(Instruction c)
 {
 	
 }

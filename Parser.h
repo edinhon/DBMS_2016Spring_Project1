@@ -2,8 +2,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <Command.h>
-#include <CommandSet.h>
+#include <Instruction.h>
+#include <InstructionSet.h>
 
 using namespace std;
 
@@ -13,16 +13,16 @@ class Parser {
 		Parser();
 		
 		//---------------------------
-		// CommandSet ParseAllCommands(fstream)
-		//		Parse all input commands into single commands set.
+		// InstructionSet ParseAllInstructions(fstream)
+		//		Parse all input instructions into single instructions set.
 		//---------------------------
-		CommandSet ParseAllCommands(fstream inputFile);
+		InstructionSet ParseAllInstructions(fstream inputFile);
 		
 		//---------------------------
-		// Command ParseSingleCommand(Command)
-		//		Parse single command into command terms set.
+		// Instruction ParseSingleInstruction(Instruction)
+		//		Parse single instruction into instruction terms set.
 		//---------------------------
-		Command ParseSingleCommand(Command c);
+		Instruction ParseSingleInstruction(Instruction c);
 		
 	private:
 		

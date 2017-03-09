@@ -4,16 +4,16 @@
 
 using namespace std;
 
-class Command {
+class Instruction {
 	public:
 		
-		Command();
+		Instruction();
 		
-		~Command();
+		~Instruction();
 		
-		void setCommandString(string s);
+		void setInstructionString(string s);
 		
-		string getCommandString();
+		string getInstructionString();
 		
 		void setTermTokens(vector<string> v*);
 		
@@ -23,7 +23,7 @@ class Command {
 	
 		bool isLegal;
 		
-		string commandString;
+		string instructionString;
 		
 		vector<string> termTokens*;
 		
