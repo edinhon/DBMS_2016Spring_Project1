@@ -13,20 +13,6 @@ using namespace std;
 class Table {
 	public:
 		
-		//--------------
-		// Table(CreateInst)
-		//		Create a table and set attributes.
-		//--------------
-		Table(CreateInst);
-		
-		~Table();
-		
-		//--------------
-		// void InsertTuple(InsertInst)
-		//		Generate a tuple with attribute values.
-		//--------------
-		void InsertTuple(InsertInst);
-		
 		class Attribute {
 			public:
 				string name;
@@ -40,7 +26,7 @@ class Table {
 				vector<Attribute> values;
 				
 				//--------------
-				// void setValue(string value)
+				// void setValue(int index, string value)
 				//		Set value of tuple by index number.
 				//		(INSERT without attribute name)
 				//--------------
@@ -59,6 +45,30 @@ class Table {
 				//--------------
 				string getValue(string name);
 		};
+		
+		//--------------
+		// Table(CreateInst)
+		//		Create a table and set attributes.
+		//--------------
+		Table(CreateInst);
+		
+		~Table();
+		
+		//--------------
+		// void InsertTuple(InsertInst)
+		//		Generate a tuple with attribute values.
+		//--------------
+		void InsertTuple(InsertInst);
+		
+		//--------------
+		// bool CheckInsertInst(InsertInst)
+		//		Check this INSERT is valid or not.
+		//		Like duplicate PK, or different attributes number of
+		//	instruction without attribute name.
+		//--------------
+		bool CheckInsertInst(InsertInst);
+		
+		//TODO: SearchTuple()
 		
 		vector<Tuple> tuples;
 		

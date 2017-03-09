@@ -15,11 +15,11 @@ class CreateInst : public Instruction {
 		
 		string tableName;
 		
-		string attributesNames[10];
+		vector<string> attributeNames;
 		
-		string attributesTypes[10];
+		vector<string> attributeTypes;
 		
-		bool isPK[10];
+		vector<bool> isPK;
 		
 	private:
 		

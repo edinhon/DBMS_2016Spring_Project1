@@ -15,9 +15,11 @@ class InsertInst : public Instruction {
 		
 		string tableName;
 		
-		string attributesNames[10];
+		vector<string> attributeNames[10];
 		
-		string attributesValues[10];
+		vector<string> attributeValues[10];
+		
+		bool isWithName;
 		
 	private:
 		
