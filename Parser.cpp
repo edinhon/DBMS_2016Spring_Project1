@@ -13,17 +13,15 @@
 InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 {
 	InstructionSet* instructionSet = new InstructionSet ();
-	Instruction* instruction = new Instruction ();
 	string inputString;
 	string* instructionBuffer = new string();
-	vector <string> instructionStream;
 	char* trying;
 
 	while (getline (*inputFile, inputString)) {
 		char charBuffer[1000];
 		strcpy(charBuffer, inputString.c_str());
 		bool instructionSlicingFlag = false;
-		trying = strtok (charBuffer," \n");
+		trying = strtok (charBuffer," \n"); //忽略縮排
 		while (trying != NULL) {
 	    	string stringBuffer(trying);
 	    	*instructionBuffer += " ";
@@ -35,19 +33,17 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 	        trying = strtok (NULL, " \n");
 	    }
 	    if (instructionSlicingFlag) {
-
+	    	Instruction* instruction = new Instruction ();
 	    	instruction->setInstructionString (*instructionBuffer);
-	    	cout << instruction->getInstructionString () << endl;
-	    	//instructionSet->pushInstruction (*instruction);
+	    	//cout << instruction->getInstructionString () << endl;
+	    	cout << "ready to push" << endl;
+	    	instructionSet->pushInstruction (*instruction);
+	    	cout << "end of push" << endl;
 	    	
 	    	instructionBuffer = new string ();
-	    	instruction = new Instruction ();
 	    	instructionSlicingFlag = false;
 	    }
 	}
-	
-	//for (int i=0; i<instructionStream.size(); i++)
-	//	cout << instructionStream[i] << endl << '\n';
 
 	return instructionSet;
 }
