@@ -5,16 +5,16 @@
 // Table(CreateInst)
 //		Create a table and set attributes.
 //--------------
-Table::Table(CreateInst cinst)
+Table::Table(CreateInst *cinst)
 {
-	tableName = cinst.tableName;
+	tableName = cinst->tableName;
 	
-	for(int i = 0 ; i < cinst.attributeNum ; i++){
+	for(int i = 0 ; i < cinst->attributeNum ; i++){
 		Attribute a;
-		a.name = cinst.attributeNames[i];
-		a.type = cinst.attributeTypes[i];
-		a.isPK = cinst.isPK[i];
-		a.varCharSize = cinst.varCharSizes[i];
+		a.name = cinst->attributeNames[i];
+		a.type = cinst->attributeTypes[i];
+		a.isPK = cinst->isPK[i];
+		a.varCharSize = cinst->varCharSizes[i];
 		
 		attributes.push_back(a);
 	}
@@ -68,7 +68,7 @@ string Table::Tuple::getValue(string name)
 // void InsertTuple(InsertInst)
 //		Generate a tuple with attribute values.
 //--------------
-void Table::InsertTuple(InsertInst iinst)
+void Table::InsertTuple(InsertInst *iinst)
 {
 	Tuple t;
 	
@@ -82,8 +82,13 @@ void Table::InsertTuple(InsertInst iinst)
 //		Like duplicate PK, or different attributes number of
 //	instruction without attribute name.
 //--------------
-bool CheckInsertInst(InsertInst)
+bool Table::CheckInsertInst(InsertInst *iinst)
 {
 	return true;
+}
+
+string Table::getTableName()
+{
+	return tableName;
 }
 

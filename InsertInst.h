@@ -13,6 +13,8 @@ class InsertInst : public Instruction {
 		
 		InsertInst();
 		
+		~InsertInst(){};
+		
 		string tableName;
 		
 		string attributeNames[10];

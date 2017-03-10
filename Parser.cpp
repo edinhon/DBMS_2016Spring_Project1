@@ -4,6 +4,8 @@
 #include <string>
 #include <cstring>
 #include "Parser.h"
+#include "CreateInst.h"
+#include "InsertInst.h"
 
 
 //---------------------------
@@ -54,6 +56,9 @@ Instruction* Parser::ParseSingleInstruction(Instruction c)
 	//TODO: Decide which type of this instruction, 
 	//	and new a corresponding instruction class, 
 	//	and push it into instructionSet.
-	Instruction* instruction = new Instruction();
+	
+	//Instruction* instruction = new Instruction();
+	CreateInst *instruction = new CreateInst();
+	instruction->tableName = "TABLE~~~~~~~~";
 	return instruction;
 }

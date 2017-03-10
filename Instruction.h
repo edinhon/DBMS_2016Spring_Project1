@@ -12,7 +12,7 @@ class Instruction {
 		
 		Instruction();
 		
-		~Instruction();
+		virtual ~Instruction();
 		
 		//----------------
 		// void setInstructionString(string)

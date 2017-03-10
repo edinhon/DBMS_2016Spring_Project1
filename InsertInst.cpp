@@ -4,4 +4,5 @@
 InsertInst::InsertInst()
 {
 	type = 1;
+	isValid = true;
 }

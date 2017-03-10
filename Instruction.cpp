@@ -3,7 +3,7 @@
 
 Instruction::Instruction()
 {
-	isValid = false;
+	isValid = true;
 }
 
 Instruction::~Instruction()

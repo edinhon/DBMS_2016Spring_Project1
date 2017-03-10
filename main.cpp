@@ -3,6 +3,8 @@
 #include "Parser.h"
 #include "Instruction.h"
 #include "InstructionSet.h"
+#include "CreateInst.h"
+#include "InsertInst.h"
 #include "Table.h"
 
 using namespace std;
@@ -22,20 +24,27 @@ int main () {
 	while(!instructionSet->isEmpty()){
 		//cout << "I am in" << endl;
 		//Instruction* instruction = parser.ParseSingleInstruction(instructionSet->popInstruction());
-		Instruction instruction = instructionSet->popInstruction();
-		cout << instruction.getInstructionString () << endl;
+		//Instruction instruction = instructionSet->popInstruction();
+		//cout << instruction.getInstructionString () << endl;
 		
-		if(instruction.isValid){
-			switch(instruction.type){
-				case CREATE :
-					//Table t(instruction);
+		Instruction *inst = parser.ParseSingleInstruction(instructionSet->popInstruction());
+		if(inst->isValid){
+			switch(inst->type){
+				case CREATE :{
+					//cast down : From Instruction to CreateInst
+					CreateInst *cinst = dynamic_cast<CreateInst*> (inst);
+					Table t(cinst);
+					cout << t.getTableName() << endl;
 					break;
-				case INSERT :
+				}
+				case INSERT :{
 					
 					break;
-				case SELECT :
+				}
+				case SELECT :{
 					
 					break;
+				}
 			}
 			//TODO: Deal with the instruction.
 		}

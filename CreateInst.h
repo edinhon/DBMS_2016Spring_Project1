@@ -12,6 +12,8 @@ class CreateInst : public Instruction {
 		
 		CreateInst();
 		
+		~CreateInst(){};
+		
 		string tableName;
 		
 		string attributeNames[10];

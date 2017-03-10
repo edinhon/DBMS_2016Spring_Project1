@@ -51,7 +51,7 @@ class Table {
 		// Table(CreateInst)
 		//		Create a table and set attributes.
 		//--------------
-		Table(CreateInst);
+		Table(CreateInst*);
 		
 		~Table();
 		
@@ -59,7 +59,7 @@ class Table {
 		// void InsertTuple(InsertInst)
 		//		Generate a tuple with attribute values.
 		//--------------
-		void InsertTuple(InsertInst);
+		void InsertTuple(InsertInst*);
 		
 		//--------------
 		// bool CheckInsertInst(InsertInst)
@@ -67,11 +67,13 @@ class Table {
 		//		Like duplicate PK, or different attributes number of
 		//	instruction without attribute name.
 		//--------------
-		bool CheckInsertInst(InsertInst);
+		bool CheckInsertInst(InsertInst*);
 		
 		//TODO: SearchTuple()
 		
 		vector<Tuple> tuples;
+		
+		string getTableName();
 		
 	private:
 		
