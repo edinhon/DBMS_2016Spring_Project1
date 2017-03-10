@@ -17,7 +17,7 @@ class Table {
 			public:
 				string name;
 				int type;	// 0 = int, 1 = varchar
-				int varCharSize; 	// size of varchar
+				int varCharSize; // size of varchar
 				string value;
 				bool isPK;
 		};

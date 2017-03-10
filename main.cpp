@@ -3,6 +3,7 @@
 #include "Parser.h"
 #include "Instruction.h"
 #include "InstructionSet.h"
+#include "Table.h"
 
 using namespace std;
 
@@ -27,7 +28,7 @@ int main () {
 		if(instruction.isValid){
 			switch(instruction.type){
 				case CREATE :
-					
+					//Table t(instruction);
 					break;
 				case INSERT :
 					
