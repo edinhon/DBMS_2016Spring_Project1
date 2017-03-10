@@ -38,7 +38,7 @@ class Instruction {
 		//----------------
 		vector<string> getTermTokens();
 		
-		bool isLegal;
+		bool isValid;
 		
 		int type;
 		

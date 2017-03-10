@@ -9,11 +9,12 @@ Table::Table(CreateInst cinst)
 {
 	tableName = cinst.tableName;
 	
-	for(int i = 0 ; i < cinst.attributeNames.size() ; i++){
+	for(int i = 0 ; i < cinst.attributeNum ; i++){
 		Attribute a;
 		a.name = cinst.attributeNames[i];
 		a.type = cinst.attributeTypes[i];
 		a.isPK = cinst.isPK[i];
+		a.varCharSize = cinst.varCharSizes[i];
 		
 		attributes.push_back(a);
 	}
@@ -43,8 +44,8 @@ void Table::Tuple::setValue(int index, string value)
 void Table::Tuple::setValue(string name, string value)
 {
 	for(vector<Attribute>::iterator it = values.begin() : values.end()){
-		if(it.name.compare(name) == 0)
-			it.value = value;
+		if(it->name.compare(name) == 0)
+			it->value = value;
 	}
 }
 
@@ -55,9 +56,12 @@ void Table::Tuple::setValue(string name, string value)
 string Table::Tuple::getValue(string name)
 {
 	for(vector<Attribute>::iterator it = values.begin() : values.end()){
-		if(it.name.compare(name) == 0)
-			return it.value;
+		if(it->name.compare(name) == 0)
+			return it->value;
 	}
+	
+	cout << "Error: Cannot find this attribute name." << endl;
+	return NULL;
 }
 
 //--------------

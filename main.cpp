@@ -23,19 +23,22 @@ int main () {
 		//Instruction* instruction = parser.ParseSingleInstruction(instructionSet->popInstruction());
 		Instruction instruction = instructionSet->popInstruction();
 		cout << instruction.getInstructionString () << endl;
-
-		switch(instruction.type){
-			case CREATE :
-				
-				break;
-			case INSERT :
-				
-				break;
-			case SELECT :
-				
-				break;
+		
+		if(instruction.isValid){
+			switch(instruction.type){
+				case CREATE :
+					
+					break;
+				case INSERT :
+					
+					break;
+				case SELECT :
+					
+					break;
+			}
+			//TODO: Deal with the instruction.
 		}
-		//TODO: Deal with the instruction.
+		
 	}
 	
 	input_testcase->close ();

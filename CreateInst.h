@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
 #include "Instruction.h"
 
 using namespace std;
@@ -15,11 +14,15 @@ class CreateInst : public Instruction {
 		
 		string tableName;
 		
-		vector<string> attributeNames;
+		string attributeNames[10];
 		
-		vector<string> attributeTypes;
+		int attributeTypes[10];	//Decide whether type is valid in Parser.
+								// 0 = int, 1 = varchar
+		int varCharSizes[10];	//Decide whether size is valid in Parser.
 		
-		vector<bool> isPK;
+		bool isPK[10];	//Decide whether PK or not in Parser.
+		
+		int attributeNum;
 		
 	private:
 		
