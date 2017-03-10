@@ -20,10 +20,11 @@ int main () {
 	
 	while(!instructionSet->isEmpty()){
 		//cout << "I am in" << endl;
-		Instruction* instruction = parser.ParseSingleInstruction(instructionSet->popInstruction());
-		cout << instruction->getInstructionString () << endl;
+		//Instruction* instruction = parser.ParseSingleInstruction(instructionSet->popInstruction());
+		Instruction instruction = instructionSet->popInstruction();
+		cout << instruction.getInstructionString () << endl;
 
-		switch(instruction->type){
+		switch(instruction.type){
 			case CREATE :
 				
 				break;

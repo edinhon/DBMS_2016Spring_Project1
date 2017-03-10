@@ -30,9 +30,7 @@ Instruction InstructionSet::popInstruction()
 //--------------
 void InstructionSet::pushInstruction(Instruction c)
 {
-	cout << "	pushing" << endl;
 	instructionQueue->push(c);
-	cout << "	end of push" << endl;
 }
 
 //--------------

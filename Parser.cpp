@@ -35,11 +35,8 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 	    if (instructionSlicingFlag) {
 	    	Instruction* instruction = new Instruction ();
 	    	instruction->setInstructionString (*instructionBuffer);
-	    	//cout << instruction->getInstructionString () << endl;
-	    	cout << "ready to push" << endl;
 	    	instructionSet->pushInstruction (*instruction);
-	    	cout << "end of push" << endl;
-	    	
+	    	//cout << instructionSet->popInstruction().getInstructionString () << endl;
 	    	instructionBuffer = new string ();
 	    	instructionSlicingFlag = false;
 	    }

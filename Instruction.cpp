@@ -8,8 +8,8 @@ Instruction::Instruction()
 
 Instruction::~Instruction()
 {
-	termTokens->clear();
-	delete termTokens;
+	//termTokens->clear();
+	//delete termTokens;
 }
 
 //----------------
