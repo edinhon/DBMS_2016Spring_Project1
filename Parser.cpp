@@ -20,6 +20,7 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 	char* trying;
 	int flag = 0;
 	while (getline (*inputFile, inputString, ';')) {
+		cout << inputString << endl;
 		flag += 1;
 		Instruction* instruction = new Instruction();
 		string slicedString = "\0";
@@ -36,11 +37,12 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 			instruction->termTokens.push(stringBuffer);
 	        trying = strtok (NULL, ",");
 		}
-		
+		cout << flag << endl;
 		//cout << slicedString << endl;
 		instruction->setInstructionString(slicedString);
 		instructionSet->pushInstruction(*instruction);
 	}
+	
 	return instructionSet;
 }
 
