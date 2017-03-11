@@ -6,6 +6,7 @@
 #include "CreateInst.h"
 #include "InsertInst.h"
 #include "Table.h"
+#include "TableSet.h"
 
 using namespace std;
 
@@ -18,6 +19,7 @@ int main () {
 
 	Parser parser;
 	InstructionSet* instructionSet;
+	TableSet tableSet;
 	
 	instructionSet = parser.ParseAllInstructions(input_testcase);
 	
@@ -34,7 +36,8 @@ int main () {
 					//cast down : From Instruction to CreateInst
 					CreateInst *cinst = dynamic_cast<CreateInst*> (inst);
 					Table t(cinst);
-					cout << t.getTableName() << endl;
+					tableSet.PushTable(t);
+					cout << t.getTableName() << "=" << tableSet.GetTable(0)->getTableName() << endl;
 					break;
 				}
 				case INSERT :{
