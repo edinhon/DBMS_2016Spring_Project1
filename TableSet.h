@@ -11,9 +11,9 @@ using namespace std;
 class TableSet {
 	public:
 		
-		TableSet();
+		TableSet(){tableVector.clear();};
 		
-		~TableSet();
+		~TableSet(){tableVector.clear();};
 		
 		//---------------
 		// void PushTable(Table)
@@ -41,6 +41,6 @@ class TableSet {
 		
 	private:
 		
-		vector<string> tableVector;
+		vector<Table> tableVector;
 };
 #endif
