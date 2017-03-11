@@ -14,6 +14,8 @@ Table::Table(CreateInst *cinst)
 		a.name = cinst->attributeNames[i];
 		a.type = cinst->attributeTypes[i];
 		a.isPK = cinst->isPK[i];
+		if(a.isPK) 
+			PKIndexes.push_back(i);
 		a.varCharSize = cinst->varCharSizes[i];
 		
 		attributes.push_back(a);
@@ -80,10 +82,39 @@ void Table::InsertTuple(InsertInst *iinst)
 // bool CheckInsertInst(InsertInst)
 //		Check this INSERT is valid or not.
 //		Like duplicate PK, or different attributes number of
-//	instruction without attribute name.
+//	instruction without attribute name, or different type of
+//	attribute of instruction, or different attribute names 
+//	of instruction with attribute names.
 //--------------
 bool Table::CheckInsertInst(InsertInst *iinst)
 {
+	
+	if(!iinst->isWithName){
+		
+		//Check attribute value number of instruction without attribute name.
+		if(attributes.size() != iinst->attributeValueNum)
+			return false;
+		
+		//Check attribute type of instruction without attribute name.
+		
+	} else {
+		
+		//Check attribute name of instruction with attribute name.
+		
+		//Check attribute type of instruction with attribute name.
+		
+	}
+	
+	
+	
+	//Check duplicate PK.
+	for (int i = 0 ; i < tuples.size() ; i++){
+		for(int j = 0 ; j < PKIndexes.size() ; j++){
+			if(tuples[i].values[j].value.compare(iinst->attributeValues[j]) == 0)
+				return false;
+		}
+	}
+	
 	return true;
 }
 

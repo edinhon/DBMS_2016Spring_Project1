@@ -23,6 +23,10 @@ class InsertInst : public Instruction {
 		
 		bool isWithName;
 		
+		int attributeNameNum;
+		
+		int attributeValueNum;
+		
 	private:
 		
 		
