@@ -3,12 +3,12 @@
 
 Instruction::Instruction()
 {
-	isLegal = false;
+	isValid = true;
 }
 
 Instruction::Instruction (Instruction const &that)
 {
-	isLegal = that.isLegal;
+	isValid = that.isValid;
 	type = that.type;
 	instructionString = that.instructionString;
 	termTokens = that.termTokens;
@@ -23,7 +23,7 @@ Instruction::~Instruction()
 Instruction& Instruction::operator= (Instruction const &that)
 {
 	if (this != &that) {
-		isLegal = that.isLegal;
+		isValid = that.isValid;
 		type = that.type;
 		instructionString = that.instructionString;
 		termTokens = that.termTokens;

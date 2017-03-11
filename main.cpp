@@ -3,6 +3,10 @@
 #include "Parser.h"
 #include "Instruction.h"
 #include "InstructionSet.h"
+#include "CreateInst.h"
+#include "InsertInst.h"
+#include "Table.h"
+#include "TableSet.h"
 
 using namespace std;
 
@@ -15,13 +19,14 @@ int main () {
 
 	Parser parser;
 	InstructionSet* instructionSet;
+	TableSet tableSet;
 	
 	instructionSet = parser.ParseAllInstructions(input_testcase);
 	
 	while(!instructionSet->isEmpty()){
 		// fetch instructions
 		Instruction instruction = instructionSet->fetchInstruction();
-		//cout << instruction.getInstructionString () << endl;
+		cout << instruction.getInstructionString () << endl;
 		parser.ParseSingleInstruction(instruction);
 		
 		switch(instruction.type){

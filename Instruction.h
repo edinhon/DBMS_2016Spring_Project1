@@ -13,7 +13,7 @@ class Instruction {
 		Instruction();
 		Instruction (Instruction const &that);
 		
-		~Instruction();
+		virtual ~Instruction();
 		
 		Instruction& operator= (Instruction const &that);
 
@@ -41,7 +41,7 @@ class Instruction {
 		//----------------
 		vector<string> getTermTokens();
 
-		bool isLegal;
+		bool isValid;
 		
 		int type;
 		

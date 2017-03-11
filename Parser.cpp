@@ -4,6 +4,8 @@
 #include <string>
 #include <cstring>
 #include "Parser.h"
+#include "CreateInst.h"
+#include "InsertInst.h"
 
 
 //---------------------------
@@ -52,9 +54,16 @@ void Parser::ParseSingleInstruction(Instruction instruction)
 	trying = strtok (charBuffer," ,"); //忽略縮排
 	while (trying != NULL) {
 		//cout << trying << endl;
-		instruction.
+		//instruction.setInstructionString ()
 	    trying = strtok (NULL, " ,");
 	}
 
 	return;
+	
+	//Instruction* instruction = new Instruction();
+	/*
+	CreateInst *instruction = new CreateInst();
+	instruction->tableName = "TABLE~~~~~~~~";
+	return instruction;
+	*/
 }

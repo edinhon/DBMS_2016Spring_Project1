@@ -13,4 +13,4 @@ SRC: $(SRCS)
 .PHONY :
 	clean
 clean: 
-	rm DBMSProject1.exe *.o
+	rm DBMSProject1 DBMSProject1.exe *.o 
