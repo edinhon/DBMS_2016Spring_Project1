@@ -19,11 +19,11 @@ int main () {
 	instructionSet = parser.ParseAllInstructions(input_testcase);
 	
 	while(!instructionSet->isEmpty()){
-		//cout << "I am in" << endl;
-		//Instruction* instruction = parser.ParseSingleInstruction(instructionSet->popInstruction());
-		Instruction instruction = instructionSet->popInstruction();
-		cout << instruction.getInstructionString () << endl;
-
+		// fetch instructions
+		Instruction instruction = instructionSet->fetchInstruction();
+		//cout << instruction.getInstructionString () << endl;
+		parser.ParseSingleInstruction(instruction);
+		
 		switch(instruction.type){
 			case CREATE :
 				
@@ -36,6 +36,7 @@ int main () {
 				break;
 		}
 		//TODO: Deal with the instruction.
+		instructionSet->popInstruction ();
 	}
 	
 	input_testcase->close ();

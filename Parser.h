@@ -26,7 +26,7 @@ class Parser {
 		// Instruction ParseSingleInstruction(Instruction)
 		//		Parse single instruction into instruction terms set.
 		//---------------------------
-		Instruction* ParseSingleInstruction(Instruction c);
+		void ParseSingleInstruction(Instruction c);
 		
 	private:
 		

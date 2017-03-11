@@ -6,10 +6,29 @@ Instruction::Instruction()
 	isLegal = false;
 }
 
+Instruction::Instruction (Instruction const &that)
+{
+	isLegal = that.isLegal;
+	type = that.type;
+	instructionString = that.instructionString;
+	termTokens = that.termTokens;
+}
+
 Instruction::~Instruction()
 {
 	//termTokens->clear();
 	//delete termTokens;
+}
+
+Instruction& Instruction::operator= (Instruction const &that)
+{
+	if (this != &that) {
+		isLegal = that.isLegal;
+		type = that.type;
+		instructionString = that.instructionString;
+		termTokens = that.termTokens;
+	}
+	return *this;
 }
 
 //----------------
@@ -34,7 +53,7 @@ string Instruction::getInstructionString()
 // void setTermTokens(vector<string>);
 //		Set tokens from instruction string.
 //----------------
-void Instruction::setTermTokens(vector<string> *v)
+void Instruction::setTermTokens(vector<string> v)
 {
 	termTokens = v;
 }
@@ -45,5 +64,5 @@ void Instruction::setTermTokens(vector<string> *v)
 //----------------
 vector<string> Instruction::getTermTokens()
 {
-	return *termTokens;
+	return termTokens;
 }

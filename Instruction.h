@@ -11,9 +11,12 @@ class Instruction {
 	public:
 		
 		Instruction();
+		Instruction (Instruction const &that);
 		
 		~Instruction();
 		
+		Instruction& operator= (Instruction const &that);
+
 		//----------------
 		// void setInstructionString(string)
 		//		Set complete single instruction string.
@@ -30,14 +33,14 @@ class Instruction {
 		// void setTermTokens(vector<string>);
 		//		Set tokens from instruction string.
 		//----------------
-		void setTermTokens(vector<string>*);
+		void setTermTokens(vector<string>);
 		
 		//----------------
 		// vector<string> getTermTokens();
 		//		Get tokens to run this instruction.
 		//----------------
 		vector<string> getTermTokens();
-		
+
 		bool isLegal;
 		
 		int type;
@@ -46,7 +49,7 @@ class Instruction {
 		
 		string instructionString;
 		
-		vector<string> *termTokens;
+		vector<string> termTokens;
 		
 };
 #endif

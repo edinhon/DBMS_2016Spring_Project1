@@ -17,11 +17,15 @@ InstructionSet::~InstructionSet()
 // Instruction popInstruction()
 //		Get and delete the upper most instruction.
 //--------------
-Instruction InstructionSet::popInstruction()
+Instruction InstructionSet::fetchInstruction()
 {
-	Instruction i = instructionQueue->front();
-	instructionQueue->pop();
-	return i;
+	return instructionQueue->front();
+}
+
+void InstructionSet::popInstruction ()
+{
+	this->instructionQueue->pop();
+	return;
 }
 
 //--------------

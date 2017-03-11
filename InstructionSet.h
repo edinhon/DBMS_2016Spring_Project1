@@ -18,7 +18,8 @@ class InstructionSet {
 		// Instruction popInstruction()
 		//		Get and delete the upper most instruction.
 		//--------------
-		Instruction popInstruction();
+		Instruction fetchInstruction();
+		void popInstruction ();
 		
 		//--------------
 		// void pushInstruction(Instruction)
