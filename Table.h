@@ -65,7 +65,9 @@ class Table {
 		// bool CheckInsertInst(InsertInst)
 		//		Check this INSERT is valid or not.
 		//		Like duplicate PK, or different attributes number of
-		//	instruction without attribute name.
+		//	instruction without attribute name, or different type of
+		//	attribute of instruction, or different attribute names 
+		//	of instruction with attribute names.
 		//--------------
 		bool CheckInsertInst(InsertInst*);
 		
@@ -80,6 +82,8 @@ class Table {
 		string tableName;
 		
 		vector<Attribute> attributes;
+		
+		vector<int> PKIndexes;
 };
 #endif
 

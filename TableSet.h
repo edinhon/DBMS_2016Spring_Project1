@@ -39,6 +39,12 @@ class TableSet {
 		//---------------
 		Table* GetTable(int);
 		
+		//---------------
+		// bool CheckDuplicateTable(CreateInst*)
+		//		Check whether CREATE is valid by duplicate table name.
+		//---------------
+		bool CheckDuplicateTable(CreateInst*);
+		
 	private:
 		
 		vector<Table> tableVector;
