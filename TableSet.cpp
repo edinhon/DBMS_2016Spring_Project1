@@ -61,10 +61,10 @@ Table* TableSet::GetTable(int index)
 // bool CheckDuplicateTable(CreateInst*)
 //		Check whether CREATE is valid by duplicate table name.
 //---------------
-bool CheckDuplicateTable(CreateInst* cinst)
+bool TableSet::CheckDuplicateTable(CreateInst* cinst)
 {
 	for (vector<Table>::iterator it = tableVector.begin(); it != tableVector.end(); it++){
-		if(it->getTableName().compare(cinst.tableName) == 0){
+		if(it->getTableName().compare(cinst->tableName) == 0){
 			return false;
 		}
 	}

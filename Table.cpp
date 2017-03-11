@@ -92,7 +92,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 	if(!iinst->isWithName){
 		
 		//Check attribute value number of instruction without attribute name.
-		if(attributes.size() != iinst->attributeValueNum)
+		if((int)attributes.size() != iinst->attributeValueNum)
 			return false;
 		
 		//Check attribute type of instruction without attribute name.
@@ -108,8 +108,8 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 	
 	
 	//Check duplicate PK.
-	for (int i = 0 ; i < tuples.size() ; i++){
-		for(int j = 0 ; j < PKIndexes.size() ; j++){
+	for (int i = 0 ; i < (int)tuples.size() ; i++){
+		for(int j = 0 ; j < (int)PKIndexes.size() ; j++){
 			if(tuples[i].values[j].value.compare(iinst->attributeValues[j]) == 0)
 				return false;
 		}
