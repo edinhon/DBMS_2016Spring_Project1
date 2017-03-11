@@ -163,7 +163,7 @@ void Parser::ParseSingleInstruction(Instruction instruction)
 			table->attributeNum = currentAttribute-1;
 			break;
 	}
-	/*
+	
 	for (int i=0; i<10; i++) {
 		cout << "attribute name " << table->attributeNames[i] << ' ' 
 			<< "type " << table->attributeTypes[i] << ' '
@@ -172,7 +172,7 @@ void Parser::ParseSingleInstruction(Instruction instruction)
 			<< endl;
 	}
 	cout << "attribute numbers " << table->attributeNum << endl;
-	*/
+	
 	/*
 	switch (type) {
 		case CREATE_TABLE :
