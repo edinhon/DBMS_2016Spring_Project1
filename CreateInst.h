@@ -14,9 +14,9 @@ class CreateInst : public Instruction {
 		
 		~CreateInst(){};
 		
-		string tableName;
+		string tableName;	//Check whether table name is duplicate in TableSet.
 		
-		string attributeNames[10];
+		string attributeNames[10];	//Decide whether attribute names are duplicate in Parser.
 		
 		int attributeTypes[10];	//Decide whether type is valid in Parser.
 								// 0 = int, 1 = varchar
@@ -24,7 +24,7 @@ class CreateInst : public Instruction {
 		
 		bool isPK[10];	//Decide whether PK or not in Parser.
 		
-		int attributeNum;
+		int attributeNum;	//Check whether attribute number is <= 10 in Parser.
 		
 	private:
 		
