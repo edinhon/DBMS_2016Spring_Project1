@@ -22,11 +22,11 @@ int main () {
 	TableSet tableSet;
 	
 	instructionSet = parser.ParseAllInstructions(input_testcase);
-	
+		
 	while(!instructionSet->isEmpty()){
 		// fetch instructions
 		Instruction instruction = instructionSet->fetchInstruction();
-		cout << instruction.getInstructionString () << endl;
+		//cout << instruction.getInstructionString () << endl;
 		parser.ParseSingleInstruction(instruction);
 		
 		switch(instruction.type){

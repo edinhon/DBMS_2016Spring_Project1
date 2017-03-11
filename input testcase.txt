@@ -4,5 +4,5 @@ name varchar(20),
 gender varchar(1)
 );
 
-CREATE TABLE Person (          person_id int PRIMARY KEY, 
-name varchar(20),  gender varchar(1));
+CREATE TABLE Person (          person_id int, 
+name varchar(20),  gender varchar(1)PRIMARY KEY);

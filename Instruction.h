@@ -1,9 +1,14 @@
 #ifndef INSTRUCTION_H
 #define INSTRUCTION_H
 
+#define CREATE_TABLE 0
+#define INSERT_INSTRUCTION 1
+#define SELECTION 2
+
 #include <iostream>
 #include <string>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -33,23 +38,26 @@ class Instruction {
 		// void setTermTokens(vector<string>);
 		//		Set tokens from instruction string.
 		//----------------
-		void setTermTokens(vector<string>);
+		void setTermTokens(string);
 		
 		//----------------
 		// vector<string> getTermTokens();
 		//		Get tokens to run this instruction.
 		//----------------
-		vector<string> getTermTokens();
+		string getTermTokens();
 
 		bool isValid;
 		
 		int type;
+
+		queue<string> termTokens;
 		
 	private:
 		
 		string instructionString;
 		
-		vector<string> termTokens;
-		
 };
+
+bool checkStringWithoutCase (string, string);
+bool checkIfIsNumber (string);
 #endif

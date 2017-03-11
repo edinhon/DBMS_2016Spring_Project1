@@ -11,6 +11,7 @@ class CreateInst : public Instruction {
 	public:
 		
 		CreateInst();
+		CreateInst(string const name);
 		
 		~CreateInst(){};
 		

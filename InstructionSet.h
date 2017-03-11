@@ -32,9 +32,7 @@ class InstructionSet {
 		//		Check the queue is empty or not.
 		//--------------
 		bool isEmpty();
-		
-	private:
-	
 		queue<Instruction> *instructionQueue;
+	private:
 };
 #endif

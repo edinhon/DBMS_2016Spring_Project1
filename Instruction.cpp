@@ -53,16 +53,45 @@ string Instruction::getInstructionString()
 // void setTermTokens(vector<string>);
 //		Set tokens from instruction string.
 //----------------
-void Instruction::setTermTokens(vector<string> v)
+void Instruction::setTermTokens(string term)
 {
-	termTokens = v;
+	termTokens.push(term);
 }
 
 //----------------
 // vector<string> getTermTokens();
 //		Get tokens to run this instruction.
 //----------------
-vector<string> Instruction::getTermTokens()
+string Instruction::getTermTokens()
 {
-	return termTokens;
+	string tmpt = termTokens.front();
+	termTokens.pop();
+	return tmpt;
+}
+
+bool checkStringWithoutCase (string A, string B)
+{
+	bool trueOfFalse = true;
+	if (A.size() != B.size())
+		return false;
+
+	for (int i=0; i<A.size(); i++) {
+		if (A[i] == B[i])
+			continue;
+		else if (A[i]+32 == B[i])
+			continue;
+		else if (B[i]+32 == A[i])
+			continue;
+		else
+			return false;
+	}
+	return trueOfFalse;
+}
+bool checkIfIsNumber (string A)
+{
+	for (int i=0; i<A.size(); i++)
+		if (A[i] < '0' || A[i] > '9')
+			return false;
+
+	return true;
 }
