@@ -27,7 +27,8 @@ class InsertInst : public Instruction {
 		
 		int attributeNameNum;	//If without attribute name, set this to -1.
 		
-		int attributeValueNum;	//Decide in Parser.
+		int attributeValueNum;	//Decide in Parser. 
+								//Note: this variable should be equal to attributeNameNum.
 		
 	private:
 		

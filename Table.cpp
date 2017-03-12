@@ -141,10 +141,55 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		
 	} else {
 		
-		//Check attribute name of instruction with attribute name.
+		//Check attribute name and type of instruction with attribute name.
+		//Check varchar size.
+		bool nameChecker;
+		for (int i = 0 ; i < iinst->attributeNameNum ; i++){
+			nameChecker = false;
+			string n1 = iinst->attributeNames[i];
+			transform(n1.begin(), n1.end(), n1.begin(), ::tolower);
+			for (int j = 0 ; j < (int)attributes.size() ; j++){
+				string n2 = attributes[j].name;
+				transform(n2.begin(), n2.end(), n2.begin(), ::tolower);
+				if (n1.compare(n2) == 0){
+					//For name
+					nameChecker = true;	
+					//For type
+					if (attributes[j].type != iinst->attributeValueTypes[i])
+						return false;
+					//For varchar size
+					if(attributes[j].type == 1 && 
+						((int)(iinst->attributeValues[i].size()) > attributes[j].varCharSize))
+						return false;
+				}
+			}
+			if(nameChecker == false)
+				return false;
+		}
 		
-		//Check attribute type of instruction with attribute name.
-		
+		//Check NULL value and duplicate value of PK.
+		//Check duplicate PK without attribute name.
+		bool nullPKChecker;
+		for (int i = 0 ; i < (int)PKIndexes.size() ; i++){
+			nullPKChecker = false;
+			string n1 = attributes[i].name;
+			transform(n1.begin(), n1.end(), n1.begin(), ::tolower);
+			for (int j = 0 ; j < iinst->attributeNameNum ; j++){
+				string n2 = iinst->attributeNames[i];
+				transform(n2.begin(), n2.end(), n2.begin(), ::tolower);
+				if(n1.compare(n2) == 0){
+					//For NULL
+					nullPKChecker = true;
+					//For duplicate
+					for (int k = 0 ; k < (int)tuples.size() ; k++){
+						if(tuples[k].values[i].value.compare(iinst->attributeValues[j]) == 0)
+							return false;
+					}
+				}
+			}
+			if(nullPKChecker == false)
+				return false;
+		}
 	}
 	
 	return true;
