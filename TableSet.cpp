@@ -19,10 +19,11 @@ void TableSet::PushTable(Table t)
 //---------------
 int TableSet::SearchTable(string tableName)
 {
+	string n1 = tableName;
+	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+	
 	for (vector<Table>::iterator it = tableVector.begin(); it != tableVector.end(); it++){
-		string n1 = it->getTableName();
-		transform(n1.begin(), n1.end(), n1.begin(),::tolower);
-		string n2 = tableName;
+		string n2 = it->getTableName();
 		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
 		
 		if(n1.compare(n2) == 0){
@@ -40,10 +41,11 @@ int TableSet::SearchTable(string tableName)
 //---------------
 Table* TableSet::GetTable(string tableName)
 {
+	string n1 = tableName;
+	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+	
 	for (int i = 0 ; i < (int)tableVector.size() ; i++){
-		string n1 = tableVector[i].getTableName();
-		transform(n1.begin(), n1.end(), n1.begin(),::tolower);
-		string n2 = tableName;
+		string n2 = tableVector[i].getTableName();
 		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
 		
 		if(n1.compare(n2) == 0){
@@ -74,11 +76,13 @@ Table* TableSet::GetTable(int index)
 //---------------
 bool TableSet::CheckDuplicateTable(CreateInst* cinst)
 {
+	string n1 = cinst->tableName;
+	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+	
 	for (vector<Table>::iterator it = tableVector.begin(); it != tableVector.end(); it++){
-		string n1 = it->getTableName();
-		transform(n1.begin(), n1.end(), n1.begin(),::tolower);
-		string n2 = cinst->tableName;
+		string n2 = it->getTableName();
 		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+		
 		if(n1.compare(n2) == 0){
 			cout << "Error: There exists a table with the same name of this CREATE instruction\n";
 			return false;

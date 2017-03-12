@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "Table.h"
 
 //--------------
@@ -45,10 +46,20 @@ void Table::Tuple::setValue(int index, string value)
 //--------------
 void Table::Tuple::setValue(string name, string value)
 {
+	string n1 = name;
+	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+	
 	for(vector<Attribute>::iterator it = values.begin(); it != values.end(); it++){
-		if(it->name.compare(name) == 0)
+		string n2 = it->name;
+		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+		
+		if(n1.compare(n2) == 0){
 			it->value = value;
-	}
+			return;
+		}
+	} 
+	
+	cout << "Error: Cannot find this attribute name." << endl;
 }
 
 //--------------
@@ -57,8 +68,14 @@ void Table::Tuple::setValue(string name, string value)
 //--------------
 string Table::Tuple::getValue(string name)
 {
+	string n1 = name;
+	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+	
 	for(vector<Attribute>::iterator it = values.begin(); it != values.end(); it++){
-		if(it->name.compare(name) == 0)
+		string n2 = it->name;
+		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+		
+		if(n1.compare(n2) == 0)
 			return it->value;
 	}
 	
@@ -118,7 +135,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		//Check varchar size.
 		for (int i = 0 ; i < (int)attributes.size() ; i++){
 			if(attributes[i].type == 1 && 
-				iinst->attributeValues[i].size() > attributes[i].varCharSize)
+				((int)(iinst->attributeValues[i].size()) > attributes[i].varCharSize))
 				return false;
 		}
 		
