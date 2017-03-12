@@ -22,7 +22,6 @@ int main () {
 	TableSet tableSet;
 	
 	instructionSet = parser.ParseAllInstructions(input_testcase);
-	cout << "Queue size = " << instructionSet->instructionQueue->size() << "---------------------------\n";
 		
 	while(!instructionSet->isEmpty()){
 		// fetch instructions
@@ -32,6 +31,7 @@ int main () {
 		switch(inst->type){
 			case CREATE :{
 				CreateInst *cinst = dynamic_cast<CreateInst*>(inst);
+				
 				if (tableSet.CheckDuplicateTable(cinst)){
 					Table t(cinst);
 					tableSet.PushTable(t);
@@ -41,9 +41,14 @@ int main () {
 			}
 			case INSERT :{
 				InsertInst *iinst = dynamic_cast<InsertInst*>(inst);
+				
 				int tableIndex = tableSet.SearchTable(iinst->tableName);
 				if (tableIndex != -1){
+					Table *t = tableSet.GetTable(tableIndex);
 					
+					if(t->CheckInsertInst(iinst)) break;
+					
+					t->InsertTuple(iinst);
 				}
 				break;
 			}

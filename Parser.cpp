@@ -167,6 +167,11 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			return table;
 			break;
 		}
+		default:
+			Instruction *nullInst = new Instruction();
+			nullInst->isValid = false;
+			return nullInst;
+			break;
 	}
 	
 	for (int i=0; i<10; i++) {
