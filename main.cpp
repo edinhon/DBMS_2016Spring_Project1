@@ -32,7 +32,7 @@ int main () {
 		switch(inst->type){
 			case CREATE :{
 				CreateInst *cinst = dynamic_cast<CreateInst*>(inst);
-				if(tableSet.CheckDuplicateTable(cinst)){
+				if (tableSet.CheckDuplicateTable(cinst)){
 					Table t(cinst);
 					tableSet.PushTable(t);
 					cout << t.getTableName() << endl;
@@ -40,7 +40,11 @@ int main () {
 				break;
 			}
 			case INSERT :{
-				
+				InsertInst *iinst = dynamic_cast<InsertInst*>(inst);
+				int tableIndex = tableSet.SearchTable(iinst->tableName);
+				if (tableIndex != -1){
+					
+				}
 				break;
 			}
 			case SELECT :{

@@ -92,10 +92,35 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 	if(!iinst->isWithName){
 		
 		//Check attribute value number of instruction without attribute name.
-		if((int)attributes.size() != iinst->attributeValueNum)
+		if ((int)attributes.size() != iinst->attributeValueNum)
 			return false;
 		
 		//Check attribute type of instruction without attribute name.
+		for (int i = 0 ; i < (int)attributes.size() ; i++){
+			if(attributes[i].type != iinst->attributeValueTypes[i])
+				return false;
+		}
+		
+		//Check NULL value of PK.
+		for (int i = 0 ; i < (int)PKIndexes.size() ; i++){
+			if (iinst->attributeValues[i].compare("") == 0)
+				return false;
+		}
+		
+		//Check duplicate PK without attribute name.
+		for (int i = 0 ; i < (int)tuples.size() ; i++){
+			for(int j = 0 ; j < (int)PKIndexes.size() ; j++){
+				if(tuples[i].values[j].value.compare(iinst->attributeValues[j]) == 0)
+					return false;
+			}
+		}
+		
+		//Check varchar size.
+		for (int i = 0 ; i < (int)attributes.size() ; i++){
+			if(attributes[i].type == 1 && 
+				iinst->attributeValues[i].size() > attributes[i].varCharSize)
+				return false;
+		}
 		
 	} else {
 		
@@ -103,16 +128,6 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		
 		//Check attribute type of instruction with attribute name.
 		
-	}
-	
-	
-	
-	//Check duplicate PK.
-	for (int i = 0 ; i < (int)tuples.size() ; i++){
-		for(int j = 0 ; j < (int)PKIndexes.size() ; j++){
-			if(tuples[i].values[j].value.compare(iinst->attributeValues[j]) == 0)
-				return false;
-		}
 	}
 	
 	return true;

@@ -7,5 +7,5 @@ gender varchar(1)
 CREATE TABLE Person (          person_id int, 
 name varchar(20),  gender varchar(1)PRIMARY KEY);
 
-CREATE TABLE Person (          person_id int, 
+CREATE TABLE Person1 (          person_id int, 
 name varchar(20)PRIMARY KEY,  gender varchar(1));

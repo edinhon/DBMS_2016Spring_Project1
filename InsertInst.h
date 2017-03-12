@@ -15,17 +15,19 @@ class InsertInst : public Instruction {
 		
 		~InsertInst(){};
 		
-		string tableName;
+		string tableName;	//Check whether table name is duplicate in TableSet.
 		
-		string attributeNames[10];
+		string attributeNames[10];	//Decide whether attribute names are duplicate in Parser.
 		
-		string attributeValues[10];
+		string attributeValues[10];	//TODO: 如果是varchar，不要把''也放進來
 		
-		bool isWithName;
+		int attributeValueTypes[10];	//Check the value type by '' or not in Parser.
+										//0 = int, 1 = varchar
+		bool isWithName;	//Check whether INSERT is with attribute name or not in Parser.
 		
-		int attributeNameNum;
+		int attributeNameNum;	//If without attribute name, set this to -1.
 		
-		int attributeValueNum;
+		int attributeValueNum;	//Decide in Parser.
 		
 	private:
 		
