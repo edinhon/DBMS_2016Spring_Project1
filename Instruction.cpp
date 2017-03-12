@@ -75,7 +75,7 @@ bool checkStringWithoutCase (string A, string B)
 	if (A.size() != B.size())
 		return false;
 
-	for (int i=0; i<A.size(); i++) {
+	for (int i=0; i< (int)A.size(); i++) {
 		if (A[i] == B[i])
 			continue;
 		else if (A[i]+32 == B[i])
@@ -89,7 +89,7 @@ bool checkStringWithoutCase (string A, string B)
 }
 bool checkIfIsNumber (string A)
 {
-	for (int i=0; i<A.size(); i++)
+	for (int i=0; i< (int)A.size(); i++)
 		if (A[i] < '0' || A[i] > '9')
 			return false;
 

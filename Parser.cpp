@@ -21,6 +21,7 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 	int flag = 0;
 	while (getline (*inputFile, inputString, ';')) {
 		cout << inputString << endl;
+		cout << "size = " << inputString.size() << endl;
 		flag += 1;
 		Instruction* instruction = new Instruction();
 		string slicedString = "\0";
@@ -91,7 +92,7 @@ void Parser::ParseSingleInstruction(Instruction instruction)
 	}
 	//cout << instruction.getTermTokens() << endl;
 	switch (type) {
-		case CREATE_TABLE :
+		case CREATE_TABLE :{
 			bool finishOneAttribute = false;
 			int currentAttribute = 0;
 
@@ -141,7 +142,7 @@ void Parser::ParseSingleInstruction(Instruction instruction)
 						parsing.pop();
 
 						int length = 0;
-						for (int i=0; i<tmpt.size(); i++) {
+						for (int i=0; i< (int)tmpt.size(); i++) {
 							length *= 10;
 							length += tmpt[i] - '0';
 						}
@@ -164,6 +165,7 @@ void Parser::ParseSingleInstruction(Instruction instruction)
 			}
 			table->attributeNum = currentAttribute-1;
 			break;
+		}
 	}
 	
 	for (int i=0; i<10; i++) {

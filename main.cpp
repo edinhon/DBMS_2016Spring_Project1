@@ -22,6 +22,7 @@ int main () {
 	TableSet tableSet;
 	
 	instructionSet = parser.ParseAllInstructions(input_testcase);
+	cout << "Queue size = " << instructionSet->instructionQueue->size() << "---------------------------\n";
 		
 	while(!instructionSet->isEmpty()){
 		// fetch instructions
