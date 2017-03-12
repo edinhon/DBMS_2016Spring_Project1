@@ -48,10 +48,10 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 }
 
 //---------------------------
-// Instruction ParseSingleInstruction(Instruction)
+// Instruction* ParseSingleInstruction(Instruction)
 //		Parse single instruction into instruction terms set.
 //---------------------------
-void Parser::ParseSingleInstruction(Instruction instruction)
+Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 {
 	//TODO: Decide which type of this instruction, 
 	//	and new a corresponding instruction class, 
@@ -86,7 +86,7 @@ void Parser::ParseSingleInstruction(Instruction instruction)
 				break;
 			} else {
 				cout << "valid instruction on creating table\n";
-				return;
+				return nullptr;
 			}
 		}
 	}
@@ -116,11 +116,11 @@ void Parser::ParseSingleInstruction(Instruction instruction)
 							finishOneAttribute = true;
 							if (!parsing.empty()) { //primary key後面應該要沒東西
 								cout << "primary key後面應該要沒東西\n"; //note that already pop
-								return;	
+								return nullptr;	
 							}
 						} else if (parsing.empty())	{//primary 打一半  
 							cout << "primary  打一半！\n";
-							return;
+							return nullptr;
 						} else { // an attribute named primary
 							table->attributeNames[currentAttribute] = tmpt;
 						}
@@ -130,13 +130,13 @@ void Parser::ParseSingleInstruction(Instruction instruction)
 							finishOneAttribute = true;
 						} else if (!checkStringWithoutCase(parsing.front(), "primary")) {	//int 後面有東西，非 primary key
 							cout << "int 後面有東西，非 primary key!\n";
-							return;
+							return nullptr;
 						}
 					} else if (checkStringWithoutCase(tmpt, "varchar")) {
 						table->attributeTypes[currentAttribute] = 1;	//found char
 						if (parsing.empty()) { //varchar 後面沒有接東西
 							cout << "varchar 後面沒有接東西\n";
-							return;
+							return nullptr;
 						}
 						tmpt = parsing.front();
 						parsing.pop();
@@ -152,7 +152,7 @@ void Parser::ParseSingleInstruction(Instruction instruction)
 						else if (!checkStringWithoutCase(parsing.front(), "primary")) { //check後面有沒有primary key
 							//if not, invalid
 							cout << "varchar後面出現primary以外的東西\n";
-							return;
+							return nullptr;
 						} 
 					} else 
 						table->attributeNames[currentAttribute] = tmpt;
@@ -164,6 +164,7 @@ void Parser::ParseSingleInstruction(Instruction instruction)
 				}
 			}
 			table->attributeNum = currentAttribute-1;
+			return table;
 			break;
 		}
 	}
@@ -224,5 +225,5 @@ void Parser::ParseSingleInstruction(Instruction instruction)
 	}
 */
 	
-	return;
+	return nullptr;
 }

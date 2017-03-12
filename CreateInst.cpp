@@ -3,6 +3,7 @@
 
 CreateInst::CreateInst()
 {
+	type = 0;
 	tableName = "\0";
 		
 	for (int i=0; i<10; i++)
@@ -19,6 +20,7 @@ CreateInst::CreateInst()
 
 CreateInst::CreateInst(string const name)
 {
+	type = 0;
 	tableName = name;
 		
 	for (int i=0; i<10; i++)

@@ -27,19 +27,26 @@ int main () {
 	while(!instructionSet->isEmpty()){
 		// fetch instructions
 		Instruction instruction = instructionSet->fetchInstruction();
-		//cout << instruction.getInstructionString () << endl;
-		parser.ParseSingleInstruction(instruction);
+		Instruction *inst = parser.ParseSingleInstruction(instruction);
 		
-		switch(instruction.type){
-			case CREATE :
+		switch(inst->type){
+			case CREATE :{
+				CreateInst *cinst = dynamic_cast<CreateInst*>(inst);
+				if(tableSet.CheckDuplicateTable(cinst)){
+					Table t(cinst);
+					tableSet.PushTable(t);
+					cout << t.getTableName() << endl;
+				}
+				break;
+			}
+			case INSERT :{
 				
 				break;
-			case INSERT :
+			}
+			case SELECT :{
 				
 				break;
-			case SELECT :
-				
-				break;
+			}
 		}
 		//TODO: Deal with the instruction.
 		instructionSet->popInstruction ();
