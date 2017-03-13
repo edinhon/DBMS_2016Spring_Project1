@@ -121,6 +121,10 @@ void Table::InsertTuple(InsertInst *iinst)
 //--------------
 bool Table::CheckInsertInst(InsertInst *iinst)
 {
+	if(iinst->insertedAttributes.size() != iinst->insertedValues.size()){
+		cout << "Error: INSERT attribute name number doesn't match to value number\n";
+		return false;
+	}
 	
 	if(!iinst->isWithName){
 		
@@ -235,3 +239,9 @@ string Table::getTableName()
 {
 	return tableName;
 }
+
+void Table::ShowTable()
+{
+	
+}
+

@@ -77,7 +77,7 @@ class Table {
 		
 		string getTableName();
 
-		void show ();
+		void ShowTable();
 		
 	private:
 		
