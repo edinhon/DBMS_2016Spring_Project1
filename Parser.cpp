@@ -17,26 +17,29 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 {
 	InstructionSet* instructionSet = new InstructionSet ();
 	string inputString;
-	char* trying;
+
 	while (getline (*inputFile, inputString, ';')) {
 		Instruction* instruction = new Instruction();
 		string slicedString = "\0";
 		char charBuffer[1000];
+		bool first = true;
+		char* trying;
 
 		strcpy(charBuffer, inputString.c_str());
-		trying = strtok (charBuffer,",("); //忽略縮排
+		trying = strtok (charBuffer,","); //忽略縮排
 		while (trying != NULL) { 
 			string stringBuffer (trying);
-			slicedString += " ";
+			
 			slicedString += stringBuffer;
-			instruction->termTokens.push(stringBuffer);
+			instruction->setTermTokens(stringBuffer);
+			first = false;
 	        trying = strtok (NULL, ",");
 		}
 		//cout << slicedString << endl;
 		instruction->setInstructionString(slicedString);
 		instructionSet->pushInstruction(*instruction);
 	}
-	
+	//cout << "End parsing input case\n#######\n#######" << endl;
 	return instructionSet;
 }
 
@@ -53,9 +56,11 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 	CreateInst *table;
 	InsertInst *tuple;
 	int type = -1;
-
+	int tableSize = -1;
+	/*
 	string inputString = instruction.getTermTokens();
 	queue <string> parsing;
+
 	char* trying;
 	char charBuffer[1000];
 	strcpy(charBuffer, inputString.c_str());
@@ -65,203 +70,190 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 		parsing.push((string)trying);
 		trying = strtok (NULL, " \n()");
 	}
-	
-	while (!parsing.empty()) {
-		string tmpt = parsing.front();
-		parsing.pop();
-		if (checkStringWithoutCase(tmpt, "create")) {
+	*/
+	while (!instruction.termTokens.empty()) {
+		string thisTerm = instruction.getTermTokens();
+		//cout << "###"<<thisTerm << endl;
+		instruction.popTermTokens();
+		
+		queue <string> parsing;
+		char* trying;
+		char charBuffer[1000];
+		strcpy(charBuffer, thisTerm.c_str());
+		trying = strtok (charBuffer," \n()"); //忽略縮排
+		while (trying != NULL) {
+			parsing.push((string)trying);
+			//printf("  %s\n", trying);
+			trying = strtok (NULL, " \n()");
+		}
+
+		if (checkStringWithoutCase(parsing.front(), "create")) {
+			parsing.pop();
+			//cout << parsing.front() << parsing.front().size() << endl;
+			
 			if (checkStringWithoutCase(parsing.front(), "table")) {
-				cout << "Create Table : ";
 				parsing.pop();
-				table = new CreateInst(parsing.front());
+				cout << "create table : " << parsing.front() << endl;
+				table = new CreateInst (parsing.front());
 				parsing.pop();
-				cout << table->tableName << endl;
 				type = CREATE_TABLE;
-				break;
-			} else {
-				cout << "valid instruction on creating table\n";
-				Instruction *nullInst = new Instruction();
-				nullInst->isValid = false;
-				return nullInst;
 			}
-		} else if (checkStringWithoutCase(tmpt, "insert")) {
+			else {
+				table = new CreateInst ();
+				table->isValid = false;
+				cout << "wrong instruction on create table : perhaps spelling" << endl;
+				return table;
+			}
+		} else if (checkStringWithoutCase(parsing.front(), "insert")) {
+			parsing.pop();
+			//cout << parsing.front() << parsing.front().size() << endl;
+			
 			if (checkStringWithoutCase(parsing.front(), "into")) {
-				cout << "Insert Table : ";
 				parsing.pop();
-				tuple = new InsertInst(parsing.front());
+				cout << "insert tuple into  : " << parsing.front() << endl;
+				tuple = new InsertInst (parsing.front());
 				parsing.pop();
-				cout << tuple->tableName << endl;
 				type = INSERT_TUPLE;
-				break;
-			} else {
-				cout << "valid instruction on inserting table\n";
-				Instruction *nullInst = new Instruction();
-				nullInst->isValid = false;
-				return nullInst;
+			}
+			else {
+				tuple = new InsertInst ();
+				tuple->isValid = false;
+				cout << "wrong instruction on insert tuple : perhaps spelling" << endl;
+				return tuple;
 			}
 		}
-	}
-	//cout << instruction.getTermTokens() << endl;
-	switch (type) {
-		case CREATE_TABLE :{
-			bool finishOneAttribute = false;
-			int currentAttribute = 0;
 
-			while (!instruction.termTokens.empty()) {
-				string tmpt = instruction.getTermTokens();
-				strcpy(charBuffer, tmpt.c_str());
-				trying = strtok (charBuffer," \n()"); //忽略縮排
-				while (trying != NULL) {
-						//string tmpt (trying);
-					parsing.push((string)trying);
-					trying = strtok (NULL, " \n()");
-				}
-				
+
+		switch (type) {
+			case CREATE_TABLE : {
+				//cout << "creating table " << endl;
+
+				int step = 1;
 				while (!parsing.empty()) {
-					tmpt = parsing.front ();
-					parsing.pop();
-					/*
-					if (checkStringWithoutCase(tmpt, "primary")) {
-						if (checkStringWithoutCase(parsing.front(), "key")) {
+					string tmpt = parsing.front();
+					cout << step << ' ' << tmpt << endl;
+					
+					switch (step) {
+						case 1 : {
+							table->attributeNames.push_back(tmpt);
+							table->attributeTypes.push_back(-1);
+							table->varCharSizes.push_back(-1);
+							table->isPK.push_back(false);
+							tableSize += 1;
 							parsing.pop();
-							table->isPK[currentAttribute] = true;
-							finishOneAttribute = true;
-							if (!parsing.empty()) { //primary key後面應該要沒東西
-								cout << "primary key後面應該要沒東西\n"; //note that already pop
-								table->isValid = false;
-								return table;
-							}
-						} else if (parsing.empty())	{//primary 打一半  
-							cout << "primary  打一半！\n";
-							table->isValid = false;
-							return table;
-						} else { // an attribute named primary
-							table->attributeNames[currentAttribute] = tmpt;
-						}
-					} else if (checkStringWithoutCase(tmpt, "int")) {	//found int
-						table->attributeTypes[currentAttribute] = 0;
-						if (parsing.empty()) {
-							finishOneAttribute = true;
-						} else if (!checkStringWithoutCase(parsing.front(), "primary")) {	//int 後面有東西，非 primary key
-							cout << "int 後面有東西，非 primary key!\n";
-							table->isValid = false;
-							return table;
-						}
-					} else if (checkStringWithoutCase(tmpt, "varchar")) {
-						table->attributeTypes[currentAttribute] = 1;	//found char
-						if (parsing.empty()) { //varchar 後面沒有接東西
-							cout << "varchar 後面沒有接東西\n";
-							table->isValid = false;
-							return table;
-						}
-						tmpt = parsing.front();
-						parsing.pop();
-
-						int length = 0;
-						for (int i=0; i< (int)tmpt.size(); i++) {
-							length *= 10;
-							length += tmpt[i] - '0';
-						}
-						if (length > 40) {
-							cout << "varchar length > 40!\n";
-							table->isValid = false;
-							return table;
-						}
-						table->varCharSizes[currentAttribute] = length;
-						if (parsing.empty())	//varchar 完了
-							finishOneAttribute = true;
-						else if (!checkStringWithoutCase(parsing.front(), "primary")) { //check後面有沒有primary key
-							//if not, invalid
-							cout << "varchar後面出現primary以外的東西\n";
-							table->isValid = false;
-							return table;
-							//return nullptr;
-						} 
-					} else 
-						table->attributeNames[currentAttribute] = tmpt;
-
-					if (finishOneAttribute) {
-						currentAttribute += 1;
-						finishOneAttribute = false;
-					}
-					*/
-				}
-			}
-			table->attributeNum = currentAttribute-1;
-			return table;
-			break;
-		}
-		case INSERT_TUPLE : {
-			queue <string> attributeNames;
-			queue <string> attributeValues;
-			int parsingOrder=0;
-
-			while (!instruction.termTokens.empty()) {
-				string tmpt = instruction.getTermTokens();
-				strcpy(charBuffer, tmpt.c_str());
-				trying = strtok (charBuffer," \n()"); //忽略縮排
-				while (trying != NULL) {
-
-					if (checkStringWithoutCase(parsing.back(), "values")) {
-							parsingOrder = 1;
-					} else if (checkStringWithoutCase((string)trying, "values")) {// 完整輸入 attributes 後的 value
-						//cout << "changed !! " << trying << endl;
-						parsingOrder = 1;
-						trying = strtok (NULL, " \n()");
-						continue;
-					}
-
-					switch (parsingOrder) {
-						case 0: {
-							tuple->insertedAttributes.push_back((string)trying);
-							printf("name : %s\n", trying);
+							step = 2;
 							break;
 						}
-						case 1: {
-							string tmpt (trying);
-							if (trying[0] == 39)
-								tmpt = tmpt.substr(1, tmpt.size()-2);
-							
-							tuple->insertedValues.push_back(tmpt);
+						case 2 : {
+							if (checkStringWithoutCase(tmpt, "int")) {
+								table->attributeTypes[tableSize] = 0;
+								table->varCharSizes[tableSize] = -1;
+								parsing.pop();
+								step = 4;
+							} else if (checkStringWithoutCase(tmpt, "varchar")) {
+								table->attributeTypes[tableSize] = 1;
+								parsing.pop();
+								step = 3;
+							}
+							break;
+						}
+						case 3 : {
+							int length = 0;
+							for (int i=0; i<tmpt.size(); i++) {
+								length *= 10;
+								length += tmpt[i] - '0';
+							}
+							table->varCharSizes[tableSize] = length;
+							parsing.pop();
+							step = 4;
+							break;
+						}
+						case 4 : {
+							if (checkStringWithoutCase(tmpt, "primary")) {
+								parsing.pop();
+								if (checkStringWithoutCase(parsing.front(), "key")) {
+									cout << "set primary key " << tableSize <<endl;
+									table->isPK[tableSize] = true;
+									parsing.pop();
+									step = 1;
+								}
+								else {
+									table->isPK[tableSize] = false;
+									//step = 1;
+								}
+							} else {
+								table->isPK[tableSize] = false;
+							}
 
-							cout << "value : " << tmpt << endl;
+							step = 1;
 							break;
 						}
 						default : {
-							cout << "why 跑到 default 呢呢呢呢呢\n";
-							break;
+							table->isValid = false;
+							cout << "wrong instruction on create table : perhaps spelling" << endl;
+							return table;
 						}
 					}
-					parsing.push((string)trying);
-					trying = strtok (NULL, " \n()");
+				
 				}
+
 			}
-			if (tuple->insertedAttributes.size() > 0 && (tuple->insertedAttributes.size() != tuple->insertedValues.size())) {
-				// not necessary to input attribute names
-				//cout << attributeNames.size() << ' ' << attributeValues.size() << endl;
-				cout << "name size != value size" << endl;
-				tuple->isValid = false;
-				return tuple; 
+			//--------
+			case INSERT_TUPLE : {
+				bool flag = false;
+				//cout << "inserting tuple" << endl;
+				while (!parsing.empty()) {
+					string tmpt = parsing.front();
+					if (checkStringWithoutCase(tmpt, "values")) {
+							flag = true;
+					}
+
+					if (!flag) {
+						tuple->insertedAttributes.push_back(tmpt);
+					} else {
+						string tmpt1;
+						if (tmpt[0] == 36) {
+							tmpt1 = tmpt.substr(1, tmpt.size()-1);
+							tuple->insertedValueTypes.push_back(1);
+							tuple->insertedValues.push_back(tmpt1);
+						} else {
+							tmpt1 =tmpt;
+							tuple->insertedValueTypes.push_back(0);
+							tuple->insertedValues.push_back(tmpt1);
+						}
+					}
+
+					cout << tmpt << endl;
+					parsing.pop();
+				}
+				break;
 			}
+			default : {
+				break;
+			}
+		}
+		
+	}
+
+	switch (type) {
+		case CREATE_TABLE : {
+			
+			cout << table->attributeNames.size() << ' ' << table->attributeTypes.size() << ' ' << table->varCharSizes.size() << ' ' << table->isPK.size() << endl;
+			
+			for (int i=0; i<table->varCharSizes.size(); i++)
+				cout << table->attributeNames[i] << ' ' << table->attributeTypes[i] << ' ' << table->varCharSizes[i] << ' ' << table->isPK[i] << endl;
+			table->isValid = true;
+
+			return table;
+		}
+		case INSERT_TUPLE : {
+
 			tuple->isValid = true;
 			return tuple;
-			break;
 		}
-		default:
-			Instruction *nullInst = new Instruction();
-			nullInst->isValid = false;
-			return nullInst;
-			break;
+		default : {
+			Instruction* nullinst = new Instruction();
+			return nullinst;
+		}
 	}
-	/*
-	for (int i=0; i<10; i++) {
-		cout << "attribute name " << table->attributeNames[i] << ' ' 
-			<< "type " << table->attributeTypes[i] << ' '
-			<< "length " << table->varCharSizes[i] << ' '
-			<< "pk " << table->isPK[i] << ' '
-			<< endl;
-	}
-	cout << "attribute numbers " << table->attributeNum << endl;
-	*/
-	return nullptr;
 }

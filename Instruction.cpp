@@ -3,7 +3,7 @@
 
 Instruction::Instruction()
 {
-	isValid = true;
+	isValid = false;
 }
 
 Instruction::Instruction (Instruction const &that)
@@ -65,15 +65,20 @@ void Instruction::setTermTokens(string term)
 string Instruction::getTermTokens()
 {
 	string tmpt = termTokens.front();
-	termTokens.pop();
+	//termTokens.pop();
 	return tmpt;
+}
+void Instruction::popTermTokens ()
+{
+	termTokens.pop();
 }
 
 bool checkStringWithoutCase (string A, string B)
 {
 	bool trueOfFalse = true;
-	if (A.size() != B.size())
+	if (A.size() != B.size()) {
 		return false;
+	}
 
 	for (int i=0; i< (int)A.size(); i++) {
 		if (A[i] == B[i])

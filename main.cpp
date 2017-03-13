@@ -23,6 +23,7 @@ int main () {
 	
 	instructionSet = parser.ParseAllInstructions(input_testcase);
 		
+	
 	while(!instructionSet->isEmpty()){
 		// fetch instructions
 		Instruction instruction = instructionSet->fetchInstruction();
@@ -36,6 +37,7 @@ int main () {
 					Table t(cinst);
 					tableSet.PushTable(t);
 					//cout << t.getTableName() << endl;
+
 				}
 				break;
 			}
@@ -57,6 +59,7 @@ int main () {
 				break;
 			}
 		}
+		
 		//TODO: Deal with the instruction.
 		instructionSet->popInstruction ();
 	}

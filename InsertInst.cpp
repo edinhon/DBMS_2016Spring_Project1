@@ -7,7 +7,7 @@ InsertInst::InsertInst()
 
 	tableName = "\0";
 	
-	isWithName = false;	//Check whether INSERT is with attribute name or not in Parser.
+	isWithName = true;	//Check whether INSERT is with attribute name or not in Parser.
 
 	type = INSERT_TUPLE;
 }
@@ -18,7 +18,7 @@ InsertInst::InsertInst(string const name)
 	
 	tableName = name;
 	
-	isWithName = false;	//Check whether INSERT is with attribute name or not in Parser.
+	isWithName = true;	//Check whether INSERT is with attribute name or not in Parser.
 
 	type = INSERT_TUPLE;
 }
