@@ -27,11 +27,10 @@ int main () {
 		// fetch instructions
 		Instruction instruction = instructionSet->fetchInstruction();
 		Instruction *inst = parser.ParseSingleInstruction(instruction);
-
-		//cout << inst->getInstructionString() << endl;
+		
 		if (!inst->isValid) {
-			instructionSet->popInstruction ();
-			cout << "syntax error" << endl;
+			instructionSet->popInstruction();
+			cout << "Error: Syntax error" << endl;
 			continue;
 		}
 
@@ -42,7 +41,6 @@ int main () {
 				if (tableSet.CheckDuplicateTable(cinst)){
 					Table t(cinst);
 					tableSet.PushTable(t);
-					cout << "check" << endl;
 				}
 				tableSet.ShowTables();
 				break;
@@ -68,10 +66,8 @@ int main () {
 		}
 
 		instructionSet->popInstruction ();
-		//cout << "check" << endl;
 	}
 
-	cout << "checkout" << endl;
 	input_testcase->close ();
 	return 0;
 }

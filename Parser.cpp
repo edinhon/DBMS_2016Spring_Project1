@@ -22,7 +22,6 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 		Instruction* instruction = new Instruction();
 		string slicedString = "\0";
 		char charBuffer[1000];
-		bool first = true;
 		char* trying;
 
 		strcpy(charBuffer, inputString.c_str());
@@ -32,10 +31,8 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 			
 			slicedString += stringBuffer;
 			instruction->setTermTokens(stringBuffer);
-			first = false;
 	        trying = strtok (NULL, ",");
 		}
-		//cout << slicedString << endl;
 		instruction->setInstructionString(slicedString);
 		instructionSet->pushInstruction(*instruction);
 	}
@@ -49,10 +46,6 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 //---------------------------
 Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 {
-	//TODO: Decide which type of this instruction, 
-	//	and new a corresponding instruction class, 
-	//	and push it into instructionSet.
-	
 	CreateInst *table;
 	InsertInst *tuple;
 	int type = -1;
@@ -70,7 +63,6 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 		strcpy(charBuffer, thisTerm.c_str());
 		trying = strtok (charBuffer," \n()"); //忽略縮排
 		if (trying == NULL) {
-			//cout << "here" << endl;
 			Instruction* nullinst = new Instruction();
 			return nullinst;
 		}
@@ -154,7 +146,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 						case 3 : {
 							int length = 0;
-							for (int i=0; i<tmpt.size(); i++) {
+							for (int i=0; i<(int)tmpt.size(); i++) {
 								length *= 10;
 								length += tmpt[i] - '0';
 							}
@@ -225,7 +217,6 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				break;
 			}
 			default : {
-				//cout << "default" << endl;
 				Instruction* nullinst = new Instruction();
 				return nullinst;
 				break;
@@ -243,7 +234,6 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				cout << table->attributeNames[i] << ' ' << table->attributeTypes[i] << ' ' << table->varCharSizes[i] << ' ' << table->isPK[i] << endl;
 			*/
 			table->isValid = true;
-
 			return table;
 			break;
 		}

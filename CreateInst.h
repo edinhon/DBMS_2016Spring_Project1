@@ -25,10 +25,6 @@ class CreateInst : public Instruction {
 		
 		vector<bool> isPK;	//Decide whether PK or not in Parser.
 		
-		int attributeNum;	//Check whether attribute number is <= 10 in Parser.
-
-		int type;
-		
 	private:
 		
 		

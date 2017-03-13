@@ -16,8 +16,7 @@ Instruction::Instruction (Instruction const &that)
 
 Instruction::~Instruction()
 {
-	//termTokens->clear();
-	//delete termTokens;
+	
 }
 
 Instruction& Instruction::operator= (Instruction const &that)
