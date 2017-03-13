@@ -27,8 +27,14 @@ int main () {
 		// fetch instructions
 		Instruction instruction = instructionSet->fetchInstruction();
 		Instruction *inst = parser.ParseSingleInstruction(instruction);
-		cout << inst->getInstructionString() << endl;
-		
+
+		//cout << inst->getInstructionString() << endl;
+		if (!inst->isValid) {
+			instructionSet->popInstruction ();
+			cout << "syntax error" << endl;
+			continue;
+		}
+
 		switch(inst->type){
 			case CREATE :{
 				CreateInst *cinst = dynamic_cast<CreateInst*>(inst);
@@ -36,8 +42,9 @@ int main () {
 				if (tableSet.CheckDuplicateTable(cinst)){
 					Table t(cinst);
 					tableSet.PushTable(t);
+					cout << "check" << endl;
 				}
-				//tableSet.ShowTables();
+				tableSet.ShowTables();
 				break;
 			}
 			case INSERT :{
@@ -51,7 +58,7 @@ int main () {
 					
 					t->InsertTuple(iinst);
 				}
-				//tableSet.ShowTables();
+				tableSet.ShowTables();
 				break;
 			}
 			case SELECT :{
@@ -59,9 +66,12 @@ int main () {
 				break;
 			}
 		}
+
 		instructionSet->popInstruction ();
-		cout << "check" << endl;
+		//cout << "check" << endl;
 	}
+
+	cout << "checkout" << endl;
 	input_testcase->close ();
 	return 0;
 }

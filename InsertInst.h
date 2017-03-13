@@ -23,7 +23,7 @@ class InsertInst : public Instruction {
 		
 		vector<string> insertedAttributes;	//Decide whether attribute names are duplicate in Parser.
 		
-		vector<string> insertedValues;	//value of inserted attributes
+		vector<string*> insertedValues;	//value of inserted attributes
 		
 		vector<int> insertedValueTypes;	//Check the value type by '' or not in Parser.
 										//0 = int, 1 = varchar

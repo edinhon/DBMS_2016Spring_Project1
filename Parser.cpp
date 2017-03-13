@@ -69,19 +69,23 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 		char charBuffer[1000];
 		strcpy(charBuffer, thisTerm.c_str());
 		trying = strtok (charBuffer," \n()"); //忽略縮排
+		if (trying == NULL) {
+			//cout << "here" << endl;
+			Instruction* nullinst = new Instruction();
+			return nullinst;
+		}
 		while (trying != NULL) {
 			parsing.push((string)trying);
-			//printf("  %s\n", trying);
+			//printf("*  %s\n", trying);
 			trying = strtok (NULL, " \n()");
 		}
-
 		if (checkStringWithoutCase(parsing.front(), "create")) {
 			parsing.pop();
 			//cout << parsing.front() << parsing.front().size() << endl;
 			
 			if (checkStringWithoutCase(parsing.front(), "table")) {
 				parsing.pop();
-				cout << "create table : " << parsing.front() << endl;
+				//cout << "create table : " << parsing.front() << endl;
 				table = new CreateInst (parsing.front());
 				parsing.pop();
 				type = CREATE_TABLE;
@@ -98,7 +102,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			
 			if (checkStringWithoutCase(parsing.front(), "into")) {
 				parsing.pop();
-				cout << "insert tuple into  : " << parsing.front() << endl;
+				//cout << "insert tuple into  : " << parsing.front() << endl;
 				tuple = new InsertInst (parsing.front());
 				parsing.pop();
 				type = INSERT_TUPLE;
@@ -109,8 +113,9 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				cout << "wrong instruction on insert tuple : perhaps spelling" << endl;
 				return tuple;
 			}
+		} else {
+			//cout << "not create or insert" << endl;
 		}
-
 
 		switch (type) {
 			case CREATE_TABLE : {
@@ -182,11 +187,12 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							table->isValid = false;
 							cout << "wrong instruction on create table : perhaps spelling" << endl;
 							return table;
+							break;
 						}
 					}
 				
 				}
-
+				break;
 			}
 			//--------
 			case INSERT_TUPLE : {
@@ -203,13 +209,12 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 					if (!flag) {
 						tuple->insertedAttributes.push_back(tmpt);
 					} else {
-						string tmpt1;
 						if (tmpt[0] == 39) {
-							tmpt1 = tmpt.substr(1, tmpt.size()-2);
+							string* tmpt1 = new string (tmpt.substr(1, tmpt.size()-2));
 							tuple->insertedValueTypes.push_back(1);
 							tuple->insertedValues.push_back(tmpt1);
 						} else {
-							tmpt1 =tmpt;
+							string *tmpt1 = new string (tmpt);
 							tuple->insertedValueTypes.push_back(0);
 							tuple->insertedValues.push_back(tmpt1);
 						}
@@ -220,8 +225,9 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				break;
 			}
 			default : {
-				tuple->isValid = false;
-				return tuple;
+				//cout << "default" << endl;
+				Instruction* nullinst = new Instruction();
+				return nullinst;
 				break;
 			}
 		}
@@ -239,6 +245,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			table->isValid = true;
 
 			return table;
+			break;
 		}
 		case INSERT_TUPLE : {
 			/*
@@ -248,10 +255,12 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			*/
 			tuple->isValid = true;
 			return tuple;
+			break;
 		}
 		default : {
 			Instruction* nullinst = new Instruction();
 			return nullinst;
+			break;
 		}
 	}
 }
