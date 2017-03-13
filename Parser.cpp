@@ -18,11 +18,9 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 	InstructionSet* instructionSet = new InstructionSet ();
 	string inputString;
 	char* trying;
-	int flag = 0;
 	while (getline (*inputFile, inputString, ';')) {
-		cout << inputString << endl;
-		cout << "size = " << inputString.size() << endl;
-		flag += 1;
+		//cout << inputString << endl;
+		//cout << "size = " << inputString.size() << endl;
 		Instruction* instruction = new Instruction();
 		string slicedString = "\0";
 		char charBuffer[1000];
@@ -38,7 +36,6 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 			instruction->termTokens.push(stringBuffer);
 	        trying = strtok (NULL, ",");
 		}
-		cout << flag << endl;
 		//cout << slicedString << endl;
 		instruction->setInstructionString(slicedString);
 		instructionSet->pushInstruction(*instruction);
@@ -58,6 +55,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 	//	and push it into instructionSet.
 	
 	CreateInst *table;
+	InsertInst *tuple;
 	int type = -1;
 
 	string inputString = instruction.getTermTokens();
@@ -77,12 +75,25 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 		parsing.pop();
 		if (checkStringWithoutCase(tmpt, "create")) {
 			if (checkStringWithoutCase(parsing.front(), "table")) {
-				//cout << "Create Table : ";
+				cout << "Create Table : ";
 				parsing.pop();
 				table = new CreateInst(parsing.front());
 				parsing.pop();
-				//cout << table->tableName << endl;
+				cout << table->tableName << endl;
 				type = CREATE_TABLE;
+				break;
+			} else {
+				cout << "valid instruction on creating table\n";
+				return nullptr;
+			}
+		} else if (checkStringWithoutCase(tmpt, "insert")) {
+			if (checkStringWithoutCase(parsing.front(), "into")) {
+				cout << "Insert Table : ";
+				parsing.pop();
+				tuple = new InsertInst(parsing.front());
+				parsing.pop();
+				cout << tuple->tableName << endl;
+				type = INSERT_TUPLE;
 				break;
 			} else {
 				cout << "valid instruction on creating table\n";
@@ -116,11 +127,17 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							finishOneAttribute = true;
 							if (!parsing.empty()) { //primary key後面應該要沒東西
 								cout << "primary key後面應該要沒東西\n"; //note that already pop
-								return nullptr;	
+								Instruction *nullInst = new Instruction();
+								nullInst->isValid = false;
+								return nullInst;
+								//return nullptr;	
 							}
 						} else if (parsing.empty())	{//primary 打一半  
 							cout << "primary  打一半！\n";
-							return nullptr;
+							Instruction *nullInst = new Instruction();
+							nullInst->isValid = false;
+							return nullInst;
+							// return nullptr;
 						} else { // an attribute named primary
 							table->attributeNames[currentAttribute] = tmpt;
 						}
@@ -130,13 +147,19 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							finishOneAttribute = true;
 						} else if (!checkStringWithoutCase(parsing.front(), "primary")) {	//int 後面有東西，非 primary key
 							cout << "int 後面有東西，非 primary key!\n";
-							return nullptr;
+							Instruction *nullInst = new Instruction();
+							nullInst->isValid = false;
+							return nullInst;
+							//return nullptr;
 						}
 					} else if (checkStringWithoutCase(tmpt, "varchar")) {
 						table->attributeTypes[currentAttribute] = 1;	//found char
 						if (parsing.empty()) { //varchar 後面沒有接東西
 							cout << "varchar 後面沒有接東西\n";
-							return nullptr;
+							Instruction *nullInst = new Instruction();
+							nullInst->isValid = false;
+							return nullInst;
+							// return nullptr;
 						}
 						tmpt = parsing.front();
 						parsing.pop();
@@ -152,7 +175,10 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						else if (!checkStringWithoutCase(parsing.front(), "primary")) { //check後面有沒有primary key
 							//if not, invalid
 							cout << "varchar後面出現primary以外的東西\n";
-							return nullptr;
+							Instruction *nullInst = new Instruction();
+							nullInst->isValid = false;
+							return nullInst;
+							//return nullptr;
 						} 
 					} else 
 						table->attributeNames[currentAttribute] = tmpt;
@@ -167,13 +193,19 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			return table;
 			break;
 		}
+		case INSERT_TUPLE : {
+			 Instruction *nullInst = new Instruction();
+			nullInst->isValid = false;
+			return nullInst;
+			break;
+		}
 		default:
 			Instruction *nullInst = new Instruction();
 			nullInst->isValid = false;
 			return nullInst;
 			break;
 	}
-	
+	/*
 	for (int i=0; i<10; i++) {
 		cout << "attribute name " << table->attributeNames[i] << ' ' 
 			<< "type " << table->attributeTypes[i] << ' '
@@ -182,53 +214,6 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			<< endl;
 	}
 	cout << "attribute numbers " << table->attributeNum << endl;
-	
-	/*
-	switch (type) {
-		case CREATE_TABLE :
-			bool finishOneAttribute = false;
-			int currentAttribute = 0;
-
-			while (!instruction.termTokens.empty()) {
-				finishOneAttribute = false;
-				string tmpt = instruction.getTermTokens();
-				if (checkStringWithoutCase(tmpt, "primary")) { //see if we are incountering primary key or an attribute
-																//named primary
-					if (checkStringWithoutCase(instruction.termTokens.front(), "key")) { 
-						instruction.termTokens.pop ();
-						table->isPK[currentAttribute] = true;
-						finishOneAttribute = true;
-					} else {
-						table->attributeNames[currentAttribute] = tmpt;
-					}
-				} else if (checkStringWithoutCase(tmpt, "int")) {	//found int
-					table->attributeTypes[currentAttribute] = 0;
-					finishOneAttribute = true;
-				} else if (checkStringWithoutCase(tmpt, "varchar")) {	//found char
-					table->attributeTypes[currentAttribute] = 1;
-					if (checkIfIsNumber(instruction.termTokens.front())) { 
-						tmpt = instruction.getTermTokens();
-						int length = 0;
-						for (int i=0; i<tmpt.size(); i++) {
-							length *= 10;
-							length += tmpt[i] - '0';
-						}
-						table->varCharSizes[currentAttribute] = length;
-						finishOneAttribute = true;
-					} else {
-						cout << "attribute type varchar without assigning length!\n";
-						return;
-					}
-				}
-
-				if (finishOneAttribute) {
-					currentAttribute += 1;
-					finishOneAttribute = false;
-				}
-			}
-			break;
-	}
-*/
-	
+	*/
 	return nullptr;
 }

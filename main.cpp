@@ -35,7 +35,7 @@ int main () {
 				if (tableSet.CheckDuplicateTable(cinst)){
 					Table t(cinst);
 					tableSet.PushTable(t);
-					cout << t.getTableName() << endl;
+					//cout << t.getTableName() << endl;
 				}
 				break;
 			}

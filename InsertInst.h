@@ -12,6 +12,7 @@ class InsertInst : public Instruction {
 	public:
 		
 		InsertInst();
+		InsertInst(string const name);
 		
 		~InsertInst(){};
 		

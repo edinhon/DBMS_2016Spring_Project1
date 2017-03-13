@@ -2,7 +2,7 @@
 #define INSTRUCTION_H
 
 #define CREATE_TABLE 0
-#define INSERT_INSTRUCTION 1
+#define INSERT_TUPLE 1
 #define SELECTION 2
 
 #include <iostream>
