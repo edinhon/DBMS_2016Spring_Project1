@@ -10,7 +10,7 @@ Table::Table(CreateInst *cinst)
 {
 	tableName = cinst->tableName;
 	
-	for(int i = 0 ; i < cinst->attributeNum ; i++){
+	for(int i = 0 ; i < (int)cinst->attributeNames.size() ; i++){
 		Attribute a;
 		a.name = cinst->attributeNames[i];
 		a.type = cinst->attributeTypes[i];
@@ -242,6 +242,55 @@ string Table::getTableName()
 
 void Table::ShowTable()
 {
+	vector<int> printSize;
+	
+	//Print out table name
+	cout << tableName << endl;
+	
+	//Print out attribute names
+	for (int i = 0 ; i < (int)attributes.size() ; i++){
+		//Type = int, 11 size char, 2 space
+		if(attributes[i].type == 0){
+			int maxLength;
+			if((int)attributes[i].name.size() >= 11){
+				maxLength = (int)attributes[i].name.size();
+			} else maxLength = 11;
+			printSize.push_back(maxLength);
+			
+			cout << " ";
+			for(int j = 0 ; j < (maxLength - (int)attributes[i].name.size()) ; j++){
+				cout << " ";
+			}
+			cout << attributes[i].name << " ";
+		} 
+		//Type = varchar, varCharSize size char, 2space
+		else if (attributes[i].type == 1){
+			int maxLength;
+			if((int)attributes[i].name.size() >= attributes[i].varCharSize){
+				maxLength = (int)attributes[i].name.size();
+			} else maxLength = attributes[i].varCharSize;
+			printSize.push_back(maxLength);
+			
+			cout << " ";
+			for(int j = 0 ; j < (maxLength - (int)attributes[i].name.size()) ; j++){
+				cout << " ";
+			}
+			cout << attributes[i].name << " ";
+		}
+	}
+	cout << endl;
+	
+	//Print out tuples
+	for (int i = 0 ; i < (int)tuples.size() ; i++){
+		for (int j = 0 ; j < (int)tuples[i].values.size() ; j++){
+			cout << " ";
+			for (int k = 0 ; k < (printSize[j] - (int)tuples[i].values[j].value.size()) ; k++){
+				cout << " ";
+			}
+			cout << tuples[i].values[j].value << " ";
+		}
+		cout << endl;
+	}
 	
 }
 

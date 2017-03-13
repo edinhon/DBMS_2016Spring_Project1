@@ -98,6 +98,7 @@ bool TableSet::CheckDuplicateTable(CreateInst* cinst)
 void TableSet::ShowTables()
 {
 	for (int i = 0 ; i < (int)tableVector.size() ; i++){
+		cout << endl;
 		tableVector[i].ShowTable();
 	}
 }
