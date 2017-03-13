@@ -57,20 +57,8 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 	InsertInst *tuple;
 	int type = -1;
 	int tableSize = -1;
-	/*
-	string inputString = instruction.getTermTokens();
-	queue <string> parsing;
+	bool flag = false;
 
-	char* trying;
-	char charBuffer[1000];
-	strcpy(charBuffer, inputString.c_str());
-	trying = strtok (charBuffer," \n()"); //忽略縮排
-	while (trying != NULL) {
-			//string tmpt (trying);
-		parsing.push((string)trying);
-		trying = strtok (NULL, " \n()");
-	}
-	*/
 	while (!instruction.termTokens.empty()) {
 		string thisTerm = instruction.getTermTokens();
 		//cout << "###"<<thisTerm << endl;
@@ -131,7 +119,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				int step = 1;
 				while (!parsing.empty()) {
 					string tmpt = parsing.front();
-					cout << step << ' ' << tmpt << endl;
+					//cout << step << ' ' << tmpt << endl;
 					
 					switch (step) {
 						case 1 : {
@@ -154,6 +142,8 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								table->attributeTypes[tableSize] = 1;
 								parsing.pop();
 								step = 3;
+							} else {
+								cout << "type 後面格式錯誤" << endl;
 							}
 							break;
 						}
@@ -172,7 +162,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							if (checkStringWithoutCase(tmpt, "primary")) {
 								parsing.pop();
 								if (checkStringWithoutCase(parsing.front(), "key")) {
-									cout << "set primary key " << tableSize <<endl;
+									//cout << "set primary key " << tableSize <<endl;
 									table->isPK[tableSize] = true;
 									parsing.pop();
 									step = 1;
@@ -200,20 +190,22 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			}
 			//--------
 			case INSERT_TUPLE : {
-				bool flag = false;
 				//cout << "inserting tuple" << endl;
 				while (!parsing.empty()) {
 					string tmpt = parsing.front();
+					//cout << tmpt << endl;
 					if (checkStringWithoutCase(tmpt, "values")) {
 							flag = true;
+							parsing.pop();
+							continue;
 					}
 
 					if (!flag) {
 						tuple->insertedAttributes.push_back(tmpt);
 					} else {
 						string tmpt1;
-						if (tmpt[0] == 36) {
-							tmpt1 = tmpt.substr(1, tmpt.size()-1);
+						if (tmpt[0] == 39) {
+							tmpt1 = tmpt.substr(1, tmpt.size()-2);
 							tuple->insertedValueTypes.push_back(1);
 							tuple->insertedValues.push_back(tmpt1);
 						} else {
@@ -223,12 +215,13 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 					}
 
-					cout << tmpt << endl;
 					parsing.pop();
 				}
 				break;
 			}
 			default : {
+				tuple->isValid = false;
+				return tuple;
 				break;
 			}
 		}
@@ -237,17 +230,22 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 
 	switch (type) {
 		case CREATE_TABLE : {
-			
+			/*
 			cout << table->attributeNames.size() << ' ' << table->attributeTypes.size() << ' ' << table->varCharSizes.size() << ' ' << table->isPK.size() << endl;
 			
 			for (int i=0; i<table->varCharSizes.size(); i++)
 				cout << table->attributeNames[i] << ' ' << table->attributeTypes[i] << ' ' << table->varCharSizes[i] << ' ' << table->isPK[i] << endl;
+			*/
 			table->isValid = true;
 
 			return table;
 		}
 		case INSERT_TUPLE : {
-
+			/*
+			cout << tuple->insertedAttributes.size() << ' ' << tuple->insertedValues.size() << ' ' << tuple->insertedValueTypes.size() << endl;
+			for (int i=0; i<tuple->insertedAttributes.size(); i++)
+				cout << tuple->insertedAttributes[i] << ' ' << tuple->insertedValues[i] << ' ' << tuple->insertedValueTypes[i] << endl;
+			*/
 			tuple->isValid = true;
 			return tuple;
 		}

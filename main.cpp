@@ -22,11 +22,12 @@ int main () {
 	TableSet tableSet;
 	
 	instructionSet = parser.ParseAllInstructions(input_testcase);
-		
+	
 	while(!instructionSet->isEmpty()){
 		// fetch instructions
 		Instruction instruction = instructionSet->fetchInstruction();
 		Instruction *inst = parser.ParseSingleInstruction(instruction);
+		cout << inst->getInstructionString() << endl;
 		
 		switch(inst->type){
 			case CREATE :{
@@ -36,7 +37,7 @@ int main () {
 					Table t(cinst);
 					tableSet.PushTable(t);
 				}
-				tableSet.ShowTables();
+				//tableSet.ShowTables();
 				break;
 			}
 			case INSERT :{
@@ -50,7 +51,7 @@ int main () {
 					
 					t->InsertTuple(iinst);
 				}
-				tableSet.ShowTables();
+				//tableSet.ShowTables();
 				break;
 			}
 			case SELECT :{
@@ -58,10 +59,9 @@ int main () {
 				break;
 			}
 		}
-		//TODO: Deal with the instruction.
 		instructionSet->popInstruction ();
+		cout << "check" << endl;
 	}
-	
 	input_testcase->close ();
 	return 0;
 }
