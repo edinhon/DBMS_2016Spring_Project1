@@ -88,4 +88,3 @@ class Table {
 		vector<int> PKIndexes;
 };
 #endif
-
