@@ -10,11 +10,11 @@ name varchar(20),  gender varchar(1)PRIMARY KEY);
 CREATE TABLE Person1 (          person_id int, 
 name varchar(20)PRIMARY KEY,  gender varchar(1));   
   
-INSERT INTO Person (person_id, name, gender) VALUES (1, 'John', M);
+INSERT INTO Person (person_id, name, gender) VALUES (1, 'John', 'M');
 
-INSERT INTO Person (name, gender) VALUES ('John', M);
+INSERT INTO Person (name, gender) VALUES ('John', 'M');
 
 INSERT INTO Person (person_id, gender) VALUES (2, M);
-INSERT INTO Person (person_id, name, gender) VALUES (1, 'John', M);
+INSERT INTO Person (person_id, name, gender) VALUES (1, 'John', 'M');
 INSERT INTO Person (person_id, name, gender) VALUES (1, 'John');
-INSERT INTO Person VALUES (4, 'Billy', M);
+INSERT INTO Person VALUES (4, 'Billy', 'M');

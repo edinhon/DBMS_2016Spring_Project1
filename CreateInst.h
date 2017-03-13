@@ -17,15 +17,17 @@ class CreateInst : public Instruction {
 		
 		string tableName;	//Check whether table name is duplicate in TableSet.
 		
-		string attributeNames[10];	//Decide whether attribute names are duplicate in Parser.
+		vector<string> attributeNames;	//Decide whether attribute names are duplicate in Parser.
 		
-		int attributeTypes[10];	//Decide whether type is valid in Parser.
+		vector<int> attributeTypes;	//Decide whether type is valid in Parser.
 								// 0 = int, 1 = varchar
-		int varCharSizes[10];	//Decide whether size is valid in Parser.
+		vector<int> varCharSizes;	//Decide whether size is valid in Parser.
 		
-		bool isPK[10];	//Decide whether PK or not in Parser.
+		vector<bool> isPK;	//Decide whether PK or not in Parser.
 		
 		int attributeNum;	//Check whether attribute number is <= 10 in Parser.
+
+		int type;
 		
 	private:
 		

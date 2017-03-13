@@ -19,8 +19,6 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 	string inputString;
 	char* trying;
 	while (getline (*inputFile, inputString, ';')) {
-		//cout << inputString << endl;
-		//cout << "size = " << inputString.size() << endl;
 		Instruction* instruction = new Instruction();
 		string slicedString = "\0";
 		char charBuffer[1000];
@@ -28,9 +26,7 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 		strcpy(charBuffer, inputString.c_str());
 		trying = strtok (charBuffer,",("); //忽略縮排
 		while (trying != NULL) { 
-			//printf("%s\n", trying);
 			string stringBuffer (trying);
-			//printf("%s\n", trying);
 			slicedString += " ";
 			slicedString += stringBuffer;
 			instruction->termTokens.push(stringBuffer);
@@ -124,6 +120,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				while (!parsing.empty()) {
 					tmpt = parsing.front ();
 					parsing.pop();
+					/*
 					if (checkStringWithoutCase(tmpt, "primary")) {
 						if (checkStringWithoutCase(parsing.front(), "key")) {
 							parsing.pop();
@@ -187,6 +184,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						currentAttribute += 1;
 						finishOneAttribute = false;
 					}
+					*/
 				}
 			}
 			table->attributeNum = currentAttribute-1;
@@ -214,23 +212,31 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 					}
 
 					switch (parsingOrder) {
-						case 0: 
-							attributeNames.push((string)trying);
-							//printf("name : %s\n", trying);
+						case 0: {
+							tuple->insertedAttributes.push_back((string)trying);
+							printf("name : %s\n", trying);
 							break;
-						case 1: 
-							attributeValues.push((string)trying);
-							//printf("value : %s\n", trying);
+						}
+						case 1: {
+							string tmpt (trying);
+							if (trying[0] == 39)
+								tmpt = tmpt.substr(1, tmpt.size()-2);
+							
+							tuple->insertedValues.push_back(tmpt);
+
+							cout << "value : " << tmpt << endl;
 							break;
-						default : 
+						}
+						default : {
 							cout << "why 跑到 default 呢呢呢呢呢\n";
 							break;
+						}
 					}
 					parsing.push((string)trying);
 					trying = strtok (NULL, " \n()");
 				}
 			}
-			if (attributeNames.size() > 0 && (attributeNames.size() != attributeValues.size())) {
+			if (tuple->insertedAttributes.size() > 0 && (tuple->insertedAttributes.size() != tuple->insertedValues.size())) {
 				// not necessary to input attribute names
 				//cout << attributeNames.size() << ' ' << attributeValues.size() << endl;
 				cout << "name size != value size" << endl;
