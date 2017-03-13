@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <queue>
 #include "Instruction.h"
 
 using namespace std;
@@ -30,7 +31,10 @@ class InsertInst : public Instruction {
 		
 		int attributeValueNum;	//Decide in Parser. 
 								//Note: this variable should be equal to attributeNameNum.
-		
+
+		queue<string> insertedAttribute;
+		queue<string> insertedValues;
+
 	private:
 		
 		

@@ -70,12 +70,14 @@ class Table {
 		//	of instruction with attribute names.
 		//--------------
 		bool CheckInsertInst(InsertInst*);
-		
+
 		//TODO: SearchTuple()
 		
 		vector<Tuple> tuples;
 		
 		string getTableName();
+
+		void show ();
 		
 	private:
 		

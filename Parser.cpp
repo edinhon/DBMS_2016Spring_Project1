@@ -84,7 +84,9 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				break;
 			} else {
 				cout << "valid instruction on creating table\n";
-				return nullptr;
+				Instruction *nullInst = new Instruction();
+				nullInst->isValid = false;
+				return nullInst;
 			}
 		} else if (checkStringWithoutCase(tmpt, "insert")) {
 			if (checkStringWithoutCase(parsing.front(), "into")) {
@@ -96,8 +98,10 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				type = INSERT_TUPLE;
 				break;
 			} else {
-				cout << "valid instruction on creating table\n";
-				return nullptr;
+				cout << "valid instruction on inserting table\n";
+				Instruction *nullInst = new Instruction();
+				nullInst->isValid = false;
+				return nullInst;
 			}
 		}
 	}
@@ -127,17 +131,13 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							finishOneAttribute = true;
 							if (!parsing.empty()) { //primary key後面應該要沒東西
 								cout << "primary key後面應該要沒東西\n"; //note that already pop
-								Instruction *nullInst = new Instruction();
-								nullInst->isValid = false;
-								return nullInst;
-								//return nullptr;	
+								table->isValid = false;
+								return table;
 							}
 						} else if (parsing.empty())	{//primary 打一半  
 							cout << "primary  打一半！\n";
-							Instruction *nullInst = new Instruction();
-							nullInst->isValid = false;
-							return nullInst;
-							// return nullptr;
+							table->isValid = false;
+							return table;
 						} else { // an attribute named primary
 							table->attributeNames[currentAttribute] = tmpt;
 						}
@@ -147,19 +147,15 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							finishOneAttribute = true;
 						} else if (!checkStringWithoutCase(parsing.front(), "primary")) {	//int 後面有東西，非 primary key
 							cout << "int 後面有東西，非 primary key!\n";
-							Instruction *nullInst = new Instruction();
-							nullInst->isValid = false;
-							return nullInst;
-							//return nullptr;
+							table->isValid = false;
+							return table;
 						}
 					} else if (checkStringWithoutCase(tmpt, "varchar")) {
 						table->attributeTypes[currentAttribute] = 1;	//found char
 						if (parsing.empty()) { //varchar 後面沒有接東西
 							cout << "varchar 後面沒有接東西\n";
-							Instruction *nullInst = new Instruction();
-							nullInst->isValid = false;
-							return nullInst;
-							// return nullptr;
+							table->isValid = false;
+							return table;
 						}
 						tmpt = parsing.front();
 						parsing.pop();
@@ -169,15 +165,19 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							length *= 10;
 							length += tmpt[i] - '0';
 						}
+						if (length > 40) {
+							cout << "varchar length > 40!\n";
+							table->isValid = false;
+							return table;
+						}
 						table->varCharSizes[currentAttribute] = length;
 						if (parsing.empty())	//varchar 完了
 							finishOneAttribute = true;
 						else if (!checkStringWithoutCase(parsing.front(), "primary")) { //check後面有沒有primary key
 							//if not, invalid
 							cout << "varchar後面出現primary以外的東西\n";
-							Instruction *nullInst = new Instruction();
-							nullInst->isValid = false;
-							return nullInst;
+							table->isValid = false;
+							return table;
 							//return nullptr;
 						} 
 					} else 
@@ -194,9 +194,51 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			break;
 		}
 		case INSERT_TUPLE : {
-			 Instruction *nullInst = new Instruction();
-			nullInst->isValid = false;
-			return nullInst;
+			queue <string> attributeNames;
+			queue <string> attributeValues;
+			int parsingOrder=0;
+
+			while (!instruction.termTokens.empty()) {
+				string tmpt = instruction.getTermTokens();
+				strcpy(charBuffer, tmpt.c_str());
+				trying = strtok (charBuffer," \n()"); //忽略縮排
+				while (trying != NULL) {
+
+					if (checkStringWithoutCase(parsing.back(), "values")) {
+							parsingOrder = 1;
+					} else if (checkStringWithoutCase((string)trying, "values")) {// 完整輸入 attributes 後的 value
+						//cout << "changed !! " << trying << endl;
+						parsingOrder = 1;
+						trying = strtok (NULL, " \n()");
+						continue;
+					}
+
+					switch (parsingOrder) {
+						case 0: 
+							attributeNames.push((string)trying);
+							//printf("name : %s\n", trying);
+							break;
+						case 1: 
+							attributeValues.push((string)trying);
+							//printf("value : %s\n", trying);
+							break;
+						default : 
+							cout << "why 跑到 default 呢呢呢呢呢\n";
+							break;
+					}
+					parsing.push((string)trying);
+					trying = strtok (NULL, " \n()");
+				}
+			}
+			if (attributeNames.size() > 0 && (attributeNames.size() != attributeValues.size())) {
+				// not necessary to input attribute names
+				//cout << attributeNames.size() << ' ' << attributeValues.size() << endl;
+				cout << "name size != value size" << endl;
+				tuple->isValid = false;
+				return tuple; 
+			}
+			tuple->isValid = true;
+			return tuple;
 			break;
 		}
 		default:
