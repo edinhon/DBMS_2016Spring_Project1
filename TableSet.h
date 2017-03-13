@@ -45,6 +45,12 @@ class TableSet {
 		//---------------
 		bool CheckDuplicateTable(CreateInst*);
 		
+		//---------------
+		// void ShowTables()
+		//		Show all tables content in TableSet.
+		//---------------
+		void ShowTables();
+		
 	private:
 		
 		vector<Table> tableVector;

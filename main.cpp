@@ -23,7 +23,6 @@ int main () {
 	
 	instructionSet = parser.ParseAllInstructions(input_testcase);
 		
-	
 	while(!instructionSet->isEmpty()){
 		// fetch instructions
 		Instruction instruction = instructionSet->fetchInstruction();
@@ -36,9 +35,8 @@ int main () {
 				if (tableSet.CheckDuplicateTable(cinst)){
 					Table t(cinst);
 					tableSet.PushTable(t);
-					//cout << t.getTableName() << endl;
-
 				}
+				tableSet.ShowTables();
 				break;
 			}
 			case INSERT :{
@@ -52,6 +50,7 @@ int main () {
 					
 					t->InsertTuple(iinst);
 				}
+				tableSet.ShowTables();
 				break;
 			}
 			case SELECT :{
@@ -59,7 +58,6 @@ int main () {
 				break;
 			}
 		}
-		
 		//TODO: Deal with the instruction.
 		instructionSet->popInstruction ();
 	}
@@ -67,5 +65,3 @@ int main () {
 	input_testcase->close ();
 	return 0;
 }
-
-
