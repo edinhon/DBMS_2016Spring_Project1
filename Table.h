@@ -18,7 +18,7 @@ class Table {
 				string name;
 				int type;	// 0 = int, 1 = varchar
 				int varCharSize; // size of varchar
-				string value;
+				string *value;
 				bool isPK;
 		};
 		
@@ -27,24 +27,24 @@ class Table {
 				vector<Attribute> values;
 				
 				//--------------
-				// void setValue(int index, string value)
+				// void setValue(int index, string* value)
 				//		Set value of tuple by index number.
 				//		(INSERT without attribute name)
 				//--------------
-				void setValue(int index, string value);
+				void setValue(int index, string* value);
 				
 				//--------------
 				// void setValue(string name, string value)
 				//		Set value of tuple by attribute name.
 				//		(INSERT with attribute name)
 				//--------------
-				void setValue(string name, string value);
+				void setValue(string name, string* value);
 				
 				//--------------
 				// string getValue(string name)
 				//		Get value by attribute name.
 				//--------------
-				string getValue(string name);
+				string* getValue(string name);
 		};
 		
 		//--------------

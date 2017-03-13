@@ -34,9 +34,10 @@ Table::~Table()
 //		Set value of tuple by index number.
 //		(INSERT without attribute name)
 //--------------
-void Table::Tuple::setValue(int index, string value)
+void Table::Tuple::setValue(int index, string* value)
 {
-	values[index].value = value;
+	string *s = new string(*value);
+	values[index].value = s;
 }
 
 //--------------
@@ -44,7 +45,7 @@ void Table::Tuple::setValue(int index, string value)
 //		Set value of tuple by attribute name.
 //		(INSERT with attribute name)
 //--------------
-void Table::Tuple::setValue(string name, string value)
+void Table::Tuple::setValue(string name, string* value)
 {
 	string n1 = name;
 	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
@@ -54,7 +55,8 @@ void Table::Tuple::setValue(string name, string value)
 		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
 		
 		if(n1.compare(n2) == 0){
-			it->value = value;
+			string *s = new string(*value);
+			it->value = s;
 			return;
 		}
 	} 
@@ -66,7 +68,7 @@ void Table::Tuple::setValue(string name, string value)
 // string getValue(string name)
 //		Get value by attribute name.
 //--------------
-string Table::Tuple::getValue(string name)
+string* Table::Tuple::getValue(string name)
 {
 	string n1 = name;
 	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
@@ -92,18 +94,18 @@ void Table::InsertTuple(InsertInst *iinst)
 	Tuple t;
 	t.values = attributes;
 	for (int i = 0 ; i < (int)attributes.size() ; i++){
-		t.values[i].value = "";
+		t.values[i].value = NULL;
 	}
 	
 	if (!iinst->isWithName){
 		for (int i = 0 ; i < (int)iinst->insertedValues.size() ; i++){
-			string value = iinst->insertedValues[i];
+			string *value = iinst->insertedValues[i];
 			t.setValue(i, value);
 		}
 	} else {
 		for (int i = 0 ; i < (int)iinst->insertedAttributes.size() ; i++){
 			string name = iinst->insertedAttributes[i];
-			string value = iinst->insertedValues[i];
+			string *value = iinst->insertedValues[i];
 			t.setValue(name, value);
 		}
 	}
@@ -144,7 +146,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		
 		//Check NULL value of PK.
 		for (int i = 0 ; i < (int)PKIndexes.size() ; i++){
-			if (iinst->insertedValues[i].compare("") == 0){
+			if (iinst->insertedValues[i] == NULL){
 				cout << "Error: There exists NULL value in PK.\n";
 				return false;
 			}
@@ -153,7 +155,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		//Check duplicate PK without attribute name.
 		for (int i = 0 ; i < (int)tuples.size() ; i++){
 			for(int j = 0 ; j < (int)PKIndexes.size() ; j++){
-				if(tuples[i].values[j].value.compare(iinst->insertedValues[j]) == 0){
+				if((*(tuples[i].values[j].value)).compare(*(iinst->insertedValues[j])) == 0){
 					cout << "Error: There exists duplicate PK value.\n";
 					return false;
 				}
@@ -163,7 +165,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		//Check varchar size.
 		for (int i = 0 ; i < (int)attributes.size() ; i++){
 			if(attributes[i].type == 1 && 
-				((int)(iinst->insertedValues[i].size()) > attributes[i].varCharSize)){
+				((int)(*(iinst->insertedValues[i])).size() > attributes[i].varCharSize)){
 					cout << "Error: Different varchar size with table.\n";
 					return false;
 				}
@@ -191,7 +193,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 					}
 					//For varchar size
 					if(attributes[j].type == 1 && 
-						((int)(iinst->insertedValues[i].size()) > attributes[j].varCharSize)){
+						((int)((*(iinst->insertedValues[i])).size()) > attributes[j].varCharSize)){
 							cout << "Error: Different varchar size with table.\n";
 							return false;
 						}
@@ -218,7 +220,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 					nullPKChecker = true;
 					//For duplicate
 					for (int k = 0 ; k < (int)tuples.size() ; k++){
-						if(tuples[k].values[i].value.compare(iinst->insertedValues[j]) == 0){
+						if((*(tuples[k].values[i].value)).compare(*(iinst->insertedValues[j])) == 0){
 							cout << "Error: There exists duplicate PK value.\n";
 							return false;
 						}
@@ -284,10 +286,10 @@ void Table::ShowTable()
 	for (int i = 0 ; i < (int)tuples.size() ; i++){
 		for (int j = 0 ; j < (int)tuples[i].values.size() ; j++){
 			cout << " ";
-			for (int k = 0 ; k < (printSize[j] - (int)tuples[i].values[j].value.size()) ; k++){
+			for (int k = 0 ; k < (printSize[j] - (int)((*(tuples[i].values[j].value)).size())) ; k++){
 				cout << " ";
 			}
-			cout << tuples[i].values[j].value << " ";
+			cout << *(tuples[i].values[j].value) << " ";
 		}
 		cout << endl;
 	}
