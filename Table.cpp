@@ -90,9 +90,25 @@ string Table::Tuple::getValue(string name)
 void Table::InsertTuple(InsertInst *iinst)
 {
 	Tuple t;
-	
 	t.values = attributes;
-	//TODO: check duplicate PK value.
+	for (int i = 0 ; i < (int)attributes.size() ; i++){
+		t.values[i].value = "";
+	}
+	
+	if (!iinst->isWithName){
+		for (int i = 0 ; i < (int)iinst->insertedValues.size() ; i++){
+			string value = iinst->insertedValues[i];
+			t.setValue(i, value);
+		}
+	} else {
+		for (int i = 0 ; i < (int)iinst->insertedAttributes.size() ; i++){
+			string name = iinst->insertedAttributes[i];
+			string value = iinst->insertedValues[i];
+			t.setValue(name, value);
+		}
+	}
+	
+	tuples.push_back(t);
 }
 
 //--------------
@@ -109,25 +125,25 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 	if(!iinst->isWithName){
 		
 		//Check attribute value number of instruction without attribute name.
-		if ((int)attributes.size() != iinst->attributeValueNum)
+		if ((int)attributes.size() != (int)iinst->insertedValues.size())
 			return false;
 		
 		//Check attribute type of instruction without attribute name.
 		for (int i = 0 ; i < (int)attributes.size() ; i++){
-			if(attributes[i].type != iinst->attributeValueTypes[i])
+			if(attributes[i].type != iinst->insertedValueTypes[i])
 				return false;
 		}
 		
 		//Check NULL value of PK.
 		for (int i = 0 ; i < (int)PKIndexes.size() ; i++){
-			if (iinst->attributeValues[i].compare("") == 0)
+			if (iinst->insertedValues[i].compare("") == 0)
 				return false;
 		}
 		
 		//Check duplicate PK without attribute name.
 		for (int i = 0 ; i < (int)tuples.size() ; i++){
 			for(int j = 0 ; j < (int)PKIndexes.size() ; j++){
-				if(tuples[i].values[j].value.compare(iinst->attributeValues[j]) == 0)
+				if(tuples[i].values[j].value.compare(iinst->insertedValues[j]) == 0)
 					return false;
 			}
 		}
@@ -135,7 +151,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		//Check varchar size.
 		for (int i = 0 ; i < (int)attributes.size() ; i++){
 			if(attributes[i].type == 1 && 
-				((int)(iinst->attributeValues[i].size()) > attributes[i].varCharSize))
+				((int)(iinst->insertedValues[i].size()) > attributes[i].varCharSize))
 				return false;
 		}
 		
@@ -144,9 +160,9 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		//Check attribute name and type of instruction with attribute name.
 		//Check varchar size.
 		bool nameChecker;
-		for (int i = 0 ; i < iinst->attributeNameNum ; i++){
+		for (int i = 0 ; i < (int)iinst->insertedAttributes.size() ; i++){
 			nameChecker = false;
-			string n1 = iinst->attributeNames[i];
+			string n1 = iinst->insertedAttributes[i];
 			transform(n1.begin(), n1.end(), n1.begin(), ::tolower);
 			for (int j = 0 ; j < (int)attributes.size() ; j++){
 				string n2 = attributes[j].name;
@@ -155,11 +171,11 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 					//For name
 					nameChecker = true;	
 					//For type
-					if (attributes[j].type != iinst->attributeValueTypes[i])
+					if (attributes[j].type != iinst->insertedValueTypes[i])
 						return false;
 					//For varchar size
 					if(attributes[j].type == 1 && 
-						((int)(iinst->attributeValues[i].size()) > attributes[j].varCharSize))
+						((int)(iinst->insertedValues[i].size()) > attributes[j].varCharSize))
 						return false;
 				}
 			}
@@ -174,15 +190,15 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 			nullPKChecker = false;
 			string n1 = attributes[i].name;
 			transform(n1.begin(), n1.end(), n1.begin(), ::tolower);
-			for (int j = 0 ; j < iinst->attributeNameNum ; j++){
-				string n2 = iinst->attributeNames[i];
+			for (int j = 0 ; j < (int)iinst->insertedAttributes.size() ; j++){
+				string n2 = iinst->insertedAttributes[i];
 				transform(n2.begin(), n2.end(), n2.begin(), ::tolower);
 				if(n1.compare(n2) == 0){
 					//For NULL
 					nullPKChecker = true;
 					//For duplicate
 					for (int k = 0 ; k < (int)tuples.size() ; k++){
-						if(tuples[k].values[i].value.compare(iinst->attributeValues[j]) == 0)
+						if(tuples[k].values[i].value.compare(iinst->insertedValues[j]) == 0)
 							return false;
 					}
 				}
