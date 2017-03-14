@@ -177,7 +177,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		string s = "";
 		if (isHidedPK){
 			for (int i = 0 ; i < (int)iinst->insertedValues.size() ; i++){
-				if(iinst->insertedValueTypes[i] == -1)
+				if(iinst->insertedValueTypes[i] != -1)
 					s += *(iinst->insertedValues[i]);
 			}
 		}
