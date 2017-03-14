@@ -45,6 +45,10 @@ class Table {
 				//		Get value by attribute name.
 				//--------------
 				string* getValue(string name);
+				
+				string* hidedPK;
+				
+				bool isHidedPK;
 		};
 		
 		//--------------
@@ -78,6 +82,8 @@ class Table {
 		string getTableName();
 
 		void ShowTable();
+		
+		bool isHidedPK;
 		
 	private:
 		

@@ -10,13 +10,16 @@ Table::Table(CreateInst *cinst)
 {
 	tableName = cinst->tableName;
 	
+	isHidedPK = true;
 	for(int i = 0 ; i < (int)cinst->attributeNames.size() ; i++){
 		Attribute a;
 		a.name = cinst->attributeNames[i];
 		a.type = cinst->attributeTypes[i];
 		a.isPK = cinst->isPK[i];
-		if(a.isPK) 
+		if (a.isPK){
 			PKIndexes.push_back(i);
+			isHidedPK = false;
+		}
 		a.varCharSize = cinst->varCharSizes[i];
 		
 		attributes.push_back(a);
@@ -93,6 +96,7 @@ void Table::InsertTuple(InsertInst *iinst)
 {
 	Tuple t;
 	t.values = attributes;
+	t.isHidedPK = isHidedPK;
 	for (int i = 0 ; i < (int)attributes.size() ; i++){
 		t.values[i].value = NULL;
 	}
@@ -108,6 +112,17 @@ void Table::InsertTuple(InsertInst *iinst)
 			string *value = iinst->insertedValues[i];
 			t.setValue(name, value);
 		}
+	}
+	
+	//Set hided PK
+	if (isHidedPK){
+		string s = "";
+		for (int i = 0 ; i < (int)attributes.size() ; i++){
+			if(t.values[i].value != NULL) {
+				s += *(t.values[i].value);
+			}
+		}
+		t.hidedPK = new string(s);
 	}
 	
 	tuples.push_back(t);
@@ -153,11 +168,25 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		}
 		
 		//Check duplicate PK without attribute name.
+		string s = "";
+		if (isHidedPK){
+			for (int i = 0 ; i < (int)iinst->insertedValues.size() ; i++){
+				if(iinst->insertedValues[i] != NULL)
+					s += *(iinst->insertedValues[i]);
+			}
+		}
 		for (int i = 0 ; i < (int)tuples.size() ; i++){
-			for(int j = 0 ; j < (int)PKIndexes.size() ; j++){
-				if((*(tuples[i].values[j].value)).compare(*(iinst->insertedValues[j])) == 0){
-					cout << "Error: There exists duplicate PK value.\n";
+			if (isHidedPK) {
+				if (tuples[i].hidedPK != NULL && (*(tuples[i].hidedPK)).compare(s) == 0){
+					cout << "Error: There exists duplicate tuple.\n";
 					return false;
+				}
+			} else {
+				for(int j = 0 ; j < (int)PKIndexes.size() ; j++){
+					if((*(tuples[i].values[j].value)).compare(*(iinst->insertedValues[j])) == 0){
+						cout << "Error: There exists duplicate PK value.\n";
+						return false;
+					}
 				}
 			}
 		}
@@ -207,31 +236,47 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		
 		//Check NULL value and duplicate value of PK.
 		//Check duplicate PK without attribute name.
-		bool nullPKChecker;
-		for (int i = 0 ; i < (int)PKIndexes.size() ; i++){
-			nullPKChecker = false;
-			string n1 = attributes[i].name;
-			transform(n1.begin(), n1.end(), n1.begin(), ::tolower);
-			for (int j = 0 ; j < (int)iinst->insertedAttributes.size() ; j++){
-				string n2 = iinst->insertedAttributes[i];
-				transform(n2.begin(), n2.end(), n2.begin(), ::tolower);
-				if(n1.compare(n2) == 0){
-					//For NULL
-					nullPKChecker = true;
-					//For duplicate
-					for (int k = 0 ; k < (int)tuples.size() ; k++){
-						if((*(tuples[k].values[i].value)).compare(*(iinst->insertedValues[j])) == 0){
-							cout << "Error: There exists duplicate PK value.\n";
-							return false;
+		if (!isHidedPK){
+			bool nullPKChecker;
+			for (int i = 0 ; i < (int)PKIndexes.size() ; i++){
+				nullPKChecker = false;
+				string n1 = attributes[i].name;
+				transform(n1.begin(), n1.end(), n1.begin(), ::tolower);
+				for (int j = 0 ; j < (int)iinst->insertedAttributes.size() ; j++){
+					string n2 = iinst->insertedAttributes[i];
+					transform(n2.begin(), n2.end(), n2.begin(), ::tolower);
+					if(n1.compare(n2) == 0){
+						//For NULL
+						nullPKChecker = true;
+						//For duplicate
+						for (int k = 0 ; k < (int)tuples.size() ; k++){
+							if((*(tuples[k].values[i].value)).compare(*(iinst->insertedValues[j])) == 0){
+								cout << "Error: There exists duplicate PK value.\n";
+								return false;
+							}
 						}
 					}
 				}
+				if(nullPKChecker == false){
+					cout << "Error: There exists NULL value in PK.\n";
+					return false;
+				}
 			}
-			if(nullPKChecker == false){
-				cout << "Error: There exists NULL value in PK.\n";
-				return false;
+		} else {
+			string s = "";
+			for (int i = 0 ; i < (int)iinst->insertedValues.size() ; i++){
+				if(iinst->insertedValues[i] != NULL)
+					s += *(iinst->insertedValues[i]);
+			}
+			
+			for (int i = 0 ; i < (int)tuples.size() ; i++){
+				if (tuples[i].hidedPK != NULL && (*(tuples[i].hidedPK)).compare(s) == 0){
+					cout << "Error: There exists duplicate tuple.\n";
+					return false;
+				}
 			}
 		}
+		
 	}
 	
 	return true;
