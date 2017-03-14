@@ -19,7 +19,6 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 	//cout << "* parsing into tokens" << endl;
 	InstructionSet* instructionSet = new InstructionSet ();
 	string inputString;
-	bool first = true;
 
 	while (getline (*inputFile, inputString, ';')) {
 		
@@ -43,7 +42,6 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 			bool catchDigit = false;
 
 			while (j<p) {
-				char judge = stringBuffer[j];
 				if ((stringBuffer[j] == '(') || (stringBuffer[j] == ')') || (stringBuffer[j] == ',')) {
 					if (flag == j) {
 						//cout << "	catch one : " << stringBuffer[flag] << endl;
@@ -122,17 +120,12 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 	InsertInst *tuple;
 	int type = -1;
 	int tableSize = -1;
-	bool flag = false;
 
 	while (!instruction.termTokens.empty()) {
-		cout << "> slicing tokens : " << instruction.termTokens.front() << endl;
+		//cout << "> slicing tokens : " << instruction.termTokens.front() << endl;
 
 		string thisTerm = instruction.getTermTokens();
 		
-		queue <string> parsing;
-		char* trying;
-		char charBuffer[1000];
-		strcpy(charBuffer, thisTerm.c_str());
 		
 		if (checkStringWithoutCase(thisTerm, "create")) {
 
@@ -141,7 +134,15 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			
 			if (checkStringWithoutCase(instruction.termTokens.front(), "table")) {
 				instruction.termTokens.pop();
-				cout << "create table : " << instruction.termTokens.front() << endl;
+				for (int i=0; i<instruction.termTokens.front().size(); i++) {
+					if (!isalpha(instruction.termTokens.front()[i]) && instruction.termTokens.front()[i] != '_') {
+						table = new CreateInst ();
+						table->isValid = false;
+						cout << "table name cannot contain charactors besides alphabats or '_' " << endl;
+						return table;
+					}
+				}
+				//cout << "create table : " << instruction.termTokens.front() << endl;
 				table = new CreateInst (instruction.termTokens.front());
 				instruction.termTokens.pop();
 				type = CREATE_TABLE;
@@ -149,7 +150,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			else {
 				table = new CreateInst ();
 				table->isValid = false;
-				cout << "wrong instruction on create table : perhaps spelling" << endl;
+				cout << "wrong instruction on create table" << endl;
 				return table;
 			}
 		} else if (checkStringWithoutCase(thisTerm, "insert")) {
@@ -158,7 +159,15 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			
 			if (checkStringWithoutCase(instruction.termTokens.front(), "into")) {
 				instruction.termTokens.pop();
-				cout << "insert tuple into  : " << instruction.termTokens.front() << endl;
+				for (int i=0; i<instruction.termTokens.front().size(); i++) {
+					if (!isalpha(instruction.termTokens.front()[i]) && instruction.termTokens.front()[i] != '_') {
+						tuple = new InsertInst ();
+						tuple->isValid = false;
+						cout << "syntax error : table name cannot contain charactors besides alphabats or '_' " << endl;
+						return tuple;
+					}
+				}
+				//cout << "insert tuple into  : " << instruction.termTokens.front() << endl;
 				tuple = new InsertInst (instruction.termTokens.front());
 				instruction.termTokens.pop();
 				type = INSERT_TUPLE;
@@ -166,7 +175,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			else {
 				tuple = new InsertInst ();
 				tuple->isValid = false;
-				cout << "wrong instruction on insert tuple : perhaps spelling" << endl;
+				cout << "wrong instruction on insert tuple" << endl;
 				return tuple;
 			}
 		} else {
@@ -175,11 +184,11 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 
 		switch (type) {
 			case CREATE_TABLE : {
-				cout << ">>>	creating table " << endl;
+				//cout << ">>>	creating table " << endl;
 				int step = 1;
 				while (!instruction.termTokens.empty()) {
 					string tmpt = instruction.termTokens.front();
-					cout << step << ' ' << tmpt << endl;
+					//cout << step << ' ' << tmpt << endl;
 					switch (step) {
 						
 						case 1 : {
@@ -199,6 +208,13 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								cout << "syntax error : not entering name" << endl;
 								table->isValid = false;
 								return table;
+							}
+							for (int i=0; i<tmpt.size(); i++) {
+								if (!isalpha (tmpt[i]) && tmpt[i] != '_') {
+									cout << "syntax error : attribute name cannot contain charactors besides alphabats or '_' " << endl;
+									table->isValid = false;
+									return table;
+								}
 							}
 							table->attributeNames.push_back(tmpt);
 							table->attributeTypes.push_back(-1);
@@ -220,7 +236,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								instruction.termTokens.pop();
 								step = 4;
 							} else {
-								cout << "type 後面格式錯誤" << endl;
+								cout << "syntax error : type 後面格式錯誤" << endl;
 							}
 							break;
 						}
@@ -241,6 +257,11 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							for (int i=0; i<(int)tmpt.size(); i++) {
 								length *= 10;
 								length += tmpt[i] - '0';
+							}
+							if (length > 40) {
+								cout << "syntax error : varchar length cannot exceed 40" << endl;
+								table->isValid = false;
+								return table;
 							}
 							table->varCharSizes[tableSize] = length;
 							instruction.termTokens.pop();
@@ -286,7 +307,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								step = 2;
 							}
 							else if (tmpt[0] == ')') {
-								cout << "end of create table switches" << endl;
+								//cout << "end of create table switches" << endl;
 								instruction.termTokens.pop();
 							}
 							else {
@@ -298,7 +319,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 						default : {
 							table->isValid = false;
-							cout << "wrong instruction on create table : perhaps spelling" << endl;
+							cout << "wrong instruction on create table" << endl;
 							return table;
 							break;
 						}
@@ -311,21 +332,21 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			
 			case INSERT_TUPLE : {
 				bool insertNullValue = false;
-				cout << ">>>	inserting tuple :: " << endl;
+				//cout << ">>>	inserting tuple :: " << endl;
 				int step = 0;
 				while (!instruction.termTokens.empty()) {
 					string tmpt = instruction.termTokens.front();
-					cout << step << ' ' << tmpt << endl;
+					//cout << step << ' ' << tmpt << endl;
 
 					switch (step) {
 						case 0 : {
 							if (checkStringWithoutCase(tmpt, "values")) {
-								cout << "insert without names" << endl;
+								//cout << "insert without names" << endl;
 								tuple->isWithName = false;
 								//instruction.termTokens.pop();
 								step = 4;
 							} else {
-								cout << "start assigning names" << endl;
+								//cout << "start assigning names" << endl;
 								tuple->isWithName = true;
 								step = 1;
 							}
@@ -345,6 +366,13 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 						case 2 : {
 							if (isalpha(tmpt[0])) {
+								for (int i=0; i<tmpt.size(); i++) {
+									if (!isalpha(tmpt[i]) && tmpt[i] != '_') {
+										cout << "syntax error : attribute name cannot contain charactors besides alphabats or '_' " << endl;
+										tuple->isValid = false;
+										return tuple;
+									}
+								}
 								tuple->insertedAttributes.push_back (tmpt);
 								instruction.termTokens.pop();
 								step = 3;
@@ -360,7 +388,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								instruction.termTokens.pop();
 								step = 2;
 							} else if (tmpt[0] == ')') {
-								cout << "end insertint attributes names" << endl;
+								//cout << "end insertint attributes names" << endl;
 								instruction.termTokens.pop();
 								step = 4;
 							}
@@ -368,7 +396,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 						case 4 : {
 							if (checkStringWithoutCase(tmpt, "values")) {
-								cout << "start assigning values" << endl;
+								//cout << "start assigning values" << endl;
 								instruction.termTokens.pop();
 								step = 5;
 							} else {
@@ -396,24 +424,24 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								tuple->insertedValues.push_back (toAdd);
 								tuple->insertedValueTypes.push_back(1);
 								instruction.termTokens.pop();
-								cout << "inserting string " << *toAdd << endl;
+								//cout << "inserting string " << *toAdd << endl;
 								step = 7;
 							} else if (tmpt[0] == ',') {
-								cout << "insert null value" << endl;
+								//cout << "insert null value" << endl;
 								string* toAdd = new string ("NULL_VALUE");
 								tuple->insertedValues.push_back (toAdd);
 								tuple->insertedValueTypes.push_back(-1);
 								insertNullValue = true;
 								step = 7;
 							} else if (tmpt[0] == ')') {
-								cout << "ending with a null value" << endl;
+								//cout << "ending with a null value" << endl;
 								string* toAdd = new string ("NULL_VALUE");
 								tuple->insertedValues.push_back (toAdd);
 								tuple->insertedValueTypes.push_back(-1);
 								insertNullValue = true;
 								step = 7;
 							} else if (isdigit(tmpt[0])) {
-								cout << "inserting digit" << endl;
+								//cout << "inserting digit" << endl;
 								string* toAdd = new string (tmpt);
 								tuple->insertedValues.push_back (toAdd);
 								tuple->insertedValueTypes.push_back(0);
@@ -439,39 +467,14 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								}
 							} else if (tmpt[0] == ')') {
 								if (insertNullValue) {
-									cout << "--ending with a null value" << endl;
+									//cout << "--ending with a null value" << endl;
 								}
-								cout << "end insertint value names" << endl;
+								//cout << "end insertint value names" << endl;
 								instruction.termTokens.pop();
 							}
 							break;
 						}
 					}
-					//cout << tmpt << endl;
-					/*
-					if (checkStringWithoutCase(tmpt, "values")) {
-							flag = true;
-							parsing.pop();
-							continue;
-					}
-
-					if (!flag) {
-						tuple->insertedAttributes.push_back(tmpt);
-					} else {
-						if (tmpt[0] == 39) {
-							//cout << "parse" << endl;
-							string* tmpt1 = new string (tmpt.substr(1, tmpt.size()-2));
-							tuple->insertedValueTypes.push_back(1);
-							tuple->insertedValues.push_back(tmpt1);
-						} else {
-							string *tmpt1 = new string (tmpt);
-							tuple->insertedValueTypes.push_back(0);
-							tuple->insertedValues.push_back(tmpt1);
-						}
-					}
-					
-					parsing.pop();
-					*/
 				}
 				break;
 			}
@@ -503,7 +506,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				return tuple;
 				break;
 			}
-			
+			/*
 			cout << tuple->insertedAttributes.size() << ' ' << tuple->insertedValues.size() << ' ' << tuple->insertedValueTypes.size() << endl;
 			
 			if (tuple->insertedAttributes.size() != 0)
@@ -515,14 +518,16 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 					cout << "no attribute name" << ' ' << *tuple->insertedValues[i] << ' ' << tuple->insertedValueTypes[i] << endl;
 				}
 			}
+			*/
 			tuple->isValid = true;
-			cout << "- end parsing INSERT" << endl;
+			//cout << "- end parsing INSERT" << endl;
 			return tuple;
 			break;
 		}
 		default : {
 			Instruction* nullinst = new Instruction();
-			cout << "- end parsing" << endl;
+			cout << "an error occurred that causes return null instruction" << endl;
+			//cout << "- end parsing" << endl;
 			return nullinst;
 			break;
 		}
