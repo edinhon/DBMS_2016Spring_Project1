@@ -4,6 +4,7 @@ person_id int,
 name varchar(20),
 gender varchar(1)
 );
-INSERT INTO Person (person_id, name, gender) VALUES (1, 'John', 'M');
+INSERT INTO Person (person_ID, name, gender) VALUES (1, 'John', 'M');
+INSERT INTO Person (name, person_id, gender) VALUES ('John',1, 'M');
 INSERT INTO Person  VALUES (1, 'John', 'M');
 INSERT INTO Person  VALUES (2,,);

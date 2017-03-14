@@ -278,10 +278,17 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 			}
 		} else {
 			string s = "";
-			for (int i = 0 ; i < (int)iinst->insertedValues.size() ; i++){
-				if(iinst->insertedValueTypes[i] != -1)
-					s += *(iinst->insertedValues[i]);
+			for (int j = 0 ; j < (int)attributes.size() ; j++){
+				string n1 = attributes[j].name;
+				transform(n1.begin(), n1.end(), n1.begin(), ::tolower);
+				for (int i = 0 ; i < (int)iinst->insertedAttributes.size() ; i++){
+					string n2 = iinst->insertedAttributes[i];
+					transform(n2.begin(), n2.end(), n2.begin(), ::tolower);
+					if(n1.compare(n2) == 0 && iinst->insertedValueTypes[i] != -1)
+						s += *(iinst->insertedValues[i]);
+				}
 			}
+			
 			
 			for (int i = 0 ; i < (int)tuples.size() ; i++){
 				if ((*(tuples[i].hidedPK)).compare(s) == 0){
@@ -384,7 +391,7 @@ void Table::ShowTable()
 			for (int j = 0 ; j < printSize[k] ; j++){
 				cout << "-";
 			}
-			if(i != ((int)printSize.size()-1)) cout << "-";
+			if(k != ((int)printSize.size()-1)) cout << "-";
 			else cout << " ";
 		}
 		cout << endl;
