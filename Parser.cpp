@@ -134,7 +134,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			
 			if (checkStringWithoutCase(instruction.termTokens.front(), "table")) {
 				instruction.termTokens.pop();
-				for (int i=0; i<instruction.termTokens.front().size(); i++) {
+				for (int i=0; i<(int)instruction.termTokens.front().size(); i++) {
 					if (!isalpha(instruction.termTokens.front()[i]) && instruction.termTokens.front()[i] != '_') {
 						table = new CreateInst ();
 						table->isValid = false;
@@ -159,7 +159,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			
 			if (checkStringWithoutCase(instruction.termTokens.front(), "into")) {
 				instruction.termTokens.pop();
-				for (int i=0; i<instruction.termTokens.front().size(); i++) {
+				for (int i=0; i<(int)instruction.termTokens.front().size(); i++) {
 					if (!isalpha(instruction.termTokens.front()[i]) && instruction.termTokens.front()[i] != '_') {
 						tuple = new InsertInst ();
 						tuple->isValid = false;
@@ -209,7 +209,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								table->isValid = false;
 								return table;
 							}
-							for (int i=0; i<tmpt.size(); i++) {
+							for (int i=0; i<(int)tmpt.size(); i++) {
 								if (!isalpha (tmpt[i]) && tmpt[i] != '_') {
 									cout << "syntax error : attribute name cannot contain charactors besides alphabats or '_' " << endl;
 									table->isValid = false;
@@ -366,7 +366,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 						case 2 : {
 							if (isalpha(tmpt[0])) {
-								for (int i=0; i<tmpt.size(); i++) {
+								for (int i=0; i<(int)tmpt.size(); i++) {
 									if (!isalpha(tmpt[i]) && tmpt[i] != '_') {
 										cout << "syntax error : attribute name cannot contain charactors besides alphabats or '_' " << endl;
 										tuple->isValid = false;
