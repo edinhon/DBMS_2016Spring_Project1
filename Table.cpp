@@ -347,8 +347,8 @@ void Table::ShowTable()
 	cout << endl;
 		
 	//Print out tuples
-	if(tuples.size() != 0) cout << " |" ;
 	for (int i = 0 ; i < (int)tuples.size() ; i++){
+		cout << " |" ;
 		for (int j = 0 ; j < (int)tuples[i].values.size() ; j++){
 			for (int k = 0 ; k < (printSize[j] - (int)((*(tuples[i].values[j].value)).size())) ; k++){
 				cout << " ";
