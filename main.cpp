@@ -37,7 +37,6 @@ int main () {
 
 		switch(inst->type){
 			case CREATE :{
-				//cout << "create table" << endl;
 
 				CreateInst *cinst = dynamic_cast<CreateInst*>(inst);
 				
@@ -49,20 +48,17 @@ int main () {
 				break;
 			}
 			case INSERT :{
-				//cout << "++++++++++++++\n"<<"insert table" << endl;
-				InsertInst *iinst = dynamic_cast<InsertInst*>(inst);
 				
+				InsertInst *iinst = dynamic_cast<InsertInst*>(inst);
+
 				int tableIndex = tableSet.SearchTable(iinst->tableName);
-				//cout << ">>>end search table" << endl;
 				if (tableIndex != -1){
 					Table *t = tableSet.GetTable(tableIndex);
 					
 					if(!t->CheckInsertInst(iinst)) break;
-					//cout << ">>>return true" << endl;
 					t->InsertTuple(iinst);
 				}
-				//tableSet.ShowTables();
-				//cout << "---------------\n"<<"finish insert table" << endl;
+				tableSet.ShowTables();
 				break;
 			}
 			case SELECT :{

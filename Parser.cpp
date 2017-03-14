@@ -321,10 +321,12 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						case 0 : {
 							if (checkStringWithoutCase(tmpt, "values")) {
 								cout << "insert without names" << endl;
+								tuple->isWithName = false;
 								//instruction.termTokens.pop();
 								step = 4;
 							} else {
 								cout << "start assigning names" << endl;
+								tuple->isWithName = true;
 								step = 1;
 							}
 							break;
@@ -400,14 +402,14 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								cout << "insert null value" << endl;
 								string* toAdd = new string ("NULL_VALUE");
 								tuple->insertedValues.push_back (toAdd);
-								tuple->insertedValueTypes.push_back(1);
+								tuple->insertedValueTypes.push_back(-1);
 								insertNullValue = true;
 								step = 7;
 							} else if (tmpt[0] == ')') {
 								cout << "ending with a null value" << endl;
 								string* toAdd = new string ("NULL_VALUE");
 								tuple->insertedValues.push_back (toAdd);
-								tuple->insertedValueTypes.push_back(1);
+								tuple->insertedValueTypes.push_back(-1);
 								insertNullValue = true;
 								step = 7;
 							} else if (isdigit(tmpt[0])) {
@@ -494,28 +496,27 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			break;
 		}
 		case INSERT_TUPLE : {
-			/*
+			
 			if ((tuple->insertedAttributes.size() != 0) && (tuple->insertedAttributes.size() != tuple->insertedValues.size())) {
 				//cout << "attribute size != value size" << endl;
 				tuple->isValid = false;
-				cout << "- end parsing" << endl;
 				return tuple;
 				break;
 			}
-			*/
+			
 			cout << tuple->insertedAttributes.size() << ' ' << tuple->insertedValues.size() << ' ' << tuple->insertedValueTypes.size() << endl;
 			
 			if (tuple->insertedAttributes.size() != 0)
-				for (int i=0; i<tuple->insertedAttributes.size(); i++) {
+				for (int i=0; i<(int)tuple->insertedAttributes.size(); i++) {
 					cout << tuple->insertedAttributes[i] << ' ' << *tuple->insertedValues[i] << ' ' << tuple->insertedValueTypes[i] << endl;
 				}
 			else {
-				for (int i=0; i<tuple->insertedValues.size(); i++) {
+				for (int i=0; i<(int)tuple->insertedValues.size(); i++) {
 					cout << "no attribute name" << ' ' << *tuple->insertedValues[i] << ' ' << tuple->insertedValueTypes[i] << endl;
 				}
 			}
 			tuple->isValid = true;
-			cout << "- end parsing" << endl;
+			cout << "- end parsing INSERT" << endl;
 			return tuple;
 			break;
 		}

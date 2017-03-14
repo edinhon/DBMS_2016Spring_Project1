@@ -39,6 +39,10 @@ Table::~Table()
 //--------------
 void Table::Tuple::setValue(int index, string* value)
 {
+	if(value == NULL) {
+		values[index].value = NULL;
+		return;
+	}
 	string *s = new string(*value);
 	values[index].value = s;
 }
@@ -58,6 +62,10 @@ void Table::Tuple::setValue(string name, string* value)
 		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
 		
 		if(n1.compare(n2) == 0){
+			if(value == NULL) {
+				it->value = NULL;
+				return;
+			}
 			string *s = new string(*value);
 			it->value = s;
 			return;
@@ -104,12 +112,14 @@ void Table::InsertTuple(InsertInst *iinst)
 	if (!iinst->isWithName){
 		for (int i = 0 ; i < (int)iinst->insertedValues.size() ; i++){
 			string *value = iinst->insertedValues[i];
+			if(iinst->insertedValueTypes[i] == -1) value = NULL;
 			t.setValue(i, value);
 		}
 	} else {
 		for (int i = 0 ; i < (int)iinst->insertedAttributes.size() ; i++){
 			string name = iinst->insertedAttributes[i];
 			string *value = iinst->insertedValues[i];
+			if(iinst->insertedValueTypes[i] == -1) value = NULL;
 			t.setValue(name, value);
 		}
 	}
@@ -138,10 +148,6 @@ void Table::InsertTuple(InsertInst *iinst)
 //--------------
 bool Table::CheckInsertInst(InsertInst *iinst)
 {
-	if(iinst->insertedAttributes.size() != iinst->insertedValues.size()){
-		cout << "Error: INSERT attribute name number doesn't match to value number\n";
-		return false;
-	}
 	
 	if(!iinst->isWithName){
 		
@@ -153,7 +159,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		
 		//Check attribute type of instruction without attribute name.
 		for (int i = 0 ; i < (int)attributes.size() ; i++){
-			if(attributes[i].type != iinst->insertedValueTypes[i]){
+			if(iinst->insertedValueTypes[i] != -1 && attributes[i].type != iinst->insertedValueTypes[i]){
 				cout << "Error: INSERT value type doesn't match to table attribute type.\n";
 				return false;
 			}
@@ -161,7 +167,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		
 		//Check NULL value of PK.
 		for (int i = 0 ; i < (int)PKIndexes.size() ; i++){
-			if (iinst->insertedValues[i] == NULL){
+			if (iinst->insertedValueTypes[i] == -1){
 				cout << "Error: There exists NULL value in PK.\n";
 				return false;
 			}
@@ -171,7 +177,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		string s = "";
 		if (isHidedPK){
 			for (int i = 0 ; i < (int)iinst->insertedValues.size() ; i++){
-				if(iinst->insertedValues[i] != NULL)
+				if(iinst->insertedValueTypes[i] == -1)
 					s += *(iinst->insertedValues[i]);
 			}
 		}
@@ -194,6 +200,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		//Check varchar size.
 		for (int i = 0 ; i < (int)attributes.size() ; i++){
 			if(attributes[i].type == 1 && 
+				iinst->insertedValueTypes[i] != -1 && 
 				((int)(*(iinst->insertedValues[i])).size() > attributes[i].varCharSize)){
 					cout << "Error: Different varchar size with table.\n";
 					return false;
@@ -201,6 +208,11 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		}
 		
 	} else {
+		
+		if(iinst->insertedAttributes.size() != iinst->insertedValues.size()){
+			cout << "Error: INSERT attribute name number doesn't match to value number\n";
+			return false;
+		}
 		
 		//Check attribute name and type of instruction with attribute name.
 		//Check varchar size.
@@ -216,9 +228,10 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 					//For name
 					nameChecker = true;	
 					//For type
-					if (attributes[j].type != iinst->insertedValueTypes[i]){
-						cout << "Error: INSERT value type doesn't match to table attribute type.\n";
-						return false;
+					if (iinst->insertedValueTypes[i] != -1 && 
+						attributes[j].type != iinst->insertedValueTypes[i]){
+							cout << "Error: INSERT value type doesn't match to table attribute type.\n";
+							return false;
 					}
 					//For varchar size
 					if(attributes[j].type == 1 && 
@@ -247,7 +260,8 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 					transform(n2.begin(), n2.end(), n2.begin(), ::tolower);
 					if(n1.compare(n2) == 0){
 						//For NULL
-						nullPKChecker = true;
+						if(iinst->insertedValueTypes[i] != -1)
+							nullPKChecker = true;
 						//For duplicate
 						for (int k = 0 ; k < (int)tuples.size() ; k++){
 							if((*(tuples[k].values[i].value)).compare(*(iinst->insertedValues[j])) == 0){
@@ -265,7 +279,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		} else {
 			string s = "";
 			for (int i = 0 ; i < (int)iinst->insertedValues.size() ; i++){
-				if(iinst->insertedValues[i] != NULL)
+				if(iinst->insertedValueTypes[i] != -1)
 					s += *(iinst->insertedValues[i]);
 			}
 			
@@ -350,10 +364,17 @@ void Table::ShowTable()
 	for (int i = 0 ; i < (int)tuples.size() ; i++){
 		cout << " |" ;
 		for (int j = 0 ; j < (int)tuples[i].values.size() ; j++){
-			for (int k = 0 ; k < (printSize[j] - (int)((*(tuples[i].values[j].value)).size())) ; k++){
-				cout << " ";
+			if(tuples[i].values[j].value != NULL){
+				for (int k = 0 ; k < (printSize[j] - (int)((*(tuples[i].values[j].value)).size())) ; k++){
+					cout << " ";
+				}
+				cout << *(tuples[i].values[j].value) << "|";
+			} else {
+				for (int k = 0 ; k < printSize[j] ; k++){
+					cout << " ";
+				}
+				cout << "|";
 			}
-			cout << *(tuples[i].values[j].value) << "|";
 		}
 		cout << endl;
 		

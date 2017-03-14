@@ -1,9 +1,9 @@
 
   CREaTE TABLE Person ( 
-person_id int PRIMARY KEY, 
+person_id int, 
 name varchar(20),
 gender varchar(1)
 );
 INSERT INTO Person (person_id, name, gender) VALUES (1, 'John', 'M');
 INSERT INTO Person  VALUES (1, 'John', 'M');
-INSERT INTO Person  VALUES (1,,);
+INSERT INTO Person  VALUES (2,,);
