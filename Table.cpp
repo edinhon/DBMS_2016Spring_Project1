@@ -270,7 +270,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 			}
 			
 			for (int i = 0 ; i < (int)tuples.size() ; i++){
-				if (tuples[i].hidedPK != NULL && (*(tuples[i].hidedPK)).compare(s) == 0){
+				if ((*(tuples[i].hidedPK)).compare(s) == 0){
 					cout << "Error: There exists duplicate tuple.\n";
 					return false;
 				}
@@ -294,7 +294,7 @@ void Table::ShowTable()
 	//Print out table name
 	cout << tableName << endl;
 	
-	//Print out attribute names
+	//Set attribute print sizes
 	for (int i = 0 ; i < (int)attributes.size() ; i++){
 		//Type = int, 11 size char, 2 space
 		if(attributes[i].type == 0){
@@ -303,12 +303,6 @@ void Table::ShowTable()
 				maxLength = (int)attributes[i].name.size();
 			} else maxLength = 11;
 			printSize.push_back(maxLength);
-			
-			cout << " ";
-			for(int j = 0 ; j < (maxLength - (int)attributes[i].name.size()) ; j++){
-				cout << " ";
-			}
-			cout << attributes[i].name << " ";
 		} 
 		//Type = varchar, varCharSize size char, 2space
 		else if (attributes[i].type == 1){
@@ -317,26 +311,63 @@ void Table::ShowTable()
 				maxLength = (int)attributes[i].name.size();
 			} else maxLength = attributes[i].varCharSize;
 			printSize.push_back(maxLength);
-			
-			cout << " ";
-			for(int j = 0 ; j < (maxLength - (int)attributes[i].name.size()) ; j++){
-				cout << " ";
-			}
-			cout << attributes[i].name << " ";
 		}
+	}
+	
+	//Line in above
+	cout << "  ";
+	for (int i = 0 ; i < (int)printSize.size() ; i++){
+		for (int j = 0 ; j < printSize[i] ; j++){
+			cout << "-";
+		}
+		if(i != ((int)printSize.size()-1)) cout << "-";
+		else cout << " ";
 	}
 	cout << endl;
 	
+	//Print attribute names
+	cout << " |";
+	for (int i = 0 ; i < (int)attributes.size() ; i++){
+		for(int j = 0 ; j < (printSize[i] - (int)attributes[i].name.size()) ; j++){
+			cout << " ";
+		}
+		cout << attributes[i].name << "|";
+	}
+	cout << endl;
+	
+	//Line in bottom
+	cout << "  ";
+	for (int i = 0 ; i < (int)printSize.size() ; i++){
+		for (int j = 0 ; j < printSize[i] ; j++){
+			cout << "-";
+		}
+		if(i != ((int)printSize.size()-1)) cout << "-";
+		else cout << " ";
+	}
+	cout << endl;
+		
 	//Print out tuples
+	if(tuples.size() != 0) cout << " |" ;
 	for (int i = 0 ; i < (int)tuples.size() ; i++){
 		for (int j = 0 ; j < (int)tuples[i].values.size() ; j++){
-			cout << " ";
 			for (int k = 0 ; k < (printSize[j] - (int)((*(tuples[i].values[j].value)).size())) ; k++){
 				cout << " ";
 			}
-			cout << *(tuples[i].values[j].value) << " ";
+			cout << *(tuples[i].values[j].value) << "|";
+		}
+		cout << endl;
+		
+		//Line in bottom
+		cout << "  ";
+		for (int k = 0 ; k < (int)printSize.size() ; k++){
+			for (int j = 0 ; j < printSize[k] ; j++){
+				cout << "-";
+			}
+			if(i != ((int)printSize.size()-1)) cout << "-";
+			else cout << " ";
 		}
 		cout << endl;
 	}
-	
+	cout << endl;
 }
+
