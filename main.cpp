@@ -26,16 +26,19 @@ int main () {
 	while(!instructionSet->isEmpty()){
 		// fetch instructions
 		Instruction instruction = instructionSet->fetchInstruction();
+		//cout << "*************\nstart parsing" << endl;
 		Instruction *inst = parser.ParseSingleInstruction(instruction);
 		
 		if (!inst->isValid) {
 			instructionSet->popInstruction();
-			cout << "Error: Syntax error" << endl;
+			//cout << "Error: Syntax error" << endl;
 			continue;
 		}
 
 		switch(inst->type){
 			case CREATE :{
+				//cout << "create table" << endl;
+
 				CreateInst *cinst = dynamic_cast<CreateInst*>(inst);
 				
 				if (tableSet.CheckDuplicateTable(cinst)){
@@ -46,17 +49,20 @@ int main () {
 				break;
 			}
 			case INSERT :{
+				//cout << "++++++++++++++\n"<<"insert table" << endl;
 				InsertInst *iinst = dynamic_cast<InsertInst*>(inst);
 				
 				int tableIndex = tableSet.SearchTable(iinst->tableName);
+				//cout << ">>>end search table" << endl;
 				if (tableIndex != -1){
 					Table *t = tableSet.GetTable(tableIndex);
 					
-					if(t->CheckInsertInst(iinst)) break;
-					
+					if(!t->CheckInsertInst(iinst)) break;
+					//cout << ">>>return true" << endl;
 					t->InsertTuple(iinst);
 				}
-				tableSet.ShowTables();
+				//tableSet.ShowTables();
+				//cout << "---------------\n"<<"finish insert table" << endl;
 				break;
 			}
 			case SELECT :{
@@ -64,7 +70,7 @@ int main () {
 				break;
 			}
 		}
-
+		
 		instructionSet->popInstruction ();
 	}
 
