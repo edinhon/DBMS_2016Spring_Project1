@@ -46,15 +46,16 @@ class Instruction {
 		//----------------
 		string getTermTokens();
 		void popTermTokens ();
+		bool isEmpty ();
 
 		bool isValid;
 		
 		int type;
 
-		queue<string> termTokens;
 		
 	private:
 		
+		queue<string> termTokens;		
 		string instructionString;
 		
 };

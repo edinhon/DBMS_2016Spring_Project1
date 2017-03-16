@@ -28,7 +28,6 @@ class InsertInst : public Instruction {
 		vector<int> insertedValueTypes;	//Check the value type by '' or not in Parser.
 										//0 = int, 1 = varchar
 	private:
-		
-		
+				
 };
 #endif

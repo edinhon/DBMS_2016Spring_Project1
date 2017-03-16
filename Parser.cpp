@@ -16,13 +16,11 @@
 //---------------------------
 InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 {
-	//cout << "* parsing into tokens" << endl;
 	InstructionSet* instructionSet = new InstructionSet ();
 	string inputString;
 
 	while (getline (*inputFile, inputString, ';')) {
 		
-		//cout << "> " << inputString << endl;
 		Instruction* instruction = new Instruction();
 		string slicedString = "\0";
 		char charBuffer[1000];
@@ -30,11 +28,10 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 
 		strcpy(charBuffer, inputString.c_str());
 		
-		trying = strtok (charBuffer," \n\t"); //忽略縮排
+		trying = strtok (charBuffer," \n\t");
 
 		while (trying != NULL) { 
 			string stringBuffer (trying);
-			//cout << "* "<<stringBuffer << endl;
 			queue<string> parse;
 			int flag = 0;
 			int p = stringBuffer.size();
@@ -44,7 +41,6 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 			while (j<p) {
 				if ((stringBuffer[j] == '(') || (stringBuffer[j] == ')') || (stringBuffer[j] == ',')) {
 					if (flag == j) {
-						//cout << "	catch one : " << stringBuffer[flag] << endl;
 						string ttt;
 						if (stringBuffer[j] == '(')
 							ttt = "(";
@@ -56,8 +52,6 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 						flag = j+1;
 						catchDigit = false;
 					} else {
-						//cout << "	catch stirng : ";
-						//cout << stringBuffer.substr(flag, j-flag) << "   " << stringBuffer[j]<< endl;
 						parse.push (stringBuffer.substr(flag, j-flag));
 
 						string ttt;
@@ -84,26 +78,17 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 				j++;
 			}
 			if (catchDigit) {
-				instruction->termTokens.push(trying);
+				instruction->setTermTokens(trying);
 			}
 			int t=parse.size();
 			for (int r=0; r<t; r++)
 			{
-				//cout << "- " << parse.front() << endl;
-				instruction->termTokens.push(parse.front());
+				instruction->setTermTokens(parse.front());
 				parse.pop();
 			}
 	        trying = strtok (NULL, " \n\t");
 		}
 
-		/*
-		int k = instruction->termTokens.size();
-		for (int i=0; i<k; i++)
-		{
-			cout << instruction->termTokens.front() << endl;
-			instruction->termTokens.pop();
-		}
-		*/
 		instruction->setInstructionString(slicedString);
 		instructionSet->pushInstruction(*instruction);
 	}
@@ -121,30 +106,27 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 	int type = -1;
 	int tableSize = -1;
 
-	while (!instruction.termTokens.empty()) {
-		//cout << "> slicing tokens : " << instruction.termTokens.front() << endl;
+	while (!instruction.isEmpty()) {
 
 		string thisTerm = instruction.getTermTokens();
 		
 		
 		if (checkStringWithoutCase(thisTerm, "create")) {
 
-			instruction.termTokens.pop();
-			//cout << instruction.termTokens.front() << instruction.termTokens.front() << endl;
+			instruction.popTermTokens();
 			
-			if (checkStringWithoutCase(instruction.termTokens.front(), "table")) {
-				instruction.termTokens.pop();
-				for (int i=0; i<(int)instruction.termTokens.front().size(); i++) {
-					if (!isalpha(instruction.termTokens.front()[i]) && instruction.termTokens.front()[i] != '_') {
+			if (checkStringWithoutCase(instruction.getTermTokens(), "table")) {
+				instruction.popTermTokens();
+				for (int i=0; i<(int)instruction.getTermTokens().size(); i++) {
+					if (!isalpha(instruction.getTermTokens()[i]) && instruction.getTermTokens()[i] != '_') {
 						table = new CreateInst ();
 						table->isValid = false;
 						cout << "table name cannot contain charactors besides alphabats or '_' " << endl;
 						return table;
 					}
 				}
-				//cout << "create table : " << instruction.termTokens.front() << endl;
-				table = new CreateInst (instruction.termTokens.front());
-				instruction.termTokens.pop();
+				table = new CreateInst (instruction.getTermTokens());
+				instruction.popTermTokens();
 				type = CREATE_TABLE;
 			}
 			else {
@@ -154,22 +136,20 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				return table;
 			}
 		} else if (checkStringWithoutCase(thisTerm, "insert")) {
-			instruction.termTokens.pop();
-			//cout << parsing.front() << parsing.front().size() << endl;
+			instruction.popTermTokens();
 			
-			if (checkStringWithoutCase(instruction.termTokens.front(), "into")) {
-				instruction.termTokens.pop();
-				for (int i=0; i<(int)instruction.termTokens.front().size(); i++) {
-					if (!isalpha(instruction.termTokens.front()[i]) && instruction.termTokens.front()[i] != '_') {
+			if (checkStringWithoutCase(instruction.getTermTokens(), "into")) {
+				instruction.popTermTokens();
+				for (int i=0; i<(int)instruction.getTermTokens().size(); i++) {
+					if (!isalpha(instruction.getTermTokens()[i]) && instruction.getTermTokens()[i] != '_') {
 						tuple = new InsertInst ();
 						tuple->isValid = false;
 						cout << "syntax error : table name cannot contain charactors besides alphabats or '_' " << endl;
 						return tuple;
 					}
 				}
-				//cout << "insert tuple into  : " << instruction.termTokens.front() << endl;
-				tuple = new InsertInst (instruction.termTokens.front());
-				instruction.termTokens.pop();
+				tuple = new InsertInst (instruction.getTermTokens());
+				instruction.popTermTokens();
 				type = INSERT_TUPLE;
 			}
 			else {
@@ -179,21 +159,18 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				return tuple;
 			}
 		} else {
-			//cout << "not create or insert" << endl;
 		}
 
 		switch (type) {
 			case CREATE_TABLE : {
-				//cout << ">>>	creating table " << endl;
 				int step = 1;
-				while (!instruction.termTokens.empty()) {
-					string tmpt = instruction.termTokens.front();
-					//cout << step << ' ' << tmpt << endl;
+				while (!instruction.isEmpty()) {
+					string tmpt = instruction.getTermTokens();
 					switch (step) {
 						
 						case 1 : {
 							if (tmpt[0] == '(') {
-								instruction.termTokens.pop();
+								instruction.popTermTokens();
 								step = 2;
 							}
 							else {
@@ -222,7 +199,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							table->varCharSizes.push_back(-1);
 							table->isPK.push_back(false);
 							tableSize += 1;
-							instruction.termTokens.pop();
+							instruction.popTermTokens();
 							step = 3;
 							break;
 						}
@@ -230,15 +207,14 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							if (checkStringWithoutCase(tmpt, "int")) {
 								table->attributeTypes[tableSize] = 0;
 								table->varCharSizes[tableSize] = -1;
-								instruction.termTokens.pop();
+								instruction.popTermTokens();
 								step = 7;
 							} else if (checkStringWithoutCase(tmpt, "varchar")) {
 								table->attributeTypes[tableSize] = 1;
-								instruction.termTokens.pop();
+								instruction.popTermTokens();
 								step = 4;
 							} else {
 								cout << "syntax error 3 : type 後面格式錯誤" << endl;
-								//cout << "syntax error 4" << endl;
 								table->isValid = false;
 								return table;
 							}
@@ -246,7 +222,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 						case 4 : {
 							if (tmpt[0] == '(') {
-								instruction.termTokens.pop();
+								instruction.popTermTokens();
 								step = 5;
 							}
 							else {
@@ -268,13 +244,13 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								return table;
 							}
 							table->varCharSizes[tableSize] = length;
-							instruction.termTokens.pop();
+							instruction.popTermTokens();
 							step = 6;
 							break;
 						}
 						case 6 : {
 							if (tmpt[0] == ')') {
-								instruction.termTokens.pop();
+								instruction.popTermTokens();
 								step = 7;
 							}
 							else {
@@ -286,11 +262,10 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 						case 7 : {
 							if (checkStringWithoutCase(tmpt, "primary")) {
-								instruction.termTokens.pop();
-								if (checkStringWithoutCase(instruction.termTokens.front(), "key")) {
-									//cout << "set primary key " << tableSize <<endl;
+								instruction.popTermTokens();
+								if (checkStringWithoutCase(instruction.getTermTokens(), "key")) {
 									table->isPK[tableSize] = true;
-									instruction.termTokens.pop();
+									instruction.popTermTokens();
 									step = 8;
 								}
 								else {
@@ -307,12 +282,11 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 						case 8 : {
 							if (tmpt[0] == ',') {
-								instruction.termTokens.pop ();
+								instruction.popTermTokens ();
 								step = 2;
 							}
 							else if (tmpt[0] == ')') {
-								//cout << "end of create table switches" << endl;
-								instruction.termTokens.pop();
+								instruction.popTermTokens();
 							}
 							else {
 								table->isValid = false;
@@ -331,28 +305,21 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				
 				}
 				break;
-			}
-			//--------
-			
+			}			
 			case INSERT_TUPLE : {
 				bool insertNullValue = false;
 				bool catchcomma = false;
 				string* attach;
-				//cout << ">>>	inserting tuple :: " << endl;
 				int step = 0;
-				while (!instruction.termTokens.empty()) {
-					string tmpt = instruction.termTokens.front();
-					//cout << step << ' ' << tmpt << endl;
+				while (!instruction.isEmpty()) {
+					string tmpt = instruction.getTermTokens();
 
 					switch (step) {
 						case 0 : {
 							if (checkStringWithoutCase(tmpt, "values")) {
-								//cout << "insert without names" << endl;
 								tuple->isWithName = false;
-								//instruction.termTokens.pop();
 								step = 4;
 							} else {
-								//cout << "start assigning names" << endl;
 								tuple->isWithName = true;
 								step = 1;
 							}
@@ -360,7 +327,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 						case 1 : {
 							if (tmpt[0] == '(') {
-								instruction.termTokens.pop();
+								instruction.popTermTokens();
 								step = 2;
 							}
 							else {
@@ -380,7 +347,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 									}
 								}
 								tuple->insertedAttributes.push_back (tmpt);
-								instruction.termTokens.pop();
+								instruction.popTermTokens();
 								step = 3;
 							} else {
 								tuple->isValid = false;
@@ -391,19 +358,17 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 						case 3 : {
 							if (tmpt[0] == ',') {
-								instruction.termTokens.pop();
+								instruction.popTermTokens();
 								step = 2;
 							} else if (tmpt[0] == ')') {
-								//cout << "end insertint attributes names" << endl;
-								instruction.termTokens.pop();
+								instruction.popTermTokens();
 								step = 4;
 							}
 							break;
 						}
 						case 4 : {
 							if (checkStringWithoutCase(tmpt, "values")) {
-								//cout << "start assigning values" << endl;
-								instruction.termTokens.pop();
+								instruction.popTermTokens();
 								step = 5;
 							} else {
 								tuple->isValid = false;
@@ -414,7 +379,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 						case 5 : {
 							if (tmpt[0] == '(') {
-								instruction.termTokens.pop();
+								instruction.popTermTokens();
 								step = 6;
 							}
 							else {
@@ -431,13 +396,13 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 									*attach += tmpt.substr(0, ts-1);
 									tuple->insertedValues.push_back (attach);
 									tuple->insertedValueTypes.push_back(1);
-									instruction.termTokens.pop();
+									instruction.popTermTokens();
 									catchcomma = false;
 									step = 7;
 								} else {
 									*attach += tmpt;
 									*attach += " ";
-									instruction.termTokens.pop();
+									instruction.popTermTokens();
 									catchcomma = true;
 									step = 6;
 								}
@@ -448,14 +413,14 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 									string* toAdd = new string (tmpt.substr(1, tmpt.size()-2));
 									tuple->insertedValues.push_back (toAdd);
 									tuple->insertedValueTypes.push_back(1);
-									instruction.termTokens.pop();
+									instruction.popTermTokens();
 									catchcomma = false;
 									step = 7;
 								} else {
 									if (!catchcomma) {
 										attach = new string (tmpt.substr(1, ts-1));
 										*attach += " ";
-										instruction.termTokens.pop();
+										instruction.popTermTokens();
 										catchcomma = true;
 										step = 6;
 									} else {
@@ -464,27 +429,23 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 										return tuple;
 									}
 								}
-								//cout << "inserting string " << *toAdd << endl;
 							} else if (tmpt[0] == ',') {
-								//cout << "insert null value" << endl;
 								string* toAdd = new string ("NULL_VALUE");
 								tuple->insertedValues.push_back (toAdd);
 								tuple->insertedValueTypes.push_back(-1);
 								insertNullValue = true;
 								step = 7;
 							} else if (tmpt[0] == ')') {
-								//cout << "ending with a null value" << endl;
 								string* toAdd = new string ("NULL_VALUE");
 								tuple->insertedValues.push_back (toAdd);
 								tuple->insertedValueTypes.push_back(-1);
 								insertNullValue = true;
 								step = 7;
 							} else if (isdigit(tmpt[0])) {
-								//cout << "inserting digit" << endl;
 								string* toAdd = new string (tmpt);
 								tuple->insertedValues.push_back (toAdd);
 								tuple->insertedValueTypes.push_back(0);
-								instruction.termTokens.pop();
+								instruction.popTermTokens();
 								step = 7;
 							}
 							else {
@@ -497,19 +458,17 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						case 7 : {
 							if (tmpt[0] == ',') {
 								if (insertNullValue) {
-									instruction.termTokens.pop();
+									instruction.popTermTokens();
 									insertNullValue = false;
 									step = 6;
 								} else {
-									instruction.termTokens.pop();
+									instruction.popTermTokens();
 									step = 6;
 								}
 							} else if (tmpt[0] == ')') {
 								if (insertNullValue) {
-									//cout << "--ending with a null value" << endl;
 								}
-								//cout << "end insertint value names" << endl;
-								instruction.termTokens.pop();
+								instruction.popTermTokens();
 							}
 							break;
 						}
@@ -527,12 +486,6 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 	}
 	switch (type) {
 		case CREATE_TABLE : {
-			/*
-			cout << table->attributeNames.size() << ' ' << table->attributeTypes.size() << ' ' << table->varCharSizes.size() << ' ' << table->isPK.size() << endl;
-			
-			for (int i=0; i<table->varCharSizes.size(); i++)
-				cout << table->attributeNames[i] << ' ' << table->attributeTypes[i] << ' ' << table->varCharSizes[i] << ' ' << table->isPK[i] << endl;
-			*/
 			table->isValid = true;
 			return table;
 			break;
@@ -540,33 +493,17 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 		case INSERT_TUPLE : {
 			
 			if ((tuple->insertedAttributes.size() != 0) && (tuple->insertedAttributes.size() != tuple->insertedValues.size())) {
-				//cout << "attribute size != value size" << endl;
 				tuple->isValid = false;
 				return tuple;
 				break;
 			}
-			/*
-			cout << tuple->insertedAttributes.size() << ' ' << tuple->insertedValues.size() << ' ' << tuple->insertedValueTypes.size() << endl;
-			
-			if (tuple->insertedAttributes.size() != 0)
-				for (int i=0; i<(int)tuple->insertedAttributes.size(); i++) {
-					cout << tuple->insertedAttributes[i] << ' ' << *tuple->insertedValues[i] << ' ' << tuple->insertedValueTypes[i] << endl;
-				}
-			else {
-				for (int i=0; i<(int)tuple->insertedValues.size(); i++) {
-					cout << "no attribute name" << ' ' << *tuple->insertedValues[i] << ' ' << tuple->insertedValueTypes[i] << endl;
-				}
-			}
-			*/
 			tuple->isValid = true;
-			//cout << "- end parsing INSERT" << endl;
 			return tuple;
 			break;
 		}
 		default : {
 			Instruction* nullinst = new Instruction();
 			cout << "an error occurred that causes return null instruction" << endl;
-			//cout << "- end parsing" << endl;
 			return nullinst;
 			break;
 		}

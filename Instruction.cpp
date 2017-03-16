@@ -55,6 +55,7 @@ string Instruction::getInstructionString()
 void Instruction::setTermTokens(string term)
 {
 	termTokens.push(term);
+	return;
 }
 
 //----------------
@@ -64,12 +65,17 @@ void Instruction::setTermTokens(string term)
 string Instruction::getTermTokens()
 {
 	string tmpt = termTokens.front();
-	//termTokens.pop();
 	return tmpt;
 }
 void Instruction::popTermTokens ()
 {
 	termTokens.pop();
+	return;
+}
+
+bool Instruction::isEmpty () 
+{
+	return termTokens.empty();
 }
 
 bool checkStringWithoutCase (string A, string B)

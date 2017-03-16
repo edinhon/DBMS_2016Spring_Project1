@@ -25,7 +25,7 @@ int main () {
 		DBMS(fileName);
 	} else {
 		string inputS;
-		cout << "Please input the instruction :\n" << ">>> ";
+		cout << "Please input the instruction or type in  \" exit; \" to exit):\n" << ">>> ";
 		while(std::getline (cin, inputS, ';')){
 			fstream fp;
 			fp.open("InputTemp.dbms", ios::out);
@@ -50,7 +50,6 @@ void DBMS(string fileName)
 
 	Parser parser;
 	InstructionSet* instructionSet;
-	//TableSet tableSet;
 	
 	instructionSet = parser.ParseAllInstructions(fp);
 	
@@ -101,7 +100,7 @@ void DBMS(string fileName)
 
 bool ChooseInputFileOrNot()
 {
-	cout << "Do you want to input from a file?[Y/N] ";
+	cout << "Do you want to input from a file?[Y/N] : ";
 	string choose;
 	std::getline(cin, choose);
 	if(choose.compare("Y") == 0 || choose.compare("y") == 0) return true;
