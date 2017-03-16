@@ -30,7 +30,7 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 
 		strcpy(charBuffer, inputString.c_str());
 		
-		trying = strtok (charBuffer," \n"); //忽略縮排
+		trying = strtok (charBuffer," \n\t"); //忽略縮排
 
 		while (trying != NULL) { 
 			string stringBuffer (trying);
@@ -93,7 +93,7 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 				instruction->termTokens.push(parse.front());
 				parse.pop();
 			}
-	        trying = strtok (NULL, " \n");
+	        trying = strtok (NULL, " \n\t");
 		}
 
 		/*
@@ -205,6 +205,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 						case 2 : {
 							if (!isalpha(tmpt[0])) {
+								cout << tmpt[0] << "<--" << endl;
 								cout << "syntax error : not entering name" << endl;
 								table->isValid = false;
 								return table;
@@ -236,7 +237,10 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								instruction.termTokens.pop();
 								step = 4;
 							} else {
-								cout << "syntax error : type 後面格式錯誤" << endl;
+								cout << "syntax error 3 : type 後面格式錯誤" << endl;
+								//cout << "syntax error 4" << endl;
+								table->isValid = false;
+								return table;
 							}
 							break;
 						}
@@ -332,6 +336,8 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			
 			case INSERT_TUPLE : {
 				bool insertNullValue = false;
+				bool catchcomma = false;
+				string* attach;
 				//cout << ">>>	inserting tuple :: " << endl;
 				int step = 0;
 				while (!instruction.termTokens.empty()) {
@@ -419,13 +425,46 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							break;
 						}
 						case 6 : {
-							if (tmpt[0] == 39) {
-								string* toAdd = new string (tmpt.substr(1, tmpt.size()-2));
-								tuple->insertedValues.push_back (toAdd);
-								tuple->insertedValueTypes.push_back(1);
-								instruction.termTokens.pop();
+							if (catchcomma) {
+								int ts = (int)tmpt.size();
+								if (tmpt[ts-1] == 39) {
+									*attach += tmpt.substr(0, ts-1);
+									tuple->insertedValues.push_back (attach);
+									tuple->insertedValueTypes.push_back(1);
+									instruction.termTokens.pop();
+									catchcomma = false;
+									step = 7;
+								} else {
+									*attach += tmpt;
+									*attach += " ";
+									instruction.termTokens.pop();
+									catchcomma = true;
+									step = 6;
+								}
+							}
+							else if (tmpt[0] == 39) {
+								int ts = (int)tmpt.size();
+								if (tmpt[ts-1] == 39) {
+									string* toAdd = new string (tmpt.substr(1, tmpt.size()-2));
+									tuple->insertedValues.push_back (toAdd);
+									tuple->insertedValueTypes.push_back(1);
+									instruction.termTokens.pop();
+									catchcomma = false;
+									step = 7;
+								} else {
+									if (!catchcomma) {
+										attach = new string (tmpt.substr(1, ts-1));
+										*attach += " ";
+										instruction.termTokens.pop();
+										catchcomma = true;
+										step = 6;
+									} else {
+										cout << "syntax error 6" << endl;
+										tuple->isValid = false;
+										return tuple;
+									}
+								}
 								//cout << "inserting string " << *toAdd << endl;
-								step = 7;
 							} else if (tmpt[0] == ',') {
 								//cout << "insert null value" << endl;
 								string* toAdd = new string ("NULL_VALUE");
