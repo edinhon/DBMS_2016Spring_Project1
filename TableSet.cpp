@@ -31,7 +31,7 @@ int TableSet::SearchTable(string tableName)
 		}
 	}
 	
-	cout << "Error: Cannot find table" << tableName << endl;
+	cout << "- Error: Cannot find table" << tableName << endl;
 	return -1;
 }
 
@@ -53,7 +53,7 @@ Table* TableSet::GetTable(string tableName)
 		}
 	}
 	
-	cout << "Error: Cannot find table" << tableName << endl;
+	cout << "- Error: Cannot find table" << tableName << endl;
 	return nullptr;
 }
 
@@ -66,7 +66,7 @@ Table* TableSet::GetTable(int index)
 	if((int)tableVector.size() > index)
 		return &tableVector[index];
 	
-	cout << "Error: Cannot find table of index" << index << endl;
+	cout << "- Error: Cannot find table of index" << index << endl;
 	return nullptr;
 }
 
@@ -84,7 +84,7 @@ bool TableSet::CheckDuplicateTable(CreateInst* cinst)
 		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
 		
 		if(n1.compare(n2) == 0){
-			cout << "Error: There exists a table with the same name of this CREATE instruction\n";
+			cout << "- Error: There exists a table with the same name of this CREATE instruction\n";
 			return false;
 		}
 	}

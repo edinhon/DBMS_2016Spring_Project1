@@ -44,7 +44,7 @@ void DBMS(string fileName)
 	fstream* fp= new fstream();
 	fp->open (fileName, ios::in);
 	if (!fp) {
-		cout << "Error: Cannot open the file " << fileName << endl;
+		cout << "- Error: Cannot open the file " << fileName << endl;
 		return;
 	}
 

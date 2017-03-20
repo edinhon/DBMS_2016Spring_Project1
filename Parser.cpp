@@ -41,28 +41,29 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 			while (j<p) {
 				if ((stringBuffer[j] == '(') || (stringBuffer[j] == ')') || (stringBuffer[j] == ',')) {
 					if (flag == j) {
-						string ttt;
+
+						string tmpt;
 						if (stringBuffer[j] == '(')
-							ttt = "(";
+							tmpt = "(";
 						else if (stringBuffer[j] == ')')
-							ttt = ")";
+							tmpt = ")";
 						else if (stringBuffer[j] == ',')
-							ttt = ",";
-						parse.push (ttt);
+							tmpt = ",";
+						parse.push (tmpt);
 						flag = j+1;
 						catchDigit = false;
 					} else {
 						parse.push (stringBuffer.substr(flag, j-flag));
 
-						string ttt;
+						string tmpt;
 						if (stringBuffer[j] == '(')
-							ttt = "(";
+							tmpt = "(";
 						else if (stringBuffer[j] == ')')
-							ttt = ")";
+							tmpt = ")";
 						else if (stringBuffer[j] == ',')
-							ttt = ",";
+							tmpt = ",";
 
-						parse.push (ttt);
+						parse.push (tmpt);
 
 						flag = j+1;
 						catchDigit = false;
@@ -121,7 +122,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 					if (!isalpha(instruction.getTermTokens()[i]) && instruction.getTermTokens()[i] != '_') {
 						table = new CreateInst ();
 						table->isValid = false;
-						cout << "table name cannot contain charactors besides alphabats or '_' " << endl;
+						cout << "- Syntax Error : table name cannot contain charactors besides alphabats or '_' " << endl;
 						return table;
 					}
 				}
@@ -132,7 +133,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			else {
 				table = new CreateInst ();
 				table->isValid = false;
-				cout << "wrong instruction on create table" << endl;
+				cout << "- Error : wrong instruction on create table" << endl;
 				return table;
 			}
 		} else if (checkStringWithoutCase(thisTerm, "insert")) {
@@ -144,7 +145,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 					if (!isalpha(instruction.getTermTokens()[i]) && instruction.getTermTokens()[i] != '_') {
 						tuple = new InsertInst ();
 						tuple->isValid = false;
-						cout << "syntax error : table name cannot contain charactors besides alphabats or '_' " << endl;
+						cout << "- Syntax Error : table name cannot contain charactors besides alphabats or '_' " << endl;
 						return tuple;
 					}
 				}
@@ -155,7 +156,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			else {
 				tuple = new InsertInst ();
 				tuple->isValid = false;
-				cout << "wrong instruction on insert tuple" << endl;
+				cout << "- Error :wrong instruction on insert tuple" << endl;
 				return tuple;
 			}
 		} else {
@@ -174,7 +175,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								step = 2;
 							}
 							else {
-								cout << "syntax error 1" << endl;
+								cout << "- Syntax Error : 1" << endl;
 								table->isValid = false;
 								return table;
 							}
@@ -183,13 +184,13 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						case 2 : {
 							if (!isalpha(tmpt[0])) {
 								cout << tmpt[0] << "<--" << endl;
-								cout << "syntax error : not entering name" << endl;
+								cout << "- Syntax Error : not entering name" << endl;
 								table->isValid = false;
 								return table;
 							}
 							for (int i=0; i<(int)tmpt.size(); i++) {
 								if (!isalpha (tmpt[i]) && tmpt[i] != '_') {
-									cout << "syntax error : attribute name cannot contain charactors besides alphabats or '_' " << endl;
+									cout << "- Syntax Error : attribute name cannot contain charactors besides alphabats or '_' " << endl;
 									table->isValid = false;
 									return table;
 								}
@@ -214,7 +215,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								instruction.popTermTokens();
 								step = 4;
 							} else {
-								cout << "syntax error 3 : type 後面格式錯誤" << endl;
+								cout << "- Syntax Error : 3 type 後面格式錯誤" << endl;
 								table->isValid = false;
 								return table;
 							}
@@ -226,7 +227,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								step = 5;
 							}
 							else {
-								cout << "syntax error 4" << endl;
+								cout << "- Syntax Error : 4" << endl;
 								table->isValid = false;
 								return table;
 							}
@@ -239,7 +240,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								length += tmpt[i] - '0';
 							}
 							if (length > 40) {
-								cout << "syntax error : varchar length cannot exceed 40" << endl;
+								cout << "- Syntax Error : varchar length cannot exceed 40" << endl;
 								table->isValid = false;
 								return table;
 							}
@@ -254,7 +255,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								step = 7;
 							}
 							else {
-								cout << "syntax error 6" << endl;
+								cout << "- Syntax Error : 6" << endl;
 								table->isValid = false;
 								return table;
 							}
@@ -271,7 +272,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								else {
 									table->isPK[tableSize] = false;
 									table->isValid = false;
-									cout << "syntax error 7" << endl;
+									cout << "- Syntax Error : 7" << endl;
 									return table;
 								}
 							} else {
@@ -290,14 +291,14 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							}
 							else {
 								table->isValid = false;
-								cout << "syntax error 8, not ',' or ')'" << endl;
+								cout << "- Syntax Error : 8, not ',' or ')'" << endl;
 								return table;
 							}
 							break;
 						}
 						default : {
 							table->isValid = false;
-							cout << "wrong instruction on create table" << endl;
+							cout << "- Error :wrong instruction on create table" << endl;
 							return table;
 							break;
 						}
@@ -332,7 +333,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							}
 							else {
 								tuple->isValid = false;
-								cout << "syntax error 1" << endl;
+								cout << "- Syntax Error : 1" << endl;
 								return tuple;
 							}
 							break;
@@ -341,7 +342,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							if (isalpha(tmpt[0])) {
 								for (int i=0; i<(int)tmpt.size(); i++) {
 									if (!isalpha(tmpt[i]) && tmpt[i] != '_') {
-										cout << "syntax error : attribute name cannot contain charactors besides alphabats or '_' " << endl;
+										cout << "- Syntax Error : : attribute name cannot contain charactors besides alphabats or '_' " << endl;
 										tuple->isValid = false;
 										return tuple;
 									}
@@ -351,7 +352,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								step = 3;
 							} else {
 								tuple->isValid = false;
-								cout << "syntax error 2" << endl;
+								cout << "- Syntax Error : 2" << endl;
 								return tuple;
 							}
 							break;
@@ -372,7 +373,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								step = 5;
 							} else {
 								tuple->isValid = false;
-								cout << "syntax error 4" << endl;
+								cout << "- Syntax Error : 4" << endl;
 								return tuple;
 							}
 							break;
@@ -384,7 +385,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							}
 							else {
 								tuple->isValid = false;
-								cout << "syntax error 5" << endl;
+								cout << "- Syntax Error : 5" << endl;
 								return tuple;
 							}
 							break;
@@ -424,7 +425,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 										catchcomma = true;
 										step = 6;
 									} else {
-										cout << "syntax error 6" << endl;
+										cout << "- Syntax Error : 6" << endl;
 										tuple->isValid = false;
 										return tuple;
 									}
@@ -450,7 +451,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							}
 							else {
 								tuple->isValid = false;
-								cout << "syntax error 6" << endl;
+								cout << "- Syntax Error : 6" << endl;
 								return tuple;
 							}
 							break;
@@ -503,7 +504,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 		}
 		default : {
 			Instruction* nullinst = new Instruction();
-			cout << "an error occurred that causes return null instruction" << endl;
+			cout << "- Syntax Error : an error occurred that causes return null instruction" << endl;
 			return nullinst;
 			break;
 		}

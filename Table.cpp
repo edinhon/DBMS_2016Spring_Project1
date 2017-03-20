@@ -153,14 +153,14 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		
 		//Check attribute value number of instruction without attribute name.
 		if ((int)attributes.size() != (int)iinst->insertedValues.size()){
-			cout << "Error: INSERT value number doesn't match to table attribute number.\n";
+			cout << "- Error: INSERT value number doesn't match to table attribute number.\n";
 			return false;
 		}
 		
 		//Check attribute type of instruction without attribute name.
 		for (int i = 0 ; i < (int)attributes.size() ; i++){
 			if(iinst->insertedValueTypes[i] != -1 && attributes[i].type != iinst->insertedValueTypes[i]){
-				cout << "Error: INSERT value type doesn't match to table attribute type.\n";
+				cout << "- Error: INSERT value type doesn't match to table attribute type.\n";
 				return false;
 			}
 		}
@@ -168,7 +168,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		//Check NULL value of PK.
 		for (int i = 0 ; i < (int)PKIndexes.size() ; i++){
 			if (iinst->insertedValueTypes[i] == -1){
-				cout << "Error: There exists NULL value in PK.\n";
+				cout << "- Error: There exists NULL value in PK.\n";
 				return false;
 			}
 		}
@@ -184,13 +184,13 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		for (int i = 0 ; i < (int)tuples.size() ; i++){
 			if (isHidedPK) {
 				if (tuples[i].hidedPK != NULL && (*(tuples[i].hidedPK)).compare(s) == 0){
-					cout << "Error: There exists duplicate tuple.\n";
+					cout << "- Error: There exists duplicate tuple.\n";
 					return false;
 				}
 			} else {
 				for(int j = 0 ; j < (int)PKIndexes.size() ; j++){
 					if((*(tuples[i].values[j].value)).compare(*(iinst->insertedValues[j])) == 0){
-						cout << "Error: There exists duplicate PK value.\n";
+						cout << "- Error: There exists duplicate PK value.\n";
 						return false;
 					}
 				}
@@ -202,7 +202,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 			if(attributes[i].type == 1 && 
 				iinst->insertedValueTypes[i] != -1 && 
 				((int)(*(iinst->insertedValues[i])).size() > attributes[i].varCharSize)){
-					cout << "Error: Different varchar size with table.\n";
+					cout << "- Error: Different varchar size with table.\n";
 					return false;
 				}
 		}
@@ -210,7 +210,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 	} else {
 		
 		if(iinst->insertedAttributes.size() != iinst->insertedValues.size()){
-			cout << "Error: INSERT attribute name number doesn't match to value number\n";
+			cout << "- Error: INSERT attribute name number doesn't match to value number\n";
 			return false;
 		}
 		
@@ -230,19 +230,19 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 					//For type
 					if (iinst->insertedValueTypes[i] != -1 && 
 						attributes[j].type != iinst->insertedValueTypes[i]){
-							cout << "Error: INSERT value type doesn't match to table attribute type.\n";
+							cout << "- Error: INSERT value type doesn't match to table attribute type.\n";
 							return false;
 					}
 					//For varchar size
 					if(attributes[j].type == 1 && 
 						((int)((*(iinst->insertedValues[i])).size()) > attributes[j].varCharSize)){
-							cout << "Error: Different varchar size with table.\n";
+							cout << "- Error: Different varchar size with table.\n";
 							return false;
 						}
 				}
 			}
 			if(nameChecker == false){
-				cout << "Error: INSERT name doesn't match to table attribute name.\n";
+				cout << "- Error: INSERT name doesn't match to table attribute name.\n";
 				return false;
 			}
 		}
@@ -265,14 +265,14 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 						//For duplicate
 						for (int k = 0 ; k < (int)tuples.size() ; k++){
 							if((*(tuples[k].values[i].value)).compare(*(iinst->insertedValues[j])) == 0){
-								cout << "Error: There exists duplicate PK value.\n";
+								cout << "- Error: There exists duplicate PK value.\n";
 								return false;
 							}
 						}
 					}
 				}
 				if(nullPKChecker == false){
-					cout << "Error: There exists NULL value in PK.\n";
+					cout << "- Error: There exists NULL value in PK.\n";
 					return false;
 				}
 			}
@@ -292,7 +292,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 			
 			for (int i = 0 ; i < (int)tuples.size() ; i++){
 				if ((*(tuples[i].hidedPK)).compare(s) == 0){
-					cout << "Error: There exists duplicate tuple.\n";
+					cout << "- Error: There exists duplicate tuple.\n";
 					return false;
 				}
 			}
