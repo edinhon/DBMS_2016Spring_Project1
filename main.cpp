@@ -18,6 +18,8 @@ TableSet tableSet;
 
 int main () {
 	
+	DBMS ("input testcase.txt");
+	/*
 	if (ChooseInputFileOrNot()){
 		string fileName;
 		cout << "Please input the file name >>> ";
@@ -35,9 +37,10 @@ int main () {
 			cout << ">>> ";
 		}
 	}
-	
+	*/
 	return 0;
 }
+
 
 void DBMS(string fileName)
 {
