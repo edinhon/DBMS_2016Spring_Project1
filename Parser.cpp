@@ -32,6 +32,7 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 
 		while (trying != NULL) { 
 			string stringBuffer (trying);
+			
 			queue<string> parse;
 			int flag = 0;
 			int p = stringBuffer.size();
@@ -92,6 +93,7 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 
 		instruction->setInstructionString(slicedString);
 		instructionSet->pushInstruction(*instruction);
+		instruction->showTokens ();
 	}
 	return instructionSet;
 }

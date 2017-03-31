@@ -45,7 +45,11 @@ class Instruction {
 		//		Get tokens to run this instruction.
 		//----------------
 		string getTermTokens();
+
 		void popTermTokens ();
+		
+		void showTokens ();
+		
 		bool isEmpty ();
 
 		bool isValid;

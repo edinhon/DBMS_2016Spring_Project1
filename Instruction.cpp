@@ -67,9 +67,22 @@ string Instruction::getTermTokens()
 	string tmpt = termTokens.front();
 	return tmpt;
 }
+
 void Instruction::popTermTokens ()
 {
 	termTokens.pop();
+	return;
+}
+
+void Instruction::showTokens () 
+{
+	int s = termTokens.size();
+	for (int i=0; i<s; i++) {
+		string tmpt = termTokens.front();
+		termTokens.pop();
+		termTokens.push(tmpt);
+		cout << tmpt << endl;
+	}
 	return;
 }
 
