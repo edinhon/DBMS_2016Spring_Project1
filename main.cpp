@@ -5,6 +5,7 @@
 #include "InstructionSet.h"
 #include "CreateInst.h"
 #include "InsertInst.h"
+#include "SelectInst.h"
 #include "Table.h"
 #include "TableSet.h"
 
@@ -90,6 +91,12 @@ void DBMS(string fileName)
 				break;
 			}
 			case SELECT :{
+				SelectInst *sinst = dynamic_cast<SelectInst*>(inst);
+				
+				if(tableSet.ContainTables(sinst->tableName)){
+					Table t = tableSet.SelectTables(sinst);
+					t.ShowTable();
+				}
 				
 				break;
 			}

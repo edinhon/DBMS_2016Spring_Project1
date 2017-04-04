@@ -28,6 +28,18 @@ class TableSet {
 		int SearchTable(string);
 		
 		//---------------
+		// bool ContainTable(string)
+		//		Check table contain in tableVector or not.
+		//---------------
+		bool ContainTable(string);
+		
+		//---------------
+		// bool ContainTables(vector<string>)
+		//		Check tables contain in tableVector or not.
+		//---------------
+		bool ContainTables(vector<string>);
+		
+		//---------------
 		// Table* GetTable(string)
 		//		Get table pointer by name.
 		//---------------
@@ -50,6 +62,12 @@ class TableSet {
 		//		Show all tables content in TableSet.
 		//---------------
 		void ShowTables();
+		
+		//---------------
+		// Table SelectTable()
+		//		Select a new Table by SelectInst.
+		//---------------
+		Table SelectTable(SelectInst*);
 		
 	private:
 		

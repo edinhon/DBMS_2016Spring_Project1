@@ -7,6 +7,7 @@
 #include "Instruction.h"
 #include "CreateInst.h"
 #include "InsertInst.h"
+#include "SelectInst.h"
 
 using namespace std;
 

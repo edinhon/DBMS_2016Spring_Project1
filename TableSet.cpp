@@ -14,6 +14,43 @@ void TableSet::PushTable(Table t)
 }
 
 //---------------
+// bool ContainTable(string)
+//		Check table contain in tableVector or not.
+//---------------
+bool TableSet::ContainTable(string tableName)
+{
+	string n1 = tableName;
+	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+	
+	for (vector<Table>::iterator it = tableVector.begin(); it != tableVector.end(); it++){
+		string n2 = it->getTableName();
+		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+		
+		if(n1.compare(n2) == 0){
+			return true;
+		}
+	}
+	
+	cout << "- Error: Cannot find table " << tableName << endl;
+	return false;
+}
+
+//---------------
+// bool ContainTables(vector<string>)
+//		Check tables contain in tableVector or not.
+//---------------
+bool TableSet::ContainTables(vector<string> tableNames)
+{
+	for (vector<Table>::iterator it = tableVector.begin(); it != tableVector.end(); it++){
+		if(!ContainTable(it->getTableName())){
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+//---------------
 // int SearchTable(string)
 //		Search table in tableVector by name and return index.
 //---------------
@@ -31,7 +68,7 @@ int TableSet::SearchTable(string tableName)
 		}
 	}
 	
-	cout << "- Error: Cannot find table" << tableName << endl;
+	cout << "- Error: Cannot find table " << tableName << endl;
 	return -1;
 }
 
@@ -102,3 +139,14 @@ void TableSet::ShowTables()
 		tableVector[i].ShowTable();
 	}
 }
+
+//-----------------------------------------
+// Table SelectTable()
+//		Select a new Table by SelectInst.
+//-----------------------------------------
+Table TableSet::SelectTable(SelectInst* sinst)
+{
+	
+}
+
+
