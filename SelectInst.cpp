@@ -8,6 +8,16 @@ SelectInst::SelectInst()
 	tableName = "\0";
 	
 	type = SELECTION;
+	
+	isSelectAllAttrs = false;
+	
+	isWHERE = false;
+	
+	isCOUNT = false;
+	
+	isCOUNTAllAttrs = false;
+	
+	isSUM = false;
 }
 
 SelectInst::SelectInst(string const name)
@@ -17,6 +27,16 @@ SelectInst::SelectInst(string const name)
 	tableName = name;
 	
 	type = SELECTION;
+	
+	isSelectAllAttrs = false;
+	
+	isWHERE = false;
+	
+	isCOUNT = false;
+	
+	isCOUNTAllAttrs = false;
+	
+	isSUM = false;
 }
 
 vector<string> split(const string &s, char delim) {

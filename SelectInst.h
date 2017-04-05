@@ -24,9 +24,9 @@ class SelectInst : public Instruction {
 		
 		vector<string> selectedAttributesNames;	//Decide whether attribute names are duplicate in Parser.
 		
-		vector<string> selectedAttributesAlias;
+		vector<string> selectedAttributesTables;
 		
-		vector<int> selectedAttributesAliasIndex;	//record the index of table name alias
+		vector<int> selectedAttributesTablesIndex;	//record the index of attribute table name alias
 		
 		bool isSelectAllAttrs;
 		

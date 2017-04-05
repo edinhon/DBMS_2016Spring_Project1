@@ -154,6 +154,16 @@ Table TableSet::SelectTable(SelectInst* sinst)
 	
 	if (!sinst->isWHERE){
 		
+		if(sinst->isSelectAllAttrs){
+			
+		} else {
+			for(int i = 0 ; i < (int)selectedTables.size() ; i++){
+			
+				
+				
+			}
+		}
+		
 	} else {
 		
 	}
