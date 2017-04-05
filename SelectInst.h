@@ -16,13 +16,17 @@ class SelectInst : public Instruction {
 		SelectInst(string const name);
 		~SelectInst(){};
 		
-		vector<string> tableName;	//SELECT table FROM these tableName
+		vector<string> tableNames;	//SELECT table FROM these tableName
 									//Check whether table name is duplicate in TableSet.	
 		vector<string> tableNameAlias;	//Table Name alias
 		
 		vector<int> tableNameAliasIndex	//record the index of table name alias
 		
-		vector<string> selectedAttributes;	//Decide whether attribute names are duplicate in Parser.
+		vector<string> selectedAttributesNames;	//Decide whether attribute names are duplicate in Parser.
+		
+		vector<string> selectedAttributesAlias;
+		
+		vector<int> selectedAttributesAliasIndex;	//record the index of table name alias
 		
 		bool isSelectAllAttrs;
 		
@@ -49,4 +53,6 @@ class SelectInst : public Instruction {
 		vector<string> SUM_Attributes;
 		
 };
+
+vector<string> split(const string &s, char delim);
 #endif

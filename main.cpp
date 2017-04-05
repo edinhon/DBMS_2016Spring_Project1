@@ -93,7 +93,7 @@ void DBMS(string fileName)
 			case SELECT :{
 				SelectInst *sinst = dynamic_cast<SelectInst*>(inst);
 				
-				if(tableSet.ContainTables(sinst->tableName)){
+				if(tableSet.ContainTables(sinst->tableNames)){
 					Table t = tableSet.SelectTables(sinst);
 					t.ShowTable();
 				}

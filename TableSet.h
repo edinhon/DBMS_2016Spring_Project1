@@ -73,4 +73,5 @@ class TableSet {
 		
 		vector<Table> tableVector;
 };
+
 #endif

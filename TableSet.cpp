@@ -146,7 +146,19 @@ void TableSet::ShowTables()
 //-----------------------------------------
 Table TableSet::SelectTable(SelectInst* sinst)
 {
+	vector<Table*> selectedTables;
+	for(int i = 0 ; i < (int)sinst->tableNames.size() ; i++){
+		Table* t = GetTable(sinst->tableNames[i].getTableName());
+		selectedTables.push_back(t);
+	}
 	
+	if (!sinst->isWHERE){
+		
+	} else {
+		
+	}
 }
+
+
 
 
