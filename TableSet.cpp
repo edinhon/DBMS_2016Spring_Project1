@@ -141,10 +141,12 @@ void TableSet::ShowTables()
 }
 
 //-----------------------------------------
-// Table SelectTable()
-//		Select a new Table by SelectInst.
+// bool SelectTable()
+//		Select a new Table by SelectInst and push into tableVector.
+//		Before call this function, 
+//		it should call main.CheckSelectAttrTableName() and ContainTables().
 //-----------------------------------------
-Table TableSet::SelectTable(SelectInst* sinst)
+bool TableSet::SelectTable(SelectInst* sinst)
 {
 	vector<Table*> selectedTables;
 	for(int i = 0 ; i < (int)sinst->tableNames.size() ; i++){
@@ -152,19 +154,105 @@ Table TableSet::SelectTable(SelectInst* sinst)
 		selectedTables.push_back(t);
 	}
 	
+	//檢查沒有table name的attribute是否都出現在FROM的tables
+	for(int i = 0 ; i < (int)sinst->selectedAttributesNames.size() ; i++){
+		if(!sinst->isSelectedAttributesTables[j]){
+			bool flag = false;
+			for(int j = 0 ; j < (int)selectedTables.size() ; j++){
+				if(selectedTables[j].ContainAttribute(sinst->selectedAttributesNames[i]))
+					flag = true;
+				else flag = false;
+			}
+			if(flag){
+				cout << "- Error: The attribute " << sinst->selectedAttributesNames[i] <<
+					" is an ambiguous attribute between two tables, but not used as a prefix in the attribute.\n";
+				return false;
+			}
+		}
+	}
+	
 	if (!sinst->isWHERE){
+		
+		Table returnT();
 		
 		if(sinst->isSelectAllAttrs){
 			
-		} else {
+		} 
+		else {
+			//依序檢查每個table
 			for(int i = 0 ; i < (int)selectedTables.size() ; i++){
-			
 				
+				//取得此table的alias name
+				string tableAlias = "";
+				if(sinst->isTableNameAlias[i]){
+					for(int j = 0 ; j < (int) sinst->tableNameAliasIndex.size() ; j++){
+						if(sinst->tableNameAliasIndex[j] == i){
+							tableAlias = sinst->tableNameAlias[j];
+						}
+					}
+				}
+				
+				//檢查Attribute是否屬於這個table並取出Attribute
+				for(int j = 0 ; j < (int)sinst->selectedAttributesNames.size() ; j++){
+					//分成有table name或沒table name
+					if(sinst->isSelectedAttributesTables[j]){
+						
+						//取得table (alias) name
+						string TName;
+						for(int k = 0 ; k < (int)sinst->selectedAttributesTablesIndex.size() ; k++){
+							if(sinst->selectedAttributesTablesIndex[k] == j){
+								TName = sinst->selectedAttributesTables[k];
+								break;
+							}
+						}
+						
+						//檢查table name & alias是否屬於這個table
+						bool isThisTable = false;
+						string n1 = TName;
+						transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+						string n2 = selectedTables[i]->getTableName();
+						transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+						
+						if(n1.compare(n2) == 0) isThisTable = true;
+						
+						if(sinst->isTableNameAlias[i]){
+							n2 = tableAlias;
+							transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+							if(n1.compare(n2) == 0) isThisTable = true;
+						}
+						
+						//如果此attribute table屬於此table, 取出attribute放進新table
+						if(isThisTable){
+							//檢查此attribute是否存在於此table
+							if(selectedTables[i]->ContainAttribute(sinst->selectedAttributesNames[j])){
+								if(!returnT.InsertAttribute(selectedTables[i], sinst->selectedAttributesNames[j]))
+									return false;
+							} else {
+								cout << "- Error: The attribute " << sinst->selectedAttributesNames[j] << 
+									" doesn't exist in the table " << selectedTables[i]->getTableName() << " .\n";
+								return false;
+							}
+						}
+						
+					} 
+					else {
+						//檢查此attribute是否存在於此table, 是則取出attribute放進新table
+						if(selectedTables[i]->ContainAttribute(sinst->selectedAttributesNames[j])){
+							if(!returnT.InsertAttribute(selectedTables[i]->GetAttribute(sinst->selectedAttributesNames[j])))
+								return false;
+						} else {
+							cout << "- Error: The attribute " << sinst->selectedAttributesNames[j] << 
+								" doesn't exist in the table " << selectedTables[i]->getTableName() << " .\n";
+							return false;
+						}
+					}
+				}
 				
 			}
 		}
 		
-	} else {
+	} 
+	else {
 		
 	}
 }

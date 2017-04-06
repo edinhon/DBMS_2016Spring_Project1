@@ -26,6 +26,18 @@ Table::Table(CreateInst *cinst)
 	}
 }
 
+//---------------------------------------------------
+// Table()
+//		Create a empty table. Used in SELECT instruction.
+//---------------------------------------------------
+Table::Table()
+{
+	tableName = "SelectedTable";
+	
+	isHidedPK = true;
+	
+}
+
 Table::~Table()
 {
 	attributes.clear();
@@ -302,6 +314,68 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 	
 	return true;
 }
+
+//-------------------------------------------------
+// bool InsertAttribute(Table*, string)
+//		Insert a new attribute column in a empty Table.
+//-------------------------------------------------
+bool Table::InsertAttribute(Table* t, string attrName)
+{
+	if(tuples.size() != 0){
+		cout << "- Error: Cannot insert attribute into a non-empty table.\n";
+		return false;
+	}
+	
+	string n1 = attrName;
+	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+	for(int i = 0 ; i < (int)t->attributes.size() ; i++){
+		string n2 = t->attribute[i].name;
+		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+		
+		if(n1.compare(n2) == 0){
+			Attribute a = t->attribute[i];
+			a.isPK = false;
+			attributes.push_back(a);
+			return true;
+		}
+	}
+}
+
+//-------------------------------------------------
+// bool ContainAttribute(string)
+//		Check the attribute by name in table or not.
+//-------------------------------------------------
+bool Table::ContainAttribute(string name)
+{
+	string n1 = name;
+	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+	
+	for(int i = 0 ; i < (int)attributes.size() ; i++){
+		string n2 = attribute[i].name;
+		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+		
+		if(n1.compare(n2) == 0)
+			return true;
+	}
+}
+/*
+//-------------------------------------------------
+// Attribute GetAttribute(string)
+//		Get a attribute by name.
+//-------------------------------------------------
+Attribute Table::GetAttribute(string name)
+{
+	string n1 = name;
+	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+	
+	for(int i = 0 ; i < (int)attributes.size() ; i++){
+		string n2 = attribute[i].name;
+		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+		
+		if(n1.compare(n2) == 0)
+			return attribute[i];
+	}
+}*/
 
 string Table::getTableName()
 {

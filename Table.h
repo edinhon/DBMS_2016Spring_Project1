@@ -21,6 +21,16 @@ class Table {
 				int varCharSize; // size of varchar
 				string *value;
 				bool isPK;
+				Attribute& operator= (Attribute const &that){
+					if (this != &that) {
+						name = that.name;
+						type = that.type;
+						varCharSize = that.varCharSize;
+						value = that.value;
+						isPK = that.isPK;
+					}
+					return *this;
+				}
 		};
 		
 		class Tuple {
@@ -58,6 +68,12 @@ class Table {
 		//--------------
 		Table(CreateInst*);
 		
+		//---------------------------------------------------
+		// Table()
+		//		Create a empty table. Used in SELECT instruction.
+		//---------------------------------------------------
+		Table();
+		
 		~Table();
 		
 		//--------------
@@ -76,7 +92,23 @@ class Table {
 		//--------------
 		bool CheckInsertInst(InsertInst*);
 
-		//TODO: SearchTuple()
+		//-------------------------------------------------
+		// bool InsertAttribute(Table*, string)
+		//		Insert a new attribute column in a empty Table.
+		//-------------------------------------------------
+		bool Table::InsertAttribute(Table*, string);
+		
+		//-------------------------------------------------
+		// bool ContainAttribute(string)
+		//		Check the attribute by name in table or not.
+		//-------------------------------------------------
+		bool Table::ContainAttribute(string)
+		/*
+		//-------------------------------------------------
+		// Attribute GetAttribute(string)
+		//		Get a attribute by name.
+		//-------------------------------------------------
+		Attribute GetAttribute(string);*/
 		
 		vector<Tuple> tuples;
 		
@@ -86,11 +118,13 @@ class Table {
 		
 		bool isHidedPK;
 		
+	protected:
+		
+		vector<Attribute> attributes;
+		
 	private:
 		
 		string tableName;
-		
-		vector<Attribute> attributes;
 		
 		vector<int> PKIndexes;
 };

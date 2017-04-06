@@ -64,10 +64,10 @@ class TableSet {
 		void ShowTables();
 		
 		//---------------
-		// Table SelectTable()
-		//		Select a new Table by SelectInst.
+		// bool SelectTable()
+		//		Select a new Table by SelectInst and push into tableVector.
 		//---------------
-		Table SelectTable(SelectInst*);
+		bool SelectTable(SelectInst*);
 		
 	private:
 		

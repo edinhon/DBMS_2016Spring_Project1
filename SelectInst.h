@@ -18,13 +18,17 @@ class SelectInst : public Instruction {
 		
 		vector<string> tableNames;	//SELECT table FROM these tableName
 									//Check whether table name is duplicate in TableSet.	
+		vector<bool> isTableNameAlias;							
+									
 		vector<string> tableNameAlias;	//Table Name alias
 		
 		vector<int> tableNameAliasIndex	//record the index of table name alias
 		
 		vector<string> selectedAttributesNames;	//Decide whether attribute names are duplicate in Parser.
 		
-		vector<string> selectedAttributesTables;
+		vector<bool> isSelectedAttributesTables;//Whether a table name of attribute or not.
+		
+		vector<string> selectedAttributesTables;//Table name of attributes.
 		
 		vector<int> selectedAttributesTablesIndex;	//record the index of attribute table name alias
 		

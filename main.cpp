@@ -93,7 +93,7 @@ void DBMS(string fileName)
 			case SELECT :{
 				SelectInst *sinst = dynamic_cast<SelectInst*>(inst);
 				
-				if(tableSet.ContainTables(sinst->tableNames)){
+				if(CheckSelectAttrTableName(sinst) && tableSet.ContainTables(sinst->tableNames)){
 					Table t = tableSet.SelectTables(sinst);
 					t.ShowTable();
 				}
@@ -116,6 +116,43 @@ bool ChooseInputFileOrNot()
 	if(choose.compare("Y") == 0 || choose.compare("y") == 0) return true;
 	else if (choose.compare("N") == 0 || choose.compare("n") == 0) return false;
 	else return false;
+}
+
+//------------------------
+// bool CheckSelectAttrTableName(SelectInst* sinst)
+//		Check whether the table name of attribute exists
+//		in table name of SelectInst or not.
+//------------------------
+bool CheckSelectAttrTableName(SelectInst* sinst)
+{
+	for(int i = 0 ; i < (int)sinst->selectedAttributesTables.size() ; i++){
+		bool flag = false;
+		string n1 = sinst->selectedAttributesTables[i];
+		transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+		for(int j = 0 ; j < (int)sinst->tableNames.size() ; j++){
+			string n2 = sinst->tableNames[j];
+			transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+			
+			if(n1.compare(n2) == 0){
+				flag = true;
+				break;
+			}
+		}
+		for(int j = 0 ; j < (int)sinst->tableNameAlias.size() ; j++){
+			string n2 = sinst->tableNameAlias[j];
+			transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+			
+			if(n1.compare(n2) == 0){
+				flag = true;
+				break;
+			}
+		}
+		if(!flag){
+			cout << "- Error: The table name of attribute " << n1 << " cannot be found in SELECT FROM.\n"
+			return false;
+		}
+	}
+	return true;
 }
 
 
