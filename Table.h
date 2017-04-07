@@ -109,12 +109,12 @@ class Table {
 		//		Check the attribute by name in table or not.
 		//-------------------------------------------------
 		bool ContainAttribute(string);
-		/*
+		
 		//-------------------------------------------------
-		// Attribute GetAttribute(string)
-		//		Get a attribute by name.
+		// int GetAttributeType(string)
+		//		Get a attribute type by name.
 		//-------------------------------------------------
-		Attribute GetAttribute(string);*/
+		int GetAttributeType(string);
 		
 		vector<Tuple> tuples;
 		

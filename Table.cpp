@@ -380,24 +380,26 @@ bool Table::ContainAttribute(string name)
 	}
 	return false;
 }
-/*
+
 //-------------------------------------------------
-// Attribute GetAttribute(string)
-//		Get a attribute by name.
+// int GetAttributeType(string)
+//		Get a attribute type by name.
 //-------------------------------------------------
-Attribute Table::GetAttribute(string name)
+int Table::GetAttributeType(string name)
 {
 	string n1 = name;
 	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
 	
 	for(int i = 0 ; i < (int)attributes.size() ; i++){
-		string n2 = attribute[i].name;
+		string n2 = attributes[i].name;
 		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
 		
 		if(n1.compare(n2) == 0)
-			return attribute[i];
+			return attributes[i].type;
 	}
-}*/
+	
+	return -1;
+}
 
 string Table::getTableName()
 {

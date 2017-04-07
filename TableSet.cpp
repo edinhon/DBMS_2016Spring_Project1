@@ -146,6 +146,11 @@ void TableSet::ShowTables()
 //---------------------------------------
 bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 {
+	if(sinst->isSelectAllAttrs && sinst->isSUM){
+		cout << "- Error: Cannot sum up all attributes.\n";
+		return false;
+	}
+	
 	//檢查是否table name of attribute都存在FROM裡面
 	for(int i = 0 ; i < (int)sinst->selectedAttributesTables.size() ; i++){
 		bool flag = false;
@@ -173,7 +178,8 @@ bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 		}
 		
 		if(!flag){
-			cout << "- Error: The table name of attribute " << n1 << " cannot be found in SELECT FROM.\n";
+			cout << "- Error: The table name of attribute " <<
+				sinst->selectedAttributesTables[i] << " cannot be found in SELECT FROM.\n";
 			return false;
 		}
 	}
@@ -278,7 +284,7 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 				//分成有table name或沒table name
 				if(sinst->isSelectedAttributesTables[j]){
 					
-				//取得table (alias) name
+					//取得table (alias) name
 					string TName;
 					for(int k = 0 ; k < (int)sinst->selectedAttributesTablesIndex.size() ; k++){
 						if(sinst->selectedAttributesTablesIndex[k] == j){
@@ -324,6 +330,13 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 					}
 				}
 			}
+		}
+		
+		//如果是SUM的話，檢查其attribute type
+		if(sinst->isSUM && t->GetAttributeType(sinst->selectedAttributesNames.front()) != 0){
+			cout << "- Error: Cannot sum up the attribute " << 
+				sinst->selectedAttributesNames.front() << " which is not integer\n";
+			return false;
 		}
 	}
 	return true;
