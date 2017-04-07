@@ -4,3 +4,9 @@ CREATE TABLE Article (
 	author varchar(20),
 	view int
 );
+CREATE TABLE Article (
+	articleId int PRIMARY KEY,
+	title varchar(20),
+	author varchar(20),
+	view int
+);

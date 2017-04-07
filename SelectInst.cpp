@@ -5,7 +5,7 @@ SelectInst::SelectInst()
 {
 	isValid = false;
 
-	tableName = "\0";
+	//tableName = "\0";
 	
 	type = SELECTION;
 	
@@ -24,7 +24,7 @@ SelectInst::SelectInst(string const name)
 {
 	isValid = false;
 	
-	tableName = name;
+	//tableName = name;
 	
 	type = SELECTION;
 	
@@ -38,7 +38,7 @@ SelectInst::SelectInst(string const name)
 	
 	isSUM = false;
 }
-
+/*
 vector<string> split(const string &s, char delim) {
     stringstream ss(s);
     string item;
@@ -47,4 +47,4 @@ vector<string> split(const string &s, char delim) {
         tokens.push_back(item);
     }
     return tokens;
-}
+}*/

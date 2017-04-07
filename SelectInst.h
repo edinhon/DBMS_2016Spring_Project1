@@ -22,7 +22,7 @@ class SelectInst : public Instruction {
 									
 		vector<string> tableNameAlias;	//Table Name alias
 		
-		vector<int> tableNameAliasIndex	//record the index of table name alias
+		vector<int> tableNameAliasIndex;	//record the index of table name alias
 		
 		vector<string> selectedAttributesNames;	//Decide whether attribute names are duplicate in Parser.
 		
@@ -58,5 +58,5 @@ class SelectInst : public Instruction {
 		
 };
 
-vector<string> split(const string &s, char delim);
+//vector<string> split(const string &s, char delim);
 #endif

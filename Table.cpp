@@ -316,29 +316,50 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 }
 
 //-------------------------------------------------
-// bool InsertAttribute(Table*, string)
-//		Insert a new attribute column in a empty Table.
+// bool CopyAttribute(Table*, string)
+//		Copy a new attribute column into a empty Table.
 //-------------------------------------------------
-bool Table::InsertAttribute(Table* t, string attrName)
+bool Table::CopyAttribute(Table* t, string attrName)
 {
 	if(tuples.size() != 0){
-		cout << "- Error: Cannot insert attribute into a non-empty table.\n";
+		cout << "- Error: Cannot copy the attribute into a non-empty table.\n";
 		return false;
 	}
 	
 	string n1 = attrName;
 	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+	
+	if(ContainAttribute(attrName)){
+		cout << "- Error: There exists the same attribute " << attrName <<
+			" in this table.\n";
+		return false;
+	}
+	
 	for(int i = 0 ; i < (int)t->attributes.size() ; i++){
-		string n2 = t->attribute[i].name;
+		string n2 = t->attributes[i].name;
 		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
 		
 		if(n1.compare(n2) == 0){
-			Attribute a = t->attribute[i];
+			Attribute a = t->attributes[i];
 			a.isPK = false;
 			attributes.push_back(a);
 			return true;
 		}
 	}
+	return false;
+}
+
+//-------------------------------------------------
+// bool CopyAttributes(Table*)
+//		Copy all attribute columns of input Table into a empty Table.
+//-------------------------------------------------
+bool Table::CopyAttributes(Table* t)
+{
+	for(int i = 0 ; i < (int)t->attributes.size() ; i++){
+		if(!CopyAttribute(t, t->attributes[i].name))
+			return false;
+	}
+	return true;
 }
 
 //-------------------------------------------------
@@ -351,12 +372,13 @@ bool Table::ContainAttribute(string name)
 	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
 	
 	for(int i = 0 ; i < (int)attributes.size() ; i++){
-		string n2 = attribute[i].name;
+		string n2 = attributes[i].name;
 		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
 		
 		if(n1.compare(n2) == 0)
 			return true;
 	}
+	return false;
 }
 /*
 //-------------------------------------------------

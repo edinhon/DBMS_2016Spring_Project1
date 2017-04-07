@@ -63,11 +63,49 @@ class TableSet {
 		//---------------
 		void ShowTables();
 		
-		//---------------
+		//---------------------------------------
+		// bool CheckSelectInst(SelectInst*)
+		//		Check SELECT is valid or not.
+		//---------------------------------------
+		bool CheckSelectInst(SelectInst*, vector<Table*>);
+		
+		//---------------------------------------
 		// bool SelectTable()
 		//		Select a new Table by SelectInst and push into tableVector.
-		//---------------
+		//---------------------------------------
 		bool SelectTable(SelectInst*);
+		
+		//---------------------------------------
+		// bool SELECT_InsertAttributes(Table*, SelectInst*, vector<Table*>)
+		//		Insert attributes by SELECT.
+		//---------------------------------------
+		bool SELECT_InsertAttributes(Table*, SelectInst*, vector<Table*>);
+		
+		//---------------------------------------
+		// bool SELECT_InsertTuples(Table*, SelectInst*, vector<Table*>)
+		//		Insert tuples by SELECT.
+		//---------------------------------------
+		bool SELECT_InsertTuples(Table*, SelectInst*, vector<Table*>);
+		
+		//---------------------------------------
+		// bool SELECT_InsertTuplesWithWhere(Table*, SelectInst*, vector<Table*>)
+		//		Insert tuples by SELECT with WHERE.
+		//---------------------------------------
+		bool SELECT_InsertTuplesWithWhere(Table*, SelectInst*, vector<Table*>);
+		
+		
+		
+		//------------------------------
+		// Table* GetSelectedTable()
+		//		Get the table of SELECT.
+		//------------------------------
+		Table* GetSelectedTable();
+		
+		//------------------------------
+		// bool DeleteSelectedTable()
+		//		Delete the table of SELECT.
+		//------------------------------
+		bool DeleteSelectedTable();
 		
 	private:
 		

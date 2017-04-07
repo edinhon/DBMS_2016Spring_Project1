@@ -93,16 +93,22 @@ class Table {
 		bool CheckInsertInst(InsertInst*);
 
 		//-------------------------------------------------
-		// bool InsertAttribute(Table*, string)
-		//		Insert a new attribute column in a empty Table.
+		// bool CopyAttribute(Table*, string)
+		//		Copy a new attribute column into a empty Table.
 		//-------------------------------------------------
-		bool Table::InsertAttribute(Table*, string);
+		bool CopyAttribute(Table*, string);
+		
+		//-------------------------------------------------
+		// bool CopyAttributes(Table*)
+		//		Copy all attribute columns of input Table into a empty Table.
+		//-------------------------------------------------
+		bool CopyAttributes(Table*);
 		
 		//-------------------------------------------------
 		// bool ContainAttribute(string)
 		//		Check the attribute by name in table or not.
 		//-------------------------------------------------
-		bool Table::ContainAttribute(string)
+		bool ContainAttribute(string);
 		/*
 		//-------------------------------------------------
 		// Attribute GetAttribute(string)
