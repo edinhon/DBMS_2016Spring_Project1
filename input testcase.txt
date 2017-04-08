@@ -4,3 +4,9 @@ CREATE TABLE Article (
 	author varchar(20),
 	view int
 );
+
+SELECT a.Article
+FROM Article As a
+WHERE title = 'SAO' AND author = 'billywithbelly' AND view = 1;
+
+SELECT bookId, title, pages, authorId, editorial FROM Book;
