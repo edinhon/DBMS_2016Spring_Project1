@@ -4,6 +4,8 @@ CREATE TABLE Article (
 	author varchar(20),
 	view int
 );
+INSERT INTO Article VALUES (1, 'Hello', 'Sys', 33);
+INSERT INTO Article VALUES (2, 'Hello Space!', 'Astronaut', 33);
 CREATE TABLE Article (
 	articleId int PRIMARY KEY,
 	title varchar(20),
