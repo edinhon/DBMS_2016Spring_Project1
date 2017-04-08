@@ -146,6 +146,7 @@ void TableSet::ShowTables()
 //---------------------------------------
 bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 {
+	//檢查SUM不能以*選全部attributes
 	if(sinst->isSelectAllAttrs && sinst->isSUM){
 		cout << "- Error: Cannot sum up all attributes.\n";
 		return false;
@@ -234,18 +235,19 @@ bool TableSet::SelectTable(SelectInst* sinst)
 	
 	
 	Table *returnT = new Table();
+	vector<int> *TIndex = new vector<int>();
 	
 	//分成是否有WHERE
 	if (!sinst->isWHERE){
-		if(!SELECT_InsertAttributes(returnT, sinst, selectedTables))
+		if(!SELECT_InsertAttributes(returnT, sinst, selectedTables, TIndex))
 			return false;
-		if(!SELECT_InsertTuples(returnT, sinst, selectedTables))
+		if(!SELECT_InsertTuples(returnT, sinst, selectedTables, TIndex))
 			return false;
 	} 
 	else {
-		if(!SELECT_InsertAttributes(returnT, sinst, selectedTables))
+		if(!SELECT_InsertAttributes(returnT, sinst, selectedTables, TIndex))
 			return false;
-		if(!SELECT_InsertTuplesWithWhere(returnT, sinst, selectedTables))
+		if(!SELECT_InsertTuplesWithWhere(returnT, sinst, selectedTables, TIndex))
 			return false;
 	}
 	tableVector.push_back(*returnT);
@@ -253,10 +255,10 @@ bool TableSet::SelectTable(SelectInst* sinst)
 }
 
 //---------------------------------------
-// bool SELECT_InsertAttributes(Table*, SelectInst*)
+// bool SELECT_InsertAttributes(Table*, SelectInst*, vector<Table*>, vector<int>*)
 //		Insert attributes by SELECT.
 //---------------------------------------
-bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table*> selectedTables)
+bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table*> selectedTables, vector<int>* TIndex)
 {
 	if(sinst->isSelectAllAttrs){
 		//取出所有attributes放進新table
@@ -312,8 +314,9 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 					if(isThisTable){
 						//檢查此attribute是否存在於此table
 						if(selectedTables[i]->ContainAttribute(sinst->selectedAttributesNames[j])){
-							if(!(t->CopyAttribute(selectedTables[i], sinst->selectedAttributesNames[j])))
+							if(!(t->CopyAttribute(selectedTables[i], sinst->selectedAttributesNames[j]))){
 								return false;
+							} else TIndex->push_back(i);
 						} else {
 							cout << "- Error: The attribute " << sinst->selectedAttributesNames[j] << 
 								" doesn't exist in the table " << selectedTables[i]->getTableName() << " .\n";
@@ -325,8 +328,9 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 				else {
 					//檢查此attribute是否存在於此table, 是則取出attribute放進新table
 					if(selectedTables[i]->ContainAttribute(sinst->selectedAttributesNames[j])){
-						if(!(t->CopyAttribute(selectedTables[i], sinst->selectedAttributesNames[j])))
+						if(!(t->CopyAttribute(selectedTables[i], sinst->selectedAttributesNames[j]))){
 							return false;
+						} else TIndex->push_back(i);
 					}
 				}
 			}
@@ -343,19 +347,50 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 }
 
 //---------------------------------------
-// bool SELECT_InsertTuples(Table*, SelectInst*, vector<Table*>)
+// bool SELECT_InsertTuples(Table*, SelectInst*, vector<Table*>, vector<int>*)
 //		Insert tuples by SELECT.
 //---------------------------------------
-bool TableSet::SELECT_InsertTuples(Table*, SelectInst*, vector<Table*>)
+bool TableSet::SELECT_InsertTuples(Table* t, SelectInst* sinst, vector<Table*> selectedTables, vector<int>* TIndex)
 {
+	if (selectedTables.size() == 1){
+		for(int i = 0 ; i < (int)selectedTables[0]->tuples.size() ; i++){
+			
+			int tupleIndex = t->InsertEmptyTuple();
+			
+			if(sinst->isSelectAllAttrs){
+				
+				t->CopyValuesToTuple(selectedTables[0], tupleIndex, i);
+			}
+			else {
+				
+				for(int j = 0 ; j < (int)sinst->selectedAttributesNames.size() ; j++){
+					//此attribute屬於此table
+					if(TIndex->at(j) == 0){
+						t->CopyValueToTuple(selectedTables[0], sinst->selectedAttributesNames[j], tupleIndex, i);
+					}
+				}
+			}
+			
+			//如果沒有加入任何attribute value，要刪掉此empty tuple
+			if(t->tuples[tupleIndex].CheckEmpty()){
+				t->tuples.pop_back();
+			}
+		}
+	} else if (selectedTables.size() == 2){
+		for(int i = 0 ; i < (int)selectedTables[0]->tuples.size() ; i++){
+			for(int j = 0 ; j < (int)selectedTables[1]->tuples.size() ; j++){
+				
+			}
+		}
+	}
 	return true;
 }
 
 //---------------------------------------
-// bool SELECT_InsertTuplesWithWhere(Table*, SelectInst*, vector<Table*>)
+// bool SELECT_InsertTuplesWithWhere(Table*, SelectInst*, vector<Table*>, vector<int>*)
 //		Insert tuples by SELECT with WHERE.
 //---------------------------------------
-bool TableSet::SELECT_InsertTuplesWithWhere(Table*, SelectInst*, vector<Table*>)
+bool TableSet::SELECT_InsertTuplesWithWhere(Table*, SelectInst*, vector<Table*>, vector<int>*)
 {
 	return true;
 }

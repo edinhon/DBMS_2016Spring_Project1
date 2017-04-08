@@ -108,6 +108,21 @@ string* Table::Tuple::getValue(string name)
 	return NULL;
 }
 
+//-----------------
+// bool CheckEmpty()
+//		Check if this Tuple is a empty Tuple.
+//-----------------
+bool Table::Tuple::CheckEmpty()
+{
+	bool flag = true;
+	for (int i = 0 ; i < (int)values.size() ; i++){
+		if(values[i].value != NULL){
+			flag = false;
+		}
+	}
+	return flag;
+}
+
 //--------------
 // void InsertTuple(InsertInst)
 //		Generate a tuple with attribute values.
@@ -148,6 +163,23 @@ void Table::InsertTuple(InsertInst *iinst)
 	}
 	
 	tuples.push_back(t);
+}
+
+//-----------------------
+// int InsertEmptyTuple()
+//		Generate a empty by SELECT
+//-----------------------
+int Table::InsertEmptyTuple()
+{
+	Tuple *t = new Tuple();
+	t->values = attributes;
+	t->isHidedPK = isHidedPK;
+	for (int i = 0 ; i < (int)attributes.size() ; i++){
+		t->values[i].value = NULL;
+	}
+	tuples.push_back(*t);
+	
+	return ((int)tuples.size() - 1);
 }
 
 //--------------
@@ -399,6 +431,75 @@ int Table::GetAttributeType(string name)
 	}
 	
 	return -1;
+}
+
+//-------------------------------------------------
+// bool CopyValueToTuple(Table*, string, int, int)
+//		Copy a tuple value into the index tuple of Table.
+//-------------------------------------------------
+bool Table::CopyValueToTuple(Table* t, string attrName, int in, int out)
+{
+	int inAttrIndex = -1;
+	int outAttrIndex = -1;
+	
+	string n1 = attrName;
+	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+	
+	for(int i = 0 ; i < (int)attributes.size() ; i++){
+		string n2 = attributes[i].name;
+		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+		
+		if(n1.compare(n2) == 0){
+			inAttrIndex = i;
+			break;
+		}
+	}
+	if(inAttrIndex == -1){
+		cout << "- Error: Cannot find " << attrName << " in table " << 
+			getTableName() << endl;
+		return false;
+	}
+	
+	for(int i = 0 ; i < (int)t->attributes.size() ; i++){
+		string n2 = t->attributes[i].name;
+		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+		
+		if(n1.compare(n2) == 0){
+			outAttrIndex = i;
+			break;
+		}
+	}
+	if(outAttrIndex == -1){
+		cout << "- Error: Cannot find " << attrName << " in table " << 
+			t->getTableName() << endl;
+		return false;
+	}
+	
+	tuples[in].values[inAttrIndex].value = new string(*(t->tuples[out].values[outAttrIndex].value));
+	return true;
+}
+
+//-------------------------------------------------
+// bool CopyValuesToTuple(Table*, int, int)
+//		Copy all tuples value into the index tuple of Table.
+//-------------------------------------------------
+bool Table::CopyValuesToTuple(Table* t, int in, int out)
+{
+	for(int i = 0 ; i < (int)t->attributes.size() ; i++){
+		string n1 = t->attributes[i].name;
+		transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+		
+		for(int j = 0 ; j < (int)attributes.size() ; j++){
+			string n2 = attributes[j].name;
+			transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+			
+			if(n1.compare(n2) == 0){
+				tuples[in].values[j].value = new string(*(t->tuples[out].values[i].value));
+			}
+		}
+	}
+	
+	return true;
 }
 
 string Table::getTableName()

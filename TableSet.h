@@ -8,7 +8,7 @@
 
 using namespace std;
 
-class TableSet {
+class TableSet{
 	public:
 		
 		TableSet(){tableVector.clear();};
@@ -76,22 +76,22 @@ class TableSet {
 		bool SelectTable(SelectInst*);
 		
 		//---------------------------------------
-		// bool SELECT_InsertAttributes(Table*, SelectInst*, vector<Table*>)
+		// bool SELECT_InsertAttributes(Table*, SelectInst*, vector<Table*>, vector<int>*)
 		//		Insert attributes by SELECT.
 		//---------------------------------------
-		bool SELECT_InsertAttributes(Table*, SelectInst*, vector<Table*>);
+		bool SELECT_InsertAttributes(Table*, SelectInst*, vector<Table*>, vector<int>*);
 		
 		//---------------------------------------
 		// bool SELECT_InsertTuples(Table*, SelectInst*, vector<Table*>)
 		//		Insert tuples by SELECT.
 		//---------------------------------------
-		bool SELECT_InsertTuples(Table*, SelectInst*, vector<Table*>);
+		bool SELECT_InsertTuples(Table*, SelectInst*, vector<Table*>, vector<int>*);
 		
 		//---------------------------------------
 		// bool SELECT_InsertTuplesWithWhere(Table*, SelectInst*, vector<Table*>)
 		//		Insert tuples by SELECT with WHERE.
 		//---------------------------------------
-		bool SELECT_InsertTuplesWithWhere(Table*, SelectInst*, vector<Table*>);
+		bool SELECT_InsertTuplesWithWhere(Table*, SelectInst*, vector<Table*>, vector<int>*);
 		
 		
 		

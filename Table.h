@@ -57,6 +57,12 @@ class Table {
 				//--------------
 				string* getValue(string name);
 				
+				//-----------------
+				// bool CheckEmpty()
+				//		Check if this Tuple is a empty Tuple.
+				//-----------------
+				bool CheckEmpty();
+				
 				string* hidedPK;
 				
 				bool isHidedPK;
@@ -81,6 +87,13 @@ class Table {
 		//		Generate a tuple with attribute values.
 		//--------------
 		void InsertTuple(InsertInst*);
+		
+		
+		//-----------------------
+		// int InsertEmptyTuple()
+		//		Generate a empty by SELECT
+		//-----------------------
+		int InsertEmptyTuple();
 		
 		//--------------
 		// bool CheckInsertInst(InsertInst)
@@ -116,6 +129,18 @@ class Table {
 		//-------------------------------------------------
 		int GetAttributeType(string);
 		
+		//-------------------------------------------------
+		// bool CopyValueToTuple(Table*, string, int, int)
+		//		Copy a tuple value into the index tuple of Table.
+		//-------------------------------------------------
+		bool CopyValueToTuple(Table*, string, int, int);
+		
+		//-------------------------------------------------
+		// bool CopyValuesToTuple(Table*, int, int)
+		//		Copy all tuples value into the index tuple of Table.
+		//-------------------------------------------------
+		bool CopyValuesToTuple(Table*, int, int);
+		
 		vector<Tuple> tuples;
 		
 		string getTableName();
@@ -123,6 +148,8 @@ class Table {
 		void ShowTable();
 		
 		bool isHidedPK;
+		
+		friend class TableSet;
 		
 	protected:
 		

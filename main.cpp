@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <fstream>
 #include "Parser.h"
@@ -62,13 +63,13 @@ void DBMS(string fileName)
 		// fetch instructions
 		Instruction instruction = instructionSet->fetchInstruction();
 		Instruction *inst = parser.ParseSingleInstruction(instruction);
-		/*
-		if(i == 1){
+		
+		if(i == 3){
 			SelectInst *sinst = new SelectInst();
 			sinst->isValid = true;
 			sinst->tableNames.push_back("Article");
 			sinst->isTableNameAlias.push_back(true);
-			sinst->tableNameAlias.push_back("B");
+			sinst->tableNameAlias.push_back("A");
 			sinst->tableNameAliasIndex.push_back(0);
 			sinst->selectedAttributesNames.push_back("articleId");
 			sinst->selectedAttributesNames.push_back("title");
@@ -126,7 +127,7 @@ void DBMS(string fileName)
 							cout << "COUNT: " << t->tuples.size() << endl;
 						}
 						if(sinst->isSUM){
-							
+							//t->SELECT_SumUp()
 						}
 					}
 				}
@@ -134,7 +135,6 @@ void DBMS(string fileName)
 				break;
 			}
 		}
-		*/
 		i++;
 		instructionSet->popInstruction ();
 	}
@@ -151,5 +151,3 @@ bool ChooseInputFileOrNot()
 	else if (choose.compare("N") == 0 || choose.compare("n") == 0) return false;
 	else return false;
 }
-
-
