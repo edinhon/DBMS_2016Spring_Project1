@@ -169,5 +169,3 @@ bool ChooseInputFileOrNot()
 	else if (choose.compare("N") == 0 || choose.compare("n") == 0) return false;
 	else return false;
 }
-
-

@@ -8,6 +8,7 @@
 #include "Parser.h"
 #include "CreateInst.h"
 #include "InsertInst.h"
+#include "SelectInst.h"
 
 
 //---------------------------
@@ -38,9 +39,11 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 			int p = stringBuffer.size();
 			int j=0;
 			bool catchDigit = false;
+			bool dotFlag = false;
 
 			while (j<p) {
-				if ((stringBuffer[j] == '(') || (stringBuffer[j] == ')') || (stringBuffer[j] == ',')) {
+				if ((stringBuffer[j] == '(') || (stringBuffer[j] == ')') || (stringBuffer[j] == ',') 
+									|| (stringBuffer[j] == '.')) {
 					if (flag == j) {
 
 						string tmpt;
@@ -50,12 +53,13 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 							tmpt = ")";
 						else if (stringBuffer[j] == ',')
 							tmpt = ",";
+						else if (stringBuffer[j] == '.')
+							tmpt = ".";
 						parse.push (tmpt);
 						flag = j+1;
 						catchDigit = false;
 					} else {
 						parse.push (stringBuffer.substr(flag, j-flag));
-
 						string tmpt;
 						if (stringBuffer[j] == '(')
 							tmpt = "(";
@@ -63,9 +67,15 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 							tmpt = ")";
 						else if (stringBuffer[j] == ',')
 							tmpt = ",";
+						else if (stringBuffer[j] == '.') {
+							tmpt = ".";
+							dotFlag = true;
+						}
 
 						parse.push (tmpt);
-
+						if (dotFlag) {
+							parse.push (stringBuffer.substr(j+1, (stringBuffer.size() - j)));
+						}
 						flag = j+1;
 						catchDigit = false;
 					}
@@ -79,7 +89,8 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 
 				j++;
 			}
-			if (catchDigit) {
+
+			if (catchDigit && !dotFlag) {
 				instruction->setTermTokens(trying);
 			}
 			int t=parse.size();
@@ -88,12 +99,12 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 				instruction->setTermTokens(parse.front());
 				parse.pop();
 			}
+
 	        trying = strtok (NULL, " \n\t");
 		}
-
 		instruction->setInstructionString(slicedString);
 		instructionSet->pushInstruction(*instruction);
-		instruction->showTokens ();
+		//instruction->showTokens ();
 	}
 	return instructionSet;
 }
@@ -106,6 +117,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 {
 	CreateInst *table;
 	InsertInst *tuple;
+	SelectInst *select;
 	int type = -1;
 	int tableSize = -1;
 
@@ -161,8 +173,11 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				cout << "- Error :wrong instruction on insert tuple" << endl;
 				return tuple;
 			}
-		} else {
-		}
+		} else if (checkStringWithoutCase(thisTerm, "select")) {
+			select = new SelectInst ();
+			instruction.popTermTokens();
+			type = SELECTION;
+		} else { }
 
 		switch (type) {
 			case CREATE_TABLE : {
@@ -479,6 +494,94 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				}
 				break;
 			}
+			case SELECTION : {
+				int step = 1;
+				const int from = 2;
+				const int where = 3;
+
+				while (!instruction.isEmpty()) {
+					string current = instruction.getTermTokens();
+
+					switch (step) {
+						case 1 : {
+							// parsing selection targets
+							//cout << "In case 1, " << current << endl;
+							if (checkStringWithoutCase(current, "from")) {
+								// ready to jump to case 'from'
+								// remember to parse the current string!!!!!
+								//cout << ", ready to jump to \'from\'" << endl;
+								cout << endl;
+								instruction.popTermTokens();	// pop till 'from'
+								step = from;
+							} else if (current == ",") {
+								// continue to do next token
+								//cout << "parsing..." << endl;
+								cout << ' ';
+								instruction.popTermTokens ();
+								step = 1;
+							} else if (current == ".") {
+								// selecting attributes from a certain table
+								//cout << ", selecting attributes from certain table" << endl;
+								cout << ' ';
+								instruction.popTermTokens ();
+								step = 1;
+							} else {
+								// keep parsing
+								//cout << ", else, keep parsing" << endl;
+								cout << current;
+								instruction.popTermTokens ();
+								step = 1;
+							}
+
+							break;
+						}
+						case from : {
+							cout << "In case \'from\' " << endl;
+							if (checkStringWithoutCase(current, "where")) {
+								// jump to where
+								//cout << "ready to jump to \'where\'" << endl;
+								cout << endl;
+								instruction.popTermTokens();	// pop till 'where'
+								step = where;
+							} else if (checkStringWithoutCase (current, "and")) {
+								// 'and' instruction
+								//cout << "next is and" << endl;
+								cout << ' ';
+								instruction.popTermTokens ();
+								step = from;
+							} else if (checkStringWithoutCase (current, "or")) {
+								// 'or' instruction
+								//cout << "next is or" << endl;
+								cout << ' ';
+								instruction.popTermTokens ();
+								step = from;
+							} else if (checkStringWithoutCase (current, "as")) {
+								// 'as' instruction
+								//cout << "next is as" << endl;
+								cout <<  ' ';
+								instruction.popTermTokens ();
+								step = from;
+							} else {
+								// keep parsing
+								//cout << "parsing..." << endl;
+								cout << current;
+								instruction.popTermTokens ();	
+								step = from;
+							}
+							break;
+						}
+						case where : {
+							cout << "In case \'where\'" << endl;
+							instruction.popTermTokens ();
+							break;
+						}
+						default : {
+							cout << "Into default" << endl;
+							break;
+						}
+					}
+				}
+			}
 			default : {
 				Instruction* nullinst = new Instruction();
 				return nullinst;
@@ -502,6 +605,11 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			}
 			tuple->isValid = true;
 			return tuple;
+			break;
+		}
+		case SELECTION : {
+			select->isValid = true;
+			return select;
 			break;
 		}
 		default : {
