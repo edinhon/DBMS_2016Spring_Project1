@@ -505,29 +505,24 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 					switch (step) {
 						case 1 : {
 							// parsing selection targets
-							//cout << "In case 1, " << current << endl;
 							if (checkStringWithoutCase(current, "from")) {
 								// ready to jump to case 'from'
 								// remember to parse the current string!!!!!
-								//cout << ", ready to jump to \'from\'" << endl;
 								cout << endl;
 								instruction.popTermTokens();	// pop till 'from'
 								step = from;
 							} else if (current == ",") {
 								// continue to do next token
-								//cout << "parsing..." << endl;
 								cout << ' ';
 								instruction.popTermTokens ();
 								step = 1;
 							} else if (current == ".") {
 								// selecting attributes from a certain table
-								//cout << ", selecting attributes from certain table" << endl;
 								cout << ' ';
 								instruction.popTermTokens ();
 								step = 1;
 							} else {
 								// keep parsing
-								//cout << ", else, keep parsing" << endl;
 								cout << current;
 								instruction.popTermTokens ();
 								step = 1;
@@ -539,31 +534,26 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							cout << "In case \'from\' " << endl;
 							if (checkStringWithoutCase(current, "where")) {
 								// jump to where
-								//cout << "ready to jump to \'where\'" << endl;
 								cout << endl;
 								instruction.popTermTokens();	// pop till 'where'
 								step = where;
 							} else if (checkStringWithoutCase (current, "and")) {
 								// 'and' instruction
-								//cout << "next is and" << endl;
 								cout << ' ';
 								instruction.popTermTokens ();
 								step = from;
 							} else if (checkStringWithoutCase (current, "or")) {
 								// 'or' instruction
-								//cout << "next is or" << endl;
 								cout << ' ';
 								instruction.popTermTokens ();
 								step = from;
 							} else if (checkStringWithoutCase (current, "as")) {
 								// 'as' instruction
-								//cout << "next is as" << endl;
 								cout <<  ' ';
 								instruction.popTermTokens ();
 								step = from;
 							} else {
 								// keep parsing
-								//cout << "parsing..." << endl;
 								cout << current;
 								instruction.popTermTokens ();	
 								step = from;
@@ -572,7 +562,21 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 						case where : {
 							cout << "In case \'where\'" << endl;
-							instruction.popTermTokens ();
+							if (checkStringWithoutCase (current, "and")) {
+								// 'and' instruction
+								cout << ' ';
+								instruction.popTermTokens ();
+								step = from;
+							} else if (checkStringWithoutCase (current, "or")) {
+								// 'or' instruction
+								cout << ' ';
+								instruction.popTermTokens ();
+								step = from;
+							} else {
+								// parsing
+								instruction.popTermTokens ();
+								step = where;
+							}
 							break;
 						}
 						default : {

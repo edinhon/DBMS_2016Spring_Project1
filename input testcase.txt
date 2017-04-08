@@ -7,7 +7,6 @@ authorId int, editorial varchar(30)
 CREATE TABLE Author (
 authorId int PRIMARY KEY, name varchar(30), nationality varchar(30)
 );
-
 SELECT b.title
 FROM Book AS b
 WHERE pages > 100 AND editorial = 'Prentice Hall';
@@ -23,12 +22,3 @@ WHERE bookId = 1;
 SELECT *
 FROM Book
 WHERE authorId = 1 OR pages < 200;
-
-INSERT INTO Article VALUES (1, 'Hello', 'Sys', 33);
-INSERT INTO Article VALUES (2, 'Hello Space!', 'Astronaut', 33);
-CREATE TABLE Article (
-	articleId int PRIMARY KEY,
-	title varchar(20),
-	author varchar(20),
-	view int
-);
