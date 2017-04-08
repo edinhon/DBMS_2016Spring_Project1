@@ -26,6 +26,18 @@ Table::Table(CreateInst *cinst)
 	}
 }
 
+//---------------------------------------------------
+// Table()
+//		Create a empty table. Used in SELECT instruction.
+//---------------------------------------------------
+Table::Table()
+{
+	tableName = "SelectedTable";
+	
+	isHidedPK = true;
+	
+}
+
 Table::~Table()
 {
 	attributes.clear();
@@ -301,6 +313,92 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 	}
 	
 	return true;
+}
+
+//-------------------------------------------------
+// bool CopyAttribute(Table*, string)
+//		Copy a new attribute column into a empty Table.
+//-------------------------------------------------
+bool Table::CopyAttribute(Table* t, string attrName)
+{
+	if(tuples.size() != 0){
+		cout << "- Error: Cannot copy the attribute into a non-empty table.\n";
+		return false;
+	}
+	
+	string n1 = attrName;
+	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+	
+	if(ContainAttribute(attrName)){
+		cout << "- Error: There exists the same attribute " << attrName <<
+			" in this table.\n";
+		return false;
+	}
+	
+	for(int i = 0 ; i < (int)t->attributes.size() ; i++){
+		string n2 = t->attributes[i].name;
+		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+		
+		if(n1.compare(n2) == 0){
+			Attribute a = t->attributes[i];
+			a.isPK = false;
+			attributes.push_back(a);
+			return true;
+		}
+	}
+	return false;
+}
+
+//-------------------------------------------------
+// bool CopyAttributes(Table*)
+//		Copy all attribute columns of input Table into a empty Table.
+//-------------------------------------------------
+bool Table::CopyAttributes(Table* t)
+{
+	for(int i = 0 ; i < (int)t->attributes.size() ; i++){
+		if(!CopyAttribute(t, t->attributes[i].name))
+			return false;
+	}
+	return true;
+}
+
+//-------------------------------------------------
+// bool ContainAttribute(string)
+//		Check the attribute by name in table or not.
+//-------------------------------------------------
+bool Table::ContainAttribute(string name)
+{
+	string n1 = name;
+	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+	
+	for(int i = 0 ; i < (int)attributes.size() ; i++){
+		string n2 = attributes[i].name;
+		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+		
+		if(n1.compare(n2) == 0)
+			return true;
+	}
+	return false;
+}
+
+//-------------------------------------------------
+// int GetAttributeType(string)
+//		Get a attribute type by name.
+//-------------------------------------------------
+int Table::GetAttributeType(string name)
+{
+	string n1 = name;
+	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+	
+	for(int i = 0 ; i < (int)attributes.size() ; i++){
+		string n2 = attributes[i].name;
+		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+		
+		if(n1.compare(n2) == 0)
+			return attributes[i].type;
+	}
+	
+	return -1;
 }
 
 string Table::getTableName()

@@ -5,8 +5,10 @@
 #include "InstructionSet.h"
 #include "CreateInst.h"
 #include "InsertInst.h"
+#include "SelectInst.h"
 #include "Table.h"
 #include "TableSet.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -55,11 +57,33 @@ void DBMS(string fileName)
 	InstructionSet* instructionSet;
 	
 	instructionSet = parser.ParseAllInstructions(fp);
-	
+	int i = 0;
 	while(!instructionSet->isEmpty()){
 		// fetch instructions
 		Instruction instruction = instructionSet->fetchInstruction();
 		Instruction *inst = parser.ParseSingleInstruction(instruction);
+		/*
+		if(i == 1){
+			SelectInst *sinst = new SelectInst();
+			sinst->isValid = true;
+			sinst->tableNames.push_back("Article");
+			sinst->isTableNameAlias.push_back(true);
+			sinst->tableNameAlias.push_back("B");
+			sinst->tableNameAliasIndex.push_back(0);
+			sinst->selectedAttributesNames.push_back("articleId");
+			sinst->selectedAttributesNames.push_back("title");
+			sinst->isSelectedAttributesTables.push_back(true);
+			sinst->isSelectedAttributesTables.push_back(true);
+			sinst->selectedAttributesTables.push_back("Article");
+			sinst->selectedAttributesTables.push_back("A");
+			sinst->selectedAttributesTablesIndex.push_back(0);
+			sinst->selectedAttributesTablesIndex.push_back(1);
+			sinst->isWHERE = false;
+			sinst->isSelectAllAttrs = false;
+			sinst->isCOUNT = false;
+			sinst->isSUM = false;
+			inst = sinst;
+		}
 		
 		if (!inst->isValid) {
 			instructionSet->popInstruction();
@@ -90,11 +114,28 @@ void DBMS(string fileName)
 				break;
 			}
 			case SELECT :{
+				SelectInst *sinst = dynamic_cast<SelectInst*>(inst);
+				
+				if(tableSet.ContainTables(sinst->tableNames)){
+					if(tableSet.SelectTable(sinst)){
+						Table *t = tableSet.GetSelectedTable();
+						t->ShowTable();
+						tableSet.DeleteSelectedTable();
+						
+						if(sinst->isCOUNT){
+							cout << "COUNT: " << t->tuples.size() << endl;
+						}
+						if(sinst->isSUM){
+							
+						}
+					}
+				}
 				
 				break;
 			}
 		}
-		
+		*/
+		i++;
 		instructionSet->popInstruction ();
 	}
 

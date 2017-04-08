@@ -7,6 +7,7 @@
 #include "Instruction.h"
 #include "CreateInst.h"
 #include "InsertInst.h"
+#include "SelectInst.h"
 
 using namespace std;
 
@@ -20,6 +21,16 @@ class Table {
 				int varCharSize; // size of varchar
 				string *value;
 				bool isPK;
+				Attribute& operator= (Attribute const &that){
+					if (this != &that) {
+						name = that.name;
+						type = that.type;
+						varCharSize = that.varCharSize;
+						value = that.value;
+						isPK = that.isPK;
+					}
+					return *this;
+				}
 		};
 		
 		class Tuple {
@@ -57,6 +68,12 @@ class Table {
 		//--------------
 		Table(CreateInst*);
 		
+		//---------------------------------------------------
+		// Table()
+		//		Create a empty table. Used in SELECT instruction.
+		//---------------------------------------------------
+		Table();
+		
 		~Table();
 		
 		//--------------
@@ -75,7 +92,29 @@ class Table {
 		//--------------
 		bool CheckInsertInst(InsertInst*);
 
-		//TODO: SearchTuple()
+		//-------------------------------------------------
+		// bool CopyAttribute(Table*, string)
+		//		Copy a new attribute column into a empty Table.
+		//-------------------------------------------------
+		bool CopyAttribute(Table*, string);
+		
+		//-------------------------------------------------
+		// bool CopyAttributes(Table*)
+		//		Copy all attribute columns of input Table into a empty Table.
+		//-------------------------------------------------
+		bool CopyAttributes(Table*);
+		
+		//-------------------------------------------------
+		// bool ContainAttribute(string)
+		//		Check the attribute by name in table or not.
+		//-------------------------------------------------
+		bool ContainAttribute(string);
+		
+		//-------------------------------------------------
+		// int GetAttributeType(string)
+		//		Get a attribute type by name.
+		//-------------------------------------------------
+		int GetAttributeType(string);
 		
 		vector<Tuple> tuples;
 		
@@ -85,11 +124,13 @@ class Table {
 		
 		bool isHidedPK;
 		
+	protected:
+		
+		vector<Attribute> attributes;
+		
 	private:
 		
 		string tableName;
-		
-		vector<Attribute> attributes;
 		
 		vector<int> PKIndexes;
 };

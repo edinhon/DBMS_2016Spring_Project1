@@ -1,12 +1,25 @@
-CREATE TABLE Article (
-	articleId int PRIMARY KEY,
-	title varchar(20),
-	author varchar(20),
-	view int
+CREATE TABLE Book (
+bookId int PRIMARY KEY,
+title varchar(30), pages int,
+authorId int, editorial varchar(30)
 );
 
-SELECT a.Article
-FROM Article As a
-WHERE title = 'SAO' AND author = 'billywithbelly' AND view = 1;
+CREATE TABLE Author (
+authorId int PRIMARY KEY, name varchar(30), nationality varchar(30)
+);
+
+SELECT b.title
+FROM Book AS b
+WHERE pages > 100 AND editorial = 'Prentice Hall';
 
 SELECT bookId, title, pages, authorId, editorial FROM Book;
+
+SELECT * FROM Author;
+
+SELECT title
+FROM Book
+WHERE bookId = 1;
+
+SELECT *
+FROM Book
+WHERE authorId = 1 OR pages < 200;
