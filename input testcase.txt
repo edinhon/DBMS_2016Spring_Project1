@@ -4,11 +4,17 @@ CREATE TABLE Article (
 	author varchar(20),
 	view int
 );
+create TABLE Comment (
+	commentId int PRIMARY KEY,
+	author varchar(20),
+	content varchar(40),
+	articleId int
+);
 INSERT INTO Article VALUES (1, 'Hello', 'Sys', 33);
 INSERT INTO Article VALUES (2, 'Hello Space!', 'Astronaut', 33);
-CREATE TABLE Article (
-	articleId int PRIMARY KEY,
-	title varchar(20),
-	author varchar(20),
-	view int
-);
+INSERT INTO Comment 
+VALUES (1, 'Sys', 'I can leave a comment!', 1);
+INSERT INTO Comment 
+VALUES (2, 'Sys', 'I can leave a comment!', 2);
+INSERT INTO Comment 
+VALUES (1, 'Sys', 'I can leave a comment!', 1);
