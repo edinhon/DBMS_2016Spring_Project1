@@ -41,8 +41,8 @@ bool TableSet::ContainTable(string tableName)
 //---------------
 bool TableSet::ContainTables(vector<string> tableNames)
 {
-	for (vector<Table>::iterator it = tableVector.begin(); it != tableVector.end(); it++){
-		if(!ContainTable(it->getTableName())){
+	for (int i = 0 ; i < (int)tableNames.size() ; i++){
+		if(!ContainTable(tableNames[i])){
 			return false;
 		}
 	}
@@ -377,9 +377,44 @@ bool TableSet::SELECT_InsertTuples(Table* t, SelectInst* sinst, vector<Table*> s
 			}
 		}
 	} else if (selectedTables.size() == 2){
-		for(int i = 0 ; i < (int)selectedTables[0]->tuples.size() ; i++){
-			for(int j = 0 ; j < (int)selectedTables[1]->tuples.size() ; j++){
-				
+		if(selectedTables[0]->tuples.size() == 0){
+			vector<Table*> tempTables;
+			tempTables.push_back(selectedTables[1]);
+			if(!SELECT_InsertTuples(t, sinst, tempTables, TIndex))
+				return false;
+		} else if(selectedTables[1]->tuples.size() == 0){
+			vector<Table*> tempTables;
+			tempTables.push_back(selectedTables[0]);
+			if(!SELECT_InsertTuples(t, sinst, tempTables, TIndex))
+				return false;
+		} else{
+			for(int i = 0 ; i < (int)selectedTables[0]->tuples.size() ; i++){
+				for(int j = 0 ; j < (int)selectedTables[1]->tuples.size() ; j++){
+					
+					int tupleIndex = t->InsertEmptyTuple();
+					
+					if(sinst->isSelectAllAttrs){
+						t->CopyValuesToTuple(selectedTables[0], tupleIndex, i);
+						t->CopyValuesToTuple(selectedTables[1], tupleIndex, j);
+					}
+					else {
+						for(int k = 0 ; k < (int)sinst->selectedAttributesNames.size() ; k++){
+							//此attribute屬於First table
+							if(TIndex->at(k) == 0){
+								t->CopyValueToTuple(selectedTables[0], sinst->selectedAttributesNames[k], tupleIndex, i);
+							}
+							//此attribute屬於Second table
+							if(TIndex->at(k) == 1){
+								t->CopyValueToTuple(selectedTables[1], sinst->selectedAttributesNames[k], tupleIndex, j);
+							}
+						}
+					}
+					
+					//如果沒有加入任何attribute value，要刪掉此empty tuple
+					if(t->tuples[tupleIndex].CheckEmpty()){
+						t->tuples.pop_back();
+					}
+				}
 			}
 		}
 	}

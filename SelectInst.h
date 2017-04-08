@@ -16,31 +16,41 @@ class SelectInst : public Instruction {
 		SelectInst(string const name);
 		~SelectInst(){};
 		
-		vector<string> tableNames;	//SELECT table FROM these tableName
-									//Check whether table name is duplicate in TableSet.	
-		vector<bool> isTableNameAlias;							
+		vector<string> tableNames;	//FROM table name
+									//檢查是否重複	
+		vector<bool> isTableNameAlias;	//是否有alias name							
 									
 		vector<string> tableNameAlias;	//Table Name alias
 		
-		vector<int> tableNameAliasIndex;	//record the index of table name alias
+		vector<int> tableNameAliasIndex;	//紀錄alias name對應哪個table name
 		
-		vector<string> selectedAttributesNames;	//Decide whether attribute names are duplicate in Parser.
+		vector<string> selectedAttributesNames;	//SELECT 的 attribute name
 		
-		vector<bool> isSelectedAttributesTables;//Whether a table name of attribute or not.
+		vector<bool> isSelectedAttributesTables;//attribute是否有table name, ex: t.attribute
 		
-		vector<string> selectedAttributesTables;//Table name of attributes.
+		vector<string> selectedAttributesTables;//attribute 的 table name
 		
-		vector<int> selectedAttributesTablesIndex;	//record the index of attribute table name alias
+		vector<int> selectedAttributesTablesIndex;	//紀錄attribute table name對應哪個attribute
 		
-		bool isSelectAllAttrs;
+		bool isSelectAllAttrs;	//是否(*)
 		
-		bool isWHERE;
+		bool isWHERE;	//是否有WHERE
 		
-		vector<string> WHERE_Attributes;	//WHERE clause attribute names
+		vector<string> WHERE_FirstAttrNames;	//WHERE的first attributes or values, ex: WHERE t."attr" = t.attr
 		
-		vector<string> WHERE_Values;	//WHERE clause value to boolean expression
+		vector<string> WHERE_FirstIsTables;	//WHERE的first attributes or values是否有table name
 		
-		vector<int> WHERE_ValueTypes;	//WHERE clause value type, 0 = int, 1 = varchar, 2 = attribute, -1 = error
+		vector<string> WHERE_FirstAttrTables;	//WHERE的first table names, ex: WHERE "t".attr = t.attr
+		
+		vector<int> WHERE_FirstTypes;	//WHERE clause value type, 0 = int, 1 = varchar, 2 = attribute, -1 = error
+		
+		vector<string> WHERE_SecondAttrNames;	//WHERE的first attributes or values, ex: WHERE t.attr = t."attr"
+		
+		vector<string> WHERE_SecondtIsTables;	//WHERE的first attributes or values是否有table name
+		
+		vector<string> WHERE_SecondAttrTables;	//WHERE的first table names, ex: WHERE t.attr = "t".attr
+		
+		vector<int> WHERE_SecondTypes;	//WHERE clause value type, 0 = int, 1 = varchar, 2 = attribute, -1 = error
 		
 		vector<int> WHERE_ExprTypes;	//WHERE clause expression type, 0 = '=', 1 = '<>', 2 = '<', 3 = '>', -1 = error
 		

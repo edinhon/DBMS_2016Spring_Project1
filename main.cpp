@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <fstream>
 #include "Parser.h"
@@ -63,29 +62,45 @@ void DBMS(string fileName)
 		// fetch instructions
 		Instruction instruction = instructionSet->fetchInstruction();
 		Instruction *inst = parser.ParseSingleInstruction(instruction);
-		
-		if(i == 3){
+		cout << "FUCK\n";
+		if(i == 6){
 			SelectInst *sinst = new SelectInst();
 			sinst->isValid = true;
 			sinst->tableNames.push_back("Article");
+			sinst->tableNames.push_back("Comment");
+			sinst->isTableNameAlias.push_back(true);
 			sinst->isTableNameAlias.push_back(true);
 			sinst->tableNameAlias.push_back("A");
+			sinst->tableNameAlias.push_back("C");
 			sinst->tableNameAliasIndex.push_back(0);
+			sinst->tableNameAliasIndex.push_back(1);
 			sinst->selectedAttributesNames.push_back("articleId");
 			sinst->selectedAttributesNames.push_back("title");
+			sinst->selectedAttributesNames.push_back("commentId");
+			sinst->selectedAttributesNames.push_back("author");
+			sinst->selectedAttributesNames.push_back("content");
+			sinst->isSelectedAttributesTables.push_back(true);
+			sinst->isSelectedAttributesTables.push_back(true);
+			sinst->isSelectedAttributesTables.push_back(true);
 			sinst->isSelectedAttributesTables.push_back(true);
 			sinst->isSelectedAttributesTables.push_back(true);
 			sinst->selectedAttributesTables.push_back("Article");
 			sinst->selectedAttributesTables.push_back("A");
+			sinst->selectedAttributesTables.push_back("Comment");
+			sinst->selectedAttributesTables.push_back("C");
+			sinst->selectedAttributesTables.push_back("C");
 			sinst->selectedAttributesTablesIndex.push_back(0);
 			sinst->selectedAttributesTablesIndex.push_back(1);
+			sinst->selectedAttributesTablesIndex.push_back(2);
+			sinst->selectedAttributesTablesIndex.push_back(3);
+			sinst->selectedAttributesTablesIndex.push_back(4);
 			sinst->isWHERE = false;
 			sinst->isSelectAllAttrs = false;
 			sinst->isCOUNT = false;
 			sinst->isSUM = false;
 			inst = sinst;
 		}
-		
+		cout << "FUCK\n";
 		if (!inst->isValid) {
 			instructionSet->popInstruction();
 			continue;
@@ -116,8 +131,9 @@ void DBMS(string fileName)
 			}
 			case SELECT :{
 				SelectInst *sinst = dynamic_cast<SelectInst*>(inst);
-				
+				cout << "FUCK\n";
 				if(tableSet.ContainTables(sinst->tableNames)){
+					cout << "FUCK\n";
 					if(tableSet.SelectTable(sinst)){
 						Table *t = tableSet.GetSelectedTable();
 						t->ShowTable();
@@ -136,7 +152,9 @@ void DBMS(string fileName)
 			}
 		}
 		i++;
+		cout << "FUCKYYYYYYYYYYYY111111\n";
 		instructionSet->popInstruction ();
+		cout << "i = " << i << endl;
 	}
 
 	fp->close ();
