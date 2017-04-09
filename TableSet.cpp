@@ -147,7 +147,7 @@ void TableSet::ShowTables()
 bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 {
 	//檢查SUM不能以*選全部attributes
-	if(sinst->isSelectAllAttrs && sinst->isSUM){
+	if((sinst->isSelectAllAttrs[0] || sinst->isSelectAllAttrs[1]) && sinst->isSUM){
 		cout << "- Error: Cannot sum up all attributes.\n";
 		return false;
 	}
@@ -260,13 +260,14 @@ bool TableSet::SelectTable(SelectInst* sinst)
 //---------------------------------------
 bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table*> selectedTables, vector<int>* TIndex)
 {
-	if(sinst->isSelectAllAttrs){
-		//取出所有attributes放進新table
+	if(sinst->isSelectAllAttrs[0] || sinst->isSelectAllAttrs[1]) {
 		for(int i = 0 ; i < (int)selectedTables.size() ; i++){
-			if(!(t->CopyAttributes(selectedTables[i])))
-				return false;
+			if(sinst->isSelectAllAttrs[i]){
+				if(!(t->CopyAttributes(selectedTables[i])))
+					return false;
+			}
 		}
-	} 
+	}
 	else {
 		//依序檢查每個table
 		for(int i = 0 ; i < (int)selectedTables.size() ; i++){
@@ -343,6 +344,7 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 			return false;
 		}
 	}
+	
 	return true;
 }
 
@@ -357,16 +359,17 @@ bool TableSet::SELECT_InsertTuples(Table* t, SelectInst* sinst, vector<Table*> s
 			
 			int tupleIndex = t->InsertEmptyTuple();
 			
-			if(sinst->isSelectAllAttrs){
-				
-				t->CopyValuesToTuple(selectedTables[0], tupleIndex, i);
+			if(sinst->isSelectAllAttrs[0]){
+				if(!t->CopyValuesToTuple(selectedTables[0], tupleIndex, i))
+					return false;
 			}
 			else {
 				
 				for(int j = 0 ; j < (int)sinst->selectedAttributesNames.size() ; j++){
 					//此attribute屬於此table
 					if(TIndex->at(j) == 0){
-						t->CopyValueToTuple(selectedTables[0], sinst->selectedAttributesNames[j], tupleIndex, i);
+						if(!t->CopyValueToTuple(selectedTables[0], sinst->selectedAttributesNames[j], tupleIndex, i))
+							return false;
 					}
 				}
 			}
@@ -393,19 +396,25 @@ bool TableSet::SELECT_InsertTuples(Table* t, SelectInst* sinst, vector<Table*> s
 					
 					int tupleIndex = t->InsertEmptyTuple();
 					
-					if(sinst->isSelectAllAttrs){
-						t->CopyValuesToTuple(selectedTables[0], tupleIndex, i);
-						t->CopyValuesToTuple(selectedTables[1], tupleIndex, j);
+					if(sinst->isSelectAllAttrs[0] || sinst->isSelectAllAttrs[1]){
+						for(int k = 0 ; k < (int)selectedTables.size() ; k++){
+							if(sinst->isSelectAllAttrs[i]){
+								if(!t->CopyValuesToTuple(selectedTables[k], tupleIndex, i))
+									return false;
+							}
+						}
 					}
 					else {
 						for(int k = 0 ; k < (int)sinst->selectedAttributesNames.size() ; k++){
 							//此attribute屬於First table
 							if(TIndex->at(k) == 0){
-								t->CopyValueToTuple(selectedTables[0], sinst->selectedAttributesNames[k], tupleIndex, i);
+								if(!t->CopyValueToTuple(selectedTables[0], sinst->selectedAttributesNames[k], tupleIndex, i))
+									return false;
 							}
 							//此attribute屬於Second table
 							if(TIndex->at(k) == 1){
-								t->CopyValueToTuple(selectedTables[1], sinst->selectedAttributesNames[k], tupleIndex, j);
+								if(!t->CopyValueToTuple(selectedTables[1], sinst->selectedAttributesNames[k], tupleIndex, j))
+									return false;
 							}
 						}
 					}
@@ -425,8 +434,202 @@ bool TableSet::SELECT_InsertTuples(Table* t, SelectInst* sinst, vector<Table*> s
 // bool SELECT_InsertTuplesWithWhere(Table*, SelectInst*, vector<Table*>, vector<int>*)
 //		Insert tuples by SELECT with WHERE.
 //---------------------------------------
-bool TableSet::SELECT_InsertTuplesWithWhere(Table*, SelectInst*, vector<Table*>, vector<int>*)
+bool TableSet::SELECT_InsertTuplesWithWhere(Table* t, SelectInst* sinst, vector<Table*> selectedTables, vector<int>* TIndex)
 {
+	if (selectedTables.size() == 1){
+		
+		if(!CheckWhereValid(sinst, selectedTables)){
+			return false;
+		}
+		
+		for(int i = 0 ; i < (int)selectedTables[0]->tuples.size() ; i++){
+			
+			if(CheckWhereCondition(sinst, selectedTables, i, -1)){
+				int tupleIndex = t->InsertEmptyTuple();
+				
+				if(sinst->isSelectAllAttrs[0]){
+					if(!t->CopyValuesToTuple(selectedTables[0], tupleIndex, i))
+						return false;
+				}
+				else {
+					
+					for(int j = 0 ; j < (int)sinst->selectedAttributesNames.size() ; j++){
+						//此attribute屬於此table
+						if(TIndex->at(j) == 0){
+							if(!t->CopyValueToTuple(selectedTables[0], sinst->selectedAttributesNames[j], tupleIndex, i))
+								return false;
+						}
+					}
+				}
+				
+				//如果沒有加入任何attribute value，要刪掉此empty tuple
+				if(t->tuples[tupleIndex].CheckEmpty()){
+					t->tuples.pop_back();
+				}
+			}
+		}
+	} else if (selectedTables.size() == 2){
+		if(selectedTables[0]->tuples.size() == 0){
+			vector<Table*> tempTables;
+			tempTables.push_back(selectedTables[1]);
+			if(!SELECT_InsertTuples(t, sinst, tempTables, TIndex))
+				return false;
+		} else if(selectedTables[1]->tuples.size() == 0){
+			vector<Table*> tempTables;
+			tempTables.push_back(selectedTables[0]);
+			if(!SELECT_InsertTuples(t, sinst, tempTables, TIndex))
+				return false;
+		} else{
+			for(int i = 0 ; i < (int)selectedTables[0]->tuples.size() ; i++){
+				for(int j = 0 ; j < (int)selectedTables[1]->tuples.size() ; j++){
+					
+					int tupleIndex = t->InsertEmptyTuple();
+					
+					if(sinst->isSelectAllAttrs[0] || sinst->isSelectAllAttrs[1]){
+						for(int k = 0 ; k < (int)selectedTables.size() ; k++){
+							if(sinst->isSelectAllAttrs[i]){
+								if(!t->CopyValuesToTuple(selectedTables[k], tupleIndex, i))
+									return false;
+							}
+						}
+					}
+					else {
+						for(int k = 0 ; k < (int)sinst->selectedAttributesNames.size() ; k++){
+							//此attribute屬於First table
+							if(TIndex->at(k) == 0){
+								if(!t->CopyValueToTuple(selectedTables[0], sinst->selectedAttributesNames[k], tupleIndex, i))
+									return false;
+							}
+							//此attribute屬於Second table
+							if(TIndex->at(k) == 1){
+								if(!t->CopyValueToTuple(selectedTables[1], sinst->selectedAttributesNames[k], tupleIndex, j))
+									return false;
+							}
+						}
+					}
+					
+					//如果沒有加入任何attribute value，要刪掉此empty tuple
+					if(t->tuples[tupleIndex].CheckEmpty()){
+						t->tuples.pop_back();
+					}
+				}
+			}
+		}
+	}
+	return true;
+}
+
+//-------------------------------------------
+// bool CheckWhereValid(SelectInst*, vector<Table*>)
+//		Check the WHERE is valid or not.
+//-------------------------------------------
+bool TableSet::CheckWhereValid(SelectInst* sinst, vector<Table*> selectedTables)
+{
+	//檢查各table name是否包括在selectedTables
+	for(int i = 0 ; i < (int)sinst->WHERE_FirstAttrTables.size() ; i++){
+		if(sinst->WHERE_FirstAttrTables[i].compare("") != 0){
+			bool flag = false;
+			string n1 = sinst->WHERE_FirstAttrTables[i];
+			transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+			for(int j = 0 ; j < (int)selectedTables.size() ; j++){
+				string n2 = selectedTables[j]->getTableName();
+				transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+				
+				if(n1.compare(n2) == 0){
+					flag = true;
+					break;
+				}
+			}
+			if(!flag){
+				cout << "- Error: The table " << sinst->WHERE_FirstAttrTables[i] <<
+					" cannot be find or is empty.\n";
+			}
+		}
+	}
+	for(int i = 0 ; i < (int)sinst->WHERE_SecondAttrTables.size() ; i++){
+		if(sinst->WHERE_SecondAttrTables[i].compare("") != 0){
+			bool flag = false;
+			string n1 = sinst->WHERE_SecondAttrTables[i];
+			transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+			for(int j = 0 ; j < (int)selectedTables.size() ; j++){
+				string n2 = selectedTables[j]->getTableName();
+				transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+				
+				if(n1.compare(n2) == 0){
+					flag = true;
+					break;
+				}
+			}
+			if(!flag){
+				cout << "- Error: The table " << sinst->WHERE_SecondAttrTables[i] <<
+					" cannot be find or is empty.\n";
+			}
+		}
+	}
+	
+	//檢查attribute是否都出現在FROM的tables, 以及是否都沒出現
+	for(int i = 0 ; i < (int)sinst->WHERE_FirstAttrNames.size() ; i++){
+		if(sinst->WHERE_FirstTypes[i] == 2){
+			bool flag = false;
+			bool flag2 = false;
+			for(int j = 0 ; j < (int)selectedTables.size() ; j++){
+				if(selectedTables[j]->ContainAttribute(sinst->WHERE_FirstAttrNames[i])){
+					flag = true;
+					flag2 = true;
+				} else flag = false;
+			}
+			
+			//都出現且table等於2且此attrbute有table name
+			if(flag && selectedTables.size() == 2 && sinst->WHERE_FirstAttrTables[i].compare("") != 0){
+				cout << "- Error: The attribute " << sinst->WHERE_FirstAttrNames[i] <<
+					" is an ambiguous attribute between two tables, but not used as a prefix in the attribute.\n";
+				return false;
+			}
+			
+			//都沒出現
+			if(!flag2){
+				cout << "- Error: The attribute " << sinst->WHERE_FirstAttrNames[i] <<
+					" doesn't exist in all tables.\n";
+				return false;
+			}
+		}
+	}
+	for(int i = 0 ; i < (int)sinst->WHERE_SecondAttrNames.size() ; i++){
+		if(sinst->WHERE_SecondTypes[i] == 2){
+			bool flag = false;
+			bool flag2 = false;
+			for(int j = 0 ; j < (int)selectedTables.size() ; j++){
+				if(selectedTables[j]->ContainAttribute(sinst->WHERE_SecondAttrNames[i])){
+					flag = true;
+					flag2 = true;
+				} else flag = false;
+			}
+			
+			//都出現且table等於2且此attrbute有table name
+			if(flag && selectedTables.size() == 2 && sinst->WHERE_SecondAttrTables[i].compare("") != 0){
+				cout << "- Error: The attribute " << sinst->WHERE_SecondAttrNames[i] <<
+					" is an ambiguous attribute between two tables, but not used as a prefix in the attribute.\n";
+				return false;
+			}
+			
+			//都沒出現
+			if(!flag2){
+				cout << "- Error: The attribute " << sinst->WHERE_SecondAttrNames[i] <<
+					" doesn't exist in all tables.\n";
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+//-------------------------------------------
+// bool CheckWhereCondition(SelectInst*, vector<Table*>, int, int)
+//		Check the WHERE condition is true or false.
+//-------------------------------------------
+bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTables, int tplIdx1, int tplIdx2)
+{
+	//檢查條件
 	return true;
 }
 

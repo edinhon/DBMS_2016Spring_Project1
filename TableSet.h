@@ -93,7 +93,17 @@ class TableSet{
 		//---------------------------------------
 		bool SELECT_InsertTuplesWithWhere(Table*, SelectInst*, vector<Table*>, vector<int>*);
 		
+		//-------------------------------------------
+		// bool CheckWhereValid(SelectInst*, vector<Table*>)
+		//		Check the WHERE is valid or not.
+		//-------------------------------------------
+		bool CheckWhereValid(SelectInst*, vector<Table*>);
 		
+		//-------------------------------------------
+		// bool CheckWhereCondition(SelectInst*, vector<Table*>, int, int)
+		//		Check the WHERE condition is true or false.
+		//-------------------------------------------
+		bool CheckWhereCondition(SelectInst*, vector<Table*>, int, int);
 		
 		//------------------------------
 		// Table* GetSelectedTable()
