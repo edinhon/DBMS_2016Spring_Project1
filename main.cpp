@@ -63,7 +63,7 @@ void DBMS(string fileName)
 		Instruction instruction = instructionSet->fetchInstruction();
 		Instruction *inst = parser.ParseSingleInstruction(instruction);
 
-		
+		/*
 		cout << "FUCK\n";
 		if(i == 6){
 			SelectInst *sinst = new SelectInst();
@@ -153,7 +153,7 @@ void DBMS(string fileName)
 				break;
 			}
 		}
-		
+		*/
 		i++;
 		//cout << "FUCKYYYYYYYYYYYY111111\n";
 		instructionSet->popInstruction ();
