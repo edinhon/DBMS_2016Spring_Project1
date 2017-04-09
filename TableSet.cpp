@@ -147,7 +147,7 @@ void TableSet::ShowTables()
 bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 {
 	//檢查SUM不能以*選全部attributes
-	if(sinst->isSelectAllAttrs && sinst->isSUM){
+	if((sinst->isSelectAllAttrs[0] || sinst->isSelectAllAttrs[1]) && sinst->isSUM){
 		cout << "- Error: Cannot sum up all attributes.\n";
 		return false;
 	}
@@ -260,13 +260,14 @@ bool TableSet::SelectTable(SelectInst* sinst)
 //---------------------------------------
 bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table*> selectedTables, vector<int>* TIndex)
 {
-	if(sinst->isSelectAllAttrs){
-		//取出所有attributes放進新table
+	if(sinst->isSelectAllAttrs[0] || sinst->isSelectAllAttrs[1]) {
 		for(int i = 0 ; i < (int)selectedTables.size() ; i++){
-			if(!(t->CopyAttributes(selectedTables[i])))
-				return false;
+			if(sinst->isSelectAllAttrs[i]){
+				if(!(t->CopyAttributes(selectedTables[i])))
+					return false;
+			}
 		}
-	} 
+	}
 	else {
 		//依序檢查每個table
 		for(int i = 0 ; i < (int)selectedTables.size() ; i++){
@@ -343,6 +344,7 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 			return false;
 		}
 	}
+	
 	return true;
 }
 
@@ -357,16 +359,17 @@ bool TableSet::SELECT_InsertTuples(Table* t, SelectInst* sinst, vector<Table*> s
 			
 			int tupleIndex = t->InsertEmptyTuple();
 			
-			if(sinst->isSelectAllAttrs){
-				
-				t->CopyValuesToTuple(selectedTables[0], tupleIndex, i);
+			if(sinst->isSelectAllAttrs[0]){
+				if(!t->CopyValuesToTuple(selectedTables[0], tupleIndex, i))
+					return false;
 			}
 			else {
 				
 				for(int j = 0 ; j < (int)sinst->selectedAttributesNames.size() ; j++){
 					//此attribute屬於此table
 					if(TIndex->at(j) == 0){
-						t->CopyValueToTuple(selectedTables[0], sinst->selectedAttributesNames[j], tupleIndex, i);
+						if(!t->CopyValueToTuple(selectedTables[0], sinst->selectedAttributesNames[j], tupleIndex, i))
+							return false;
 					}
 				}
 			}
@@ -393,19 +396,25 @@ bool TableSet::SELECT_InsertTuples(Table* t, SelectInst* sinst, vector<Table*> s
 					
 					int tupleIndex = t->InsertEmptyTuple();
 					
-					if(sinst->isSelectAllAttrs){
-						t->CopyValuesToTuple(selectedTables[0], tupleIndex, i);
-						t->CopyValuesToTuple(selectedTables[1], tupleIndex, j);
+					if(sinst->isSelectAllAttrs[0] || sinst->isSelectAllAttrs[1]){
+						for(int k = 0 ; k < (int)selectedTables.size() ; k++){
+							if(sinst->isSelectAllAttrs[i]){
+								if(!t->CopyValuesToTuple(selectedTables[k], tupleIndex, i))
+									return false;
+							}
+						}
 					}
 					else {
 						for(int k = 0 ; k < (int)sinst->selectedAttributesNames.size() ; k++){
 							//此attribute屬於First table
 							if(TIndex->at(k) == 0){
-								t->CopyValueToTuple(selectedTables[0], sinst->selectedAttributesNames[k], tupleIndex, i);
+								if(!t->CopyValueToTuple(selectedTables[0], sinst->selectedAttributesNames[k], tupleIndex, i))
+									return false;
 							}
 							//此attribute屬於Second table
 							if(TIndex->at(k) == 1){
-								t->CopyValueToTuple(selectedTables[1], sinst->selectedAttributesNames[k], tupleIndex, j);
+								if(!t->CopyValueToTuple(selectedTables[1], sinst->selectedAttributesNames[k], tupleIndex, j))
+									return false;
 							}
 						}
 					}
