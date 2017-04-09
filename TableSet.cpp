@@ -630,6 +630,50 @@ bool TableSet::CheckWhereValid(SelectInst* sinst, vector<Table*> selectedTables)
 bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTables, int tplIdx1, int tplIdx2)
 {
 	//檢查條件
+	if(tplIdx2 == -1){
+		for(int i = 0 ; i < (int)sinst->WHERE_FirstAttrNames.size() ; i++){
+			int valueFirstInt;
+			string valueFirstStr;
+			int valueFirstType;	//0 = int, 1 = varchar
+			switch(sinst->WHERE_FirstTypes[i]){
+				case 0:{
+					/*Integer*/
+					valueFirstInt = stoi(sinst->WHERE_FirstAttrNames[i]);
+					valueFirstType = 0;
+					break;
+				}
+				case 1:{
+					/*VarChar*/
+					valueFirstStr = new string(sinst->WHERE_FirstAttrNames[i]);
+					valueFirstType = 1;
+					break;
+				}
+				case 2:{
+					/*Attribute*/
+					string *sValue = selectedTables[0]->tuples[tplIdx1].getValue(sinst->WHERE_FirstAttrNames[i]);
+					switch(selectedTables[0]->GetAttributeType(sinst->WHERE_FirstAttrNames[i])){
+						case 0:
+							valueFirstInt = stoi(*sValue);
+							valueFirstType = 0;
+							break;
+						case 1:
+							valueFirstStr = new string(*sValue);
+							valueFirstType = 1;
+							break;
+					}
+					break;
+				}
+				case -1:{
+					cout << "- Error: WHERE left item has to exist.\n"
+					return false;
+					break;
+				}
+			}
+		}
+	}
+	else {
+		
+	}
 	return true;
 }
 
