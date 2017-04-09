@@ -97,7 +97,7 @@ class TableSet{
 		// bool CheckWhereValid(SelectInst*, vector<Table*>)
 		//		Check the WHERE is valid or not.
 		//-------------------------------------------
-		bool CheckWhereValid(SelectInst*, vector<Table*>)
+		bool CheckWhereValid(SelectInst*, vector<Table*>);
 		
 		//-------------------------------------------
 		// bool CheckWhereCondition(SelectInst*, vector<Table*>, int, int)

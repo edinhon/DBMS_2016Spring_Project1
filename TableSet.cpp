@@ -523,7 +523,7 @@ bool TableSet::SELECT_InsertTuplesWithWhere(Table* t, SelectInst* sinst, vector<
 // bool CheckWhereValid(SelectInst*, vector<Table*>)
 //		Check the WHERE is valid or not.
 //-------------------------------------------
-bool CheckWhereValid(SelectInst* sinst, vector<Table*> selectedTables)
+bool TableSet::CheckWhereValid(SelectInst* sinst, vector<Table*> selectedTables)
 {
 	//檢查各table name是否包括在selectedTables
 	for(int i = 0 ; i < (int)sinst->WHERE_FirstAttrTables.size() ; i++){
@@ -627,7 +627,7 @@ bool CheckWhereValid(SelectInst* sinst, vector<Table*> selectedTables)
 // bool CheckWhereCondition(SelectInst*, vector<Table*>, int, int)
 //		Check the WHERE condition is true or false.
 //-------------------------------------------
-bool CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTables, int tplIdx1, int tplIdx2)
+bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTables, int tplIdx1, int tplIdx2)
 {
 	//檢查條件
 	return true;
