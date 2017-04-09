@@ -90,6 +90,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 	int tableSize = -1;
 	bool catchingNot = false;
 	vector <string> selectedTableLeft, left, operation, selectedTableRight, right;
+	vector <int> selectLeftType, selectRightType;
 	vector <string> startTableNames, startAttributeNames;
 	vector <string> fromTableNames, fromTableShorthands;
 
@@ -150,7 +151,11 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			select = new SelectInst ();
 			instruction.popTermTokens();
 			type = SELECTION;
-		} else { }
+		} else { 
+			Instruction* nullinst = new Instruction();
+			cout << "I don't know what can lead us here" << endl;
+			return nullinst;
+		}
 
 		switch (type) {
 			case CREATE_TABLE : {
@@ -489,6 +494,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 
 				string last;
 				int step = start;
+
 				while (!instruction.isEmpty()) {
 					string current = instruction.getTermTokens();
 
@@ -653,6 +659,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								step = where;
 							} else if (current == ".") {
 								// on certain table
+								// type would be attribute
 								if (!assigning) {
 									left.pop_back ();
 									selectedTableLeft.pop_back ();
@@ -693,6 +700,14 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								//parsing
 								if (!assigning) {	// on the left of the operation
 									left.push_back (current);
+									// if is digit -> int
+									// else -> attribute
+									// if is char -> 會被抓
+									if (isdigit(current[0])) {
+										selectLeftType.push_back (0);
+									} else
+										selectLeftType.push_back (3);
+
 									if (selectingInParticularTable) {
 										selectingInParticularTable = false;
 									} else {
