@@ -40,7 +40,37 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 			int j=0;
 			bool catchDigit = false;
 			bool dotFlag = false;
-
+			bool alreadyPushed = false;
+			while (j < p) {
+				if (!isalpha(stringBuffer[j])) {
+					if (!isdigit(stringBuffer[j])) {
+						if (flag == j) {
+							parse.push (stringBuffer.substr(j, 1));
+							alreadyPushed = true;
+							flag = j+1;
+						}
+						else {
+							parse.push (stringBuffer.substr(flag, j-flag));
+							parse.push (stringBuffer.substr(j, 1));
+							alreadyPushed = true;
+							flag = j+1;
+						}
+					}
+				} else {
+					alreadyPushed = false;
+				}
+				j++;
+			}
+			if (!alreadyPushed) {
+				parse.push (stringBuffer.substr (flag, p-flag));
+			}
+			int t=parse.size();
+			for (int r=0; r<t; r++)
+			{
+				instruction->setTermTokens(parse.front());
+				parse.pop();
+			}
+/*
 			while (j<p) {
 				if ((stringBuffer[j] == '(') || (stringBuffer[j] == ')') || (stringBuffer[j] == ',') 
 									|| (stringBuffer[j] == '.')) 
@@ -103,7 +133,7 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 				instruction->setTermTokens(parse.front());
 				parse.pop();
 			}
-
+*/
 	        trying = strtok (NULL, " \n\t");
 		}
 		instruction->setInstructionString(slicedString);
@@ -430,27 +460,24 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 									step = 6;
 								}
 							}
-							else if (tmpt[0] == 39) {
-								int ts = (int)tmpt.size();
-								if (tmpt[ts-1] == 39) {
-									string* toAdd = new string (tmpt.substr(1, tmpt.size()-2));
-									tuple->insertedValues.push_back (toAdd);
-									tuple->insertedValueTypes.push_back(1);
-									instruction.popTermTokens();
-									catchcomma = false;
-									step = 7;
-								} else {
-									if (!catchcomma) {
-										attach = new string (tmpt.substr(1, ts-1));
-										*attach += " ";
+							else if (tmpt == "'" || catchcomma) {
+								if (catchcomma) {
+									if (tmpt == "'") {
+										tuple->insertedValues.push_back (attach);
+										tuple->insertedValueTypes.push_back(1);
 										instruction.popTermTokens();
+										catchcomma = false;
+										step = 7;
+									} else {
+										*attach += " ";
+										*attach += tmpt;
 										catchcomma = true;
 										step = 6;
-									} else {
-										cout << "- Syntax Error : 6" << endl;
-										tuple->isValid = false;
-										return tuple;
 									}
+								} else {
+									attach = new string ();
+									instruction.popTermTokens ();
+									catchcomma = true;
 								}
 							} else if (tmpt[0] == ',') {
 								string* toAdd = new string ("NULL_VALUE");
@@ -652,46 +679,25 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								}
 								instruction.popTermTokens ();
 								step = where;
-							} else if (current[0] == 39 || catchcomma) {
+							} else if (current == "'" || catchcomma) {
 								if (catchcomma) {
-									int ts = (int)current.size();
-									if (current[ts-1] == 39) {	// if the '' ends here
-										*attach += current.substr(0, ts-1);
+									if (current == "'") { // end of ''
 										right.push_back (*attach);
-										instruction.popTermTokens();
+										instruction.popTermTokens ();
 										assigning = false;
 										catchcomma = false;
 										step = where;
 									} else {
-										*attach += current;
 										*attach += " ";
-										instruction.popTermTokens();
+										*attach += current;
+										instruction.popTermTokens ();
 										catchcomma = true;
 										step = where;
 									}
-								}
-								else {
-									int ts = (int)current.size();
-									if (current[ts-1] == 39) { // '' with no space in between
-										attach = new string (current.substr(1, current.size()-2));
-										right.push_back (*attach);
-										instruction.popTermTokens();
-										assigning = false;
-										catchcomma = false;
-										step = where;
-									} else {
-										if (!catchcomma) {
-											attach = new string (current.substr(1, ts-1));
-											*attach += " ";
-											instruction.popTermTokens();
-											catchcomma = true;
-											step = where;
-										} else {
-											cout << "- Syntax Error on \'" << endl;
-											select->isValid = false;
-											return select;
-										}
-									}
+								} else {
+									attach = new string ();
+									instruction.popTermTokens ();
+									catchcomma = true;
 								}
 							} else {
 								// parsing
