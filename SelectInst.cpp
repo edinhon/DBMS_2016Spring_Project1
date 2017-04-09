@@ -9,14 +9,13 @@ SelectInst::SelectInst()
 	
 	type = SELECTION;
 	
-	isSelectAllAttrs = false;
+	isSelectAllAttrs[0] = false;
+	isSelectAllAttrs[1] = false;
 	
 	isWHERE = false;
 	
 	isCOUNT = false;
-	
-	isCOUNTAllAttrs = false;
-	
+		
 	isSUM = false;
 }
 
@@ -28,14 +27,13 @@ SelectInst::SelectInst(string const name)
 	
 	type = SELECTION;
 	
-	isSelectAllAttrs = false;
-	
+	isSelectAllAttrs[0] = false;
+	isSelectAllAttrs[1] = false;
+		
 	isWHERE = false;
 	
 	isCOUNT = false;
-	
-	isCOUNTAllAttrs = false;
-	
+		
 	isSUM = false;
 }
 /*

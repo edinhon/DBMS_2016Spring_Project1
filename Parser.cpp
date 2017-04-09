@@ -38,8 +38,6 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 			int flag = 0;
 			int p = stringBuffer.size();
 			int j=0;
-			bool catchDigit = false;
-			bool dotFlag = false;
 			bool alreadyPushed = false;
 			while (j < p) {
 				if (!isalpha(stringBuffer[j])) {
@@ -70,75 +68,11 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 				instruction->setTermTokens(parse.front());
 				parse.pop();
 			}
-/*
-			while (j<p) {
-				if ((stringBuffer[j] == '(') || (stringBuffer[j] == ')') || (stringBuffer[j] == ',') 
-									|| (stringBuffer[j] == '.')) 
-				{
-					if (flag == j) {
-
-						string tmpt;
-						if (stringBuffer[j] == '(')
-							tmpt = "(";
-						else if (stringBuffer[j] == ')')
-							tmpt = ")";
-						else if (stringBuffer[j] == ',')
-							tmpt = ",";
-						else if (stringBuffer[j] == '.') {
-							cout << "幹" << endl;
-							tmpt = ".";
-						}
-						parse.push (tmpt);
-						flag = j+1;
-						catchDigit = false;
-					} else {
-						parse.push (stringBuffer.substr(flag, j-flag));
-						string tmpt;
-						if (stringBuffer[j] == '(')
-							tmpt = "(";
-						else if (stringBuffer[j] == ')')
-							tmpt = ")";
-						else if (stringBuffer[j] == ',')
-							tmpt = ",";
-						else if (stringBuffer[j] == '.') {
-							tmpt = ".";
-							dotFlag = true;
-						}
-
-						parse.push (tmpt);
-						if (dotFlag && (stringBuffer[p-1] != '(') && (stringBuffer[p-1] != ')') && (stringBuffer[p-1] != ',') 
-									&& (stringBuffer[p-1] != '.')) {
-							parse.push (stringBuffer.substr(j+1, (stringBuffer.size() - j)));
-						}
-						flag = j+1;
-						catchDigit = false;
-					}
-				}
-				else {
-					if (!catchDigit) {
-						flag = j;
-						catchDigit = true;
-					}
-				}
-
-				j++;
-			}
-
-			if (catchDigit && !dotFlag) {
-				instruction->setTermTokens(trying);
-			}
-			int t=parse.size();
-			for (int r=0; r<t; r++)
-			{
-				instruction->setTermTokens(parse.front());
-				parse.pop();
-			}
-*/
 	        trying = strtok (NULL, " \n\t");
 		}
 		instruction->setInstructionString(slicedString);
 		instructionSet->pushInstruction(*instruction);
-		instruction->showTokens ();
+		//instruction->showTokens ();
 	}
 	return instructionSet;
 }
@@ -154,7 +88,11 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 	SelectInst *select;
 	int type = -1;
 	int tableSize = -1;
-	vector <string> selectedTable, left, operation, right;
+	bool catchingNot = false;
+	vector <string> selectedTableLeft, left, operation, selectedTableRight, right;
+	vector <string> startTableNames, startAttributeNames;
+	vector <string> fromTableNames, fromTableShorthands;
+
 
 	while (!instruction.isEmpty()) {
 
@@ -533,10 +471,11 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 
 				// in 
 				bool selectingInParticularTable = false;	// in and where
+				bool selectCount = false, selectSum = false;
+				bool selectLeftParenthesis = false;
 				
 				// in case from :
 				bool tableAlias = false;
-
 				// in case where :
 				bool assigning = false;	/*
 											in where, 
@@ -561,6 +500,42 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								// remember to parse the current string!!!!!
 								instruction.popTermTokens();	// pop till 'from'
 								step = from;
+							} else if (checkStringWithoutCase (current, "count")) {
+								// count (attributes)
+								cout << "count" << endl;
+								selectCount = true;
+								instruction.popTermTokens ();
+								step = start;
+							} else if (checkStringWithoutCase (current, "sum")) {
+								// count (attributes)
+								cout << "sum" << endl;
+								selectSum = true;
+								instruction.popTermTokens ();
+								step = start;
+							} else if (current == "(") {
+								// left parenthesis of count
+								if (!selectCount && !selectSum) {
+									cout << "Syntax Error : in selecting count" << endl;
+									select->isValid = false;
+									return select;
+								} else {
+									selectLeftParenthesis = true;
+									instruction.popTermTokens ();
+									step = start;
+								}
+							} else if (current == ")") {
+								// left parenthesis of count
+								if ((!selectCount && !selectSum) || !selectLeftParenthesis) {
+									cout << "Syntax Error : in selecting count" << endl;
+									select->isValid = false;
+									return select;
+								} else {
+									selectLeftParenthesis = false;
+									selectCount = false;
+									selectSum = false;
+									instruction.popTermTokens ();
+									step = start;
+								}
 							} else if (current == ",") {
 								// continue to do next token
 								instruction.popTermTokens ();
@@ -578,27 +553,27 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								// selectedAttributesNames //
 								if (selectingInParticularTable) {
 									if (current == "*") {
-										select->selectedAttributesTables.push_back (last);
-										select->selectedAttributesNames.pop_back ();
-										select->isSelectAllAttrs = true;
+										startTableNames.pop_back ();
+										startTableNames.push_back (last);
+										startAttributeNames.pop_back ();
+										startAttributeNames.push_back ("*");
 										selectingInParticularTable = false;
 									} else {
 										// in special cases, when we assign tables
-										// push back table
-										select->selectedAttributesTables.push_back (last);
-										// pop the last item in the vector 
-										// since we added the wrong one in default else
-										select->selectedAttributesNames.pop_back ();
-										// and the push
-										select->selectedAttributesNames.push_back (current);
+										startTableNames.pop_back ();
+										startTableNames.push_back (last);
+										startAttributeNames.pop_back ();
+										startAttributeNames.push_back (current);
 										selectingInParticularTable = false;
 									}
 								} else {
 									if (current == "*") {
-										select->isSelectAllAttrs = true;
+										startTableNames.push_back ("");
+										startAttributeNames.push_back ("*");
 									} else {
 										// in nromal cases, push back attribute to target
-										select->selectedAttributesNames.push_back (current);
+										startTableNames.push_back ("");
+										startAttributeNames.push_back (current);
 									}
 								}
 								last = current;
@@ -628,10 +603,13 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								// keep parsing
 								if (tableAlias) {
 									// caught table with alias
-									select->tableNameAlias.push_back (current);
+
+									fromTableShorthands.pop_back ();
+									fromTableShorthands.push_back (current);
 									tableAlias = false;
 								} else {
-									select->tableNames.push_back (current);
+									fromTableShorthands.push_back ("");
+									fromTableNames.push_back (current);
 								}
 								instruction.popTermTokens ();	
 								step = from;
@@ -640,27 +618,35 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 						case where : {
 							//cout << "Caught \'where\' instruction!" << endl;
-							if (checkStringWithoutCase (current, "and")) {
+							if (checkStringWithoutCase (current, "AND")) {
 								// 'and' instruction
 								instruction.popTermTokens ();
 								assigning = false;
 								step = where;
-							} else if (checkStringWithoutCase (current, "or")) {
+							} else if (checkStringWithoutCase (current, "OR")) {
 								// 'or' instruction
 								instruction.popTermTokens ();
 								assigning = false;
 								step = where;
+
 							} else if (current == "=") {
 								assigning = true;
 								operation.push_back (current);
 								instruction.popTermTokens ();
 								step = where;
 							} else if (current == ">") {
+								if (catchingNot) {
+									operation.pop_back ();
+									operation.push_back ("<>");
+									catchingNot = false;
+								} else 
+									operation.push_back (current);
 								assigning = true;
-								operation.push_back (current);
+								//operation.push_back (current);
 								instruction.popTermTokens ();
 								step = where;
 							} else if (current == "<") {
+								catchingNot = true;
 								assigning = true;
 								operation.push_back (current);
 								instruction.popTermTokens ();
@@ -669,12 +655,14 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								// on certain table
 								if (!assigning) {
 									left.pop_back ();
-									selectedTable.push_back (last);
+									selectedTableLeft.pop_back ();
+									selectedTableLeft.push_back (last);
 									selectingInParticularTable = true;
 								} else {	
 									// after operator
 									right.pop_back ();
-									selectedTable.push_back (last);
+									selectedTableRight.pop_back ();
+									selectedTableRight.push_back (last);
 									selectingInParticularTable = true;
 								}
 								instruction.popTermTokens ();
@@ -683,8 +671,9 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								if (catchcomma) {
 									if (current == "'") { // end of ''
 										right.push_back (*attach);
+										selectedTableRight.push_back ("");
 										instruction.popTermTokens ();
-										assigning = false;
+										//assigning = false;
 										catchcomma = false;
 										step = where;
 									} else {
@@ -700,17 +689,28 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 									catchcomma = true;
 								}
 							} else {
-								// parsing
+								catchingNot = false;
+								//parsing
 								if (!assigning) {	// on the left of the operation
 									left.push_back (current);
-									//assigning = true;
+									if (selectingInParticularTable) {
+										selectingInParticularTable = false;
+									} else {
+										selectedTableLeft.push_back ("");
+									}
 								} else {	// after catching the operator, come here
 											// notice that this case happens when we don't have ''
 									right.push_back (current);
+									if (selectingInParticularTable) {
+										selectingInParticularTable = false;
+									} else{
+										selectedTableRight.push_back ("");
+									}
 								}
 								instruction.popTermTokens ();
 								step = where;
 							}
+
 							last = current;
 							break;
 						}
@@ -749,39 +749,76 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			break;
 		}
 		case SELECTION : {
-			cout << "+++++++++++++++++++++" << endl;
-			cout << "tables :: " << endl;
-			for (int i=0; i<select->selectedAttributesTables.size(); i++) 
-				cout << select->selectedAttributesTables[i] << ' ';
-			cout << endl;
-			cout << "attributes ::" << endl;
-			for (int i=0; i<select->selectedAttributesNames.size(); i++)
-				cout << select->selectedAttributesNames[i] << ' ';
-			if (select->isSelectAllAttrs)
-				cout << "all";
-			cout << endl;
-			cout << "table names ::" << endl;
-			for (int i=0; i<select->tableNames.size(); i++)
-				cout << select->tableNames[i] << ' ';
-			cout << endl;
-			cout << "table name alias ::" << endl;
-			for (int i=0; i<select->tableNameAlias.size(); i++)
-				cout << select->tableNameAlias[i] << ' ';
-			cout << endl;
-			cout << "attribute values selected table:: " << selectedTable.size() << endl;
-			for (int i=0; i<selectedTable.size(); i++)
-				cout << selectedTable[i] << ' ';
-			cout << endl;
-			cout << "attribute values left :: " << left.size() << endl;
-			for (int i=0; i<left.size(); i++)
-				cout << left[i] << ' ';
-			cout << endl;
-			cout << "attribute values :: " << right.size() << endl;
-			for (int i=0; i<right.size(); i++)
-				cout << right[i] << ' ';
-			cout << endl;
-			cout << "---------------------" << endl;
+			// checking if alias exists
+			int sizeForStart = startTableNames.size ();
+			int sizeForFrom = fromTableNames.size ();
+			int sizeForWhere = left.size ();
 
+			bool aliasExists = true;
+
+			cout << "+++++++++++++++++++++" << endl;
+			for (int i=0; i<sizeForStart; i++) {
+				for (int j=0; j<sizeForFrom; j++) {
+					if (startTableNames[i] != "") {
+						aliasExists = false;
+						if (startTableNames[i] == fromTableShorthands[j]) {
+							startTableNames[i] = fromTableNames[j];
+							aliasExists = true;
+							break;
+						}
+					}
+				}
+				if (!aliasExists) {
+					cout << "in start, no such alias as : " << startTableNames[i] << endl;
+				}
+			}
+			for (int i=0; i<sizeForWhere; i++) {
+				for (int j=0; j<sizeForFrom; j++) {
+					if (selectedTableLeft[i] != "") {
+						aliasExists = false;
+						if ((selectedTableLeft[i] == fromTableShorthands[j]) || (selectedTableLeft[i] == fromTableNames[j])) {
+							selectedTableLeft[i] = fromTableNames[j];
+							aliasExists = true;
+							break;
+						}
+					}
+				}
+				if (!aliasExists) {
+					cout << "in left, no such alias as : " << startTableNames[i] << endl;
+				}
+			}
+			for (int i=0; i<sizeForWhere; i++) {
+				for (int j=0; j<sizeForFrom; j++) {
+					if (selectedTableRight[i] != "") {
+						aliasExists = false;
+						if ((selectedTableRight[i] == fromTableShorthands[j]) || (selectedTableRight[i] == fromTableNames[j])) {
+							selectedTableRight[i] = fromTableNames[j];
+							aliasExists = true;
+							break;
+						}
+					}
+				}
+				if (!aliasExists) {
+					cout << "in right, no such alias as : " << startTableNames[i] << endl;
+				}
+			}
+			cout << "end checking alias names" << endl;
+
+			
+			cout << "start table messages" << endl;
+			cout << startTableNames.size() << endl;
+			for (int i=0; i<startTableNames.size(); i++)
+			{
+				cout << startTableNames[i] << " : " << startAttributeNames[i];
+				cout << endl;
+			}
+			cout << endl;
+			cout << "where table messages" << endl;
+			for (int i=0; i<selectedTableLeft.size(); i++) {
+				cout << selectedTableLeft[i] << " : " << left[i] << " " << operation[i] << ' ' 
+				<< selectedTableRight[i] << " : " << right[i] << endl;
+			}
+			cout << "---------------------" << endl;
 			select->isValid = true;
 			return select;
 			break;

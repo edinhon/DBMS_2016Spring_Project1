@@ -68,7 +68,7 @@ WHERE authorId = 1 OR pages < 200;
 
 SELECT b.*
 FROM Book AS b, Author AS a
-WHERE b.authorId = a.authorId AND a.name = 'Michael Crichton';
+WHERE a.name = 'Michael Crichton' and b.authorId = a.authorId;
 
 SELECT bookId, title, pages, name
 FROM Book, Author
