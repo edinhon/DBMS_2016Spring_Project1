@@ -620,6 +620,7 @@ bool CheckWhereValid(SelectInst* sinst, vector<Table*> selectedTables)
 			}
 		}
 	}
+	return true;
 }
 
 //-------------------------------------------
@@ -628,8 +629,8 @@ bool CheckWhereValid(SelectInst* sinst, vector<Table*> selectedTables)
 //-------------------------------------------
 bool CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTables, int tplIdx1, int tplIdx2)
 {
-	
 	//檢查條件
+	return true;
 }
 
 //------------------------------
