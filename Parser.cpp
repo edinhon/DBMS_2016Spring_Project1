@@ -495,15 +495,23 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				break;
 			}
 			case SELECTION : {
-				int step = 1;
+				const int start = 1;
 				const int from = 2;
 				const int where = 3;
 
+				// in 
+				bool selectingInParticularTable = false;
+				
+				// in case from :
+				bool tableAlias = false;
+
+				string last;
+				int step = start;
 				while (!instruction.isEmpty()) {
 					string current = instruction.getTermTokens();
 
 					switch (step) {
-						case 1 : {
+						case start : {
 							// parsing selection targets
 							if (checkStringWithoutCase(current, "from")) {
 								// ready to jump to case 'from'
@@ -513,65 +521,86 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								step = from;
 							} else if (current == ",") {
 								// continue to do next token
-								cout << ' ';
 								instruction.popTermTokens ();
-								step = 1;
+								step = start;
 							} else if (current == ".") {
 								// selecting attributes from a certain table
-								cout << ' ';
+								selectingInParticularTable = true;
 								instruction.popTermTokens ();
-								step = 1;
+								step = start;
+
+								// continue so the assign-to-last won't execute
+								continue;
+							}else if (current == "*") {
+								// star
+								instruction.popTermTokens ();
+								cout << "found star" << endl;
 							} else {
 								// keep parsing
-								cout << current;
+								// selectedAttributesNames //
+								if (selectingInParticularTable) {
+									// in special cases, when we assign tables
+									// push back table
+									select->selectedAttributesTables.push_back (last);
+									// pop the last item in the vector 
+									// since we added the wrong one in default else
+									select->selectedAttributesNames.pop_back ();
+									// and the push
+									select->selectedAttributesNames.push_back (current);
+									selectingInParticularTable = false;
+								} else {
+									// in nromal cases, push back attribute to target
+									select->selectedAttributesNames.push_back (current);
+								}
 								instruction.popTermTokens ();
-								step = 1;
+								step = start;
 							}
 
 							break;
 						}
 						case from : {
-							cout << "In case \'from\' " << endl;
 							if (checkStringWithoutCase(current, "where")) {
 								// jump to where
 								cout << endl;
 								instruction.popTermTokens();	// pop till 'where'
 								step = where;
-							} else if (checkStringWithoutCase (current, "and")) {
-								// 'and' instruction
-								cout << ' ';
-								instruction.popTermTokens ();
-								step = from;
-							} else if (checkStringWithoutCase (current, "or")) {
-								// 'or' instruction
-								cout << ' ';
-								instruction.popTermTokens ();
-								step = from;
 							} else if (checkStringWithoutCase (current, "as")) {
 								// 'as' instruction
-								cout <<  ' ';
+								// we have alias
+								tableAlias = true;
+								instruction.popTermTokens ();
+								step = from;
+							} else if (current == ",") {
+								// continue to do next token
 								instruction.popTermTokens ();
 								step = from;
 							} else {
 								// keep parsing
-								cout << current;
+								if (tableAlias) {
+									// caught table with alias
+									select->tableNameAlias.push_back (current);
+									cout << "alias name is " << current << endl;
+									tableAlias = false;
+								} else {
+									select->tableNames.push_back (current);
+								}
 								instruction.popTermTokens ();	
 								step = from;
 							}
 							break;
 						}
 						case where : {
-							cout << "In case \'where\'" << endl;
+							//cout << "Caught \'where\' instruction!" << endl;
 							if (checkStringWithoutCase (current, "and")) {
 								// 'and' instruction
 								cout << ' ';
 								instruction.popTermTokens ();
-								step = from;
+								step = where;
 							} else if (checkStringWithoutCase (current, "or")) {
 								// 'or' instruction
 								cout << ' ';
 								instruction.popTermTokens ();
-								step = from;
+								step = where;
 							} else {
 								// parsing
 								instruction.popTermTokens ();
@@ -584,7 +613,9 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							break;
 						}
 					}
+					last = current;
 				}
+				break;
 			}
 			default : {
 				Instruction* nullinst = new Instruction();
@@ -612,6 +643,25 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			break;
 		}
 		case SELECTION : {
+			cout << "---------------------" << endl;
+			cout << "tables :: " << endl;
+			for (int i=0; i<select->selectedAttributesTables.size(); i++) 
+				cout << select->selectedAttributesTables[i] << ' ';
+			cout << endl;
+			cout << "attributes ::" << endl;
+			for (int i=0; i<select->selectedAttributesNames.size(); i++)
+				cout << select->selectedAttributesNames[i] << ' ';
+			cout << endl;
+			cout << "table names ::" << endl;
+			for (int i=0; i<select->tableNames.size(); i++)
+				cout << select->tableNames[i] << ' ';
+			cout << endl;
+			cout << "table name alias ::" << endl;
+			for (int i=0; i<select->tableNameAlias.size(); i++)
+				cout << select->tableNameAlias[i] << ' ';
+			cout << endl;
+			cout << "---------------------" << endl;
+
 			select->isValid = true;
 			return select;
 			break;
