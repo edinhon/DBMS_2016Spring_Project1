@@ -788,20 +788,38 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 
 			cout << "+++++++++++++++++++++" << endl;
 			for (int i=0; i<sizeForStart; i++) {
-				for (int j=0; j<sizeForFrom; j++) {
-					if (startTableNames[i] != "") {
-						aliasExists = false;
+				select->selectedAttributesNames.push_back (startAttributeNames[i]);	// fill in attributes
+				if (startTableNames[i] != "") {
+					aliasExists = false;
+					for (int j=0; j<sizeForFrom; j++) {
 						if (startTableNames[i] == fromTableShorthands[j]) {
+							select->selectedAttributesTables.push_back (fromTableNames[j]);
 							startTableNames[i] = fromTableNames[j];
 							aliasExists = true;
 							break;
 						}
 					}
-				}
-				if (!aliasExists) {
-					cout << "in start, no such alias as : " << startTableNames[i] << endl;
+					if (!aliasExists) {
+						cout << "in start, no such alias as : " << startTableNames[i] << endl;
+					}
+				} else {
+					select->selectedAttributesTables.push_back (""); // fill in null attribute names
 				}
 			}
+
+			for (int i=0; i<fromTableNames.size(); i++) {
+				select->tableNames.push_back (fromTableNames[i]);
+			}
+
+			/*
+			for (int i=0; i<select->tableNames.size(); i++) {
+				if (select->selectedAttributesNames[i] == "*") {
+					select->isSelectAllAttrs[i] = true;
+				} else {
+					select->isSelectAllAttrs[i] = false;
+				}
+			}*/
+
 			for (int i=0; i<sizeForWhere; i++) {
 				for (int j=0; j<sizeForFrom; j++) {
 					if (selectedTableLeft[i] != "") {
@@ -832,17 +850,52 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 					cout << "in right, no such alias as : " << startTableNames[i] << endl;
 				}
 			}
+			for (int i=0; i<select->selectedAttributesNames.size(); i++) {
+				bool starFlag = false;
+				if (select->selectedAttributesNames[i] == "*") {
+					for (int j=0; j<select->tableNames.size(); j++) {
+						//cout << "in *************" << endl;
+						//cout << select->selectedAttributesTables[i] << ' ' <<  select->tableNames[j] << endl;
+						if (select->selectedAttributesTables[i] == select->tableNames[j]) {
+							starFlag = true;
+							select->isSelectAllAttrs[j] = true;
+							break;
+						}
+						if (select->selectedAttributesTables[i] == "" && select->tableNames.size() == 1) {
+							// select all and without assigning certain table
+							// and has only one 'from' table
+							starFlag = true;
+							select->isSelectAllAttrs[j] = true;
+							break;
+						} else {
+							cout << "select star without saying which table, and has multiple tables" << endl;
+							select->isValid = false;
+							return select;
+						}
+					}
+					if (!starFlag) {
+						cout << "************ i don't know what went wrong " << select->selectedAttributesTables[i]<< endl;
+					}
+				}
+			}
 			cout << "end checking alias names" << endl;
 
-			
-			cout << "start table messages" << endl;
-			cout << startTableNames.size() << endl;
-			for (int i=0; i<startTableNames.size(); i++)
+			// generate messages
+			cout << "start table messages : ";
+			cout << startTableNames.size() << ' ' << select->selectedAttributesTables.size () 
+						<< ' ' << select->selectedAttributesNames.size () << endl;
+			for (int i=0; i<select->selectedAttributesTables.size(); i++)
 			{
-				cout << startTableNames[i] << " : " << startAttributeNames[i];
-				cout << endl;
+				cout << select->selectedAttributesTables[i] << " : " << select->selectedAttributesNames[i] << endl;
 			}
 			cout << endl;
+			
+			cout << "number of tables involed : " << select->tableNames.size() << ' ' << "select all : ";
+			for (int i=0; i<fromTableNames.size(); i++) {
+				cout << select->tableNames[i] << ' ' << select->isSelectAllAttrs[i] << endl;
+			}
+			cout << endl;
+
 			cout << "where table messages" << endl;
 			for (int i=0; i<selectedTableLeft.size(); i++) {
 				cout << selectedTableLeft[i] << " : " << left[i] << " " << selectLeftType[i] << " " << operation[i] << ' ' 
