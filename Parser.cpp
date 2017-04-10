@@ -53,6 +53,10 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 							alreadyPushed = true;
 							flag = j+1;
 						}
+					} else {
+						if (alreadyPushed)
+							flag = j;
+						alreadyPushed = false;
 					}
 				} else {
 					alreadyPushed = false;
@@ -72,7 +76,7 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 		}
 		instruction->setInstructionString(slicedString);
 		instructionSet->pushInstruction(*instruction);
-		//instruction->showTokens ();
+		instruction->showTokens ();
 	}
 	return instructionSet;
 }
@@ -478,6 +482,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				bool selectingInParticularTable = false;	// in and where
 				bool selectCount = false, selectSum = false;
 				bool selectLeftParenthesis = false;
+				bool endOfParenthesis = false;
 				
 				// in case from :
 				bool tableAlias = false;
@@ -500,6 +505,16 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 
 					switch (step) {
 						case start : {
+
+							if (endOfParenthesis) {
+								if (!checkStringWithoutCase (current, "from")) {
+									cout << "end of parenthesis and hasn't finish select!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+									select->isValid = false;
+									return select;
+								}
+								endOfParenthesis = false;
+								step = from;
+							}
 							// parsing selection targets
 							if (checkStringWithoutCase(current, "from")) {
 								// ready to jump to case 'from'
@@ -539,6 +554,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 									selectLeftParenthesis = false;
 									selectCount = false;
 									selectSum = false;
+									endOfParenthesis = true;
 									instruction.popTermTokens ();
 									step = start;
 								}
@@ -720,20 +736,15 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 									}
 								} else {	// after catching the operator, come here
 											// notice that this case happens when we don't have ''
-									if (isdigit(current[0])) {
-										selectRightType.push_back (0);
-									} else
-										selectRightType.push_back (2);
-
 									right.push_back (current);
 									if (selectingInParticularTable) {
-										selectLeftType.push_back (2);
+										selectRightType.push_back (2);
 										selectingInParticularTable = false;
 									} else{
 										if (isdigit(current[0])) {
-												selectLeftType.push_back (0);
+												selectRightType.push_back (0);
 										} else
-											selectLeftType.push_back (2);
+											selectRightType.push_back (2);
 										selectedTableRight.push_back ("");
 									}
 								}
@@ -897,7 +908,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			cout << endl;
 
 			cout << "where table messages" << endl;
-			for (int i=0; i<selectedTableLeft.size(); i++) {
+			for (int i=0; i<selectLeftType.size(); i++) {
 				cout << selectedTableLeft[i] << " : " << left[i] << " " << selectLeftType[i] << " " << operation[i] << ' ' 
 				<< selectedTableRight[i] << " : " << right[i] << " " << selectRightType[i] << endl;
 			}
