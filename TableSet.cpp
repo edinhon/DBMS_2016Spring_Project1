@@ -148,10 +148,10 @@ void TableSet::ShowTables()
 bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 {
 	//檢查SUM不能以*選全部attributes
-	if((sinst->isSelectAllAttrs[0] || sinst->isSelectAllAttrs[1]) && sinst->isSUM){
+	/*if((sinst->isSelectAllAttrs[0] || sinst->isSelectAllAttrs[1]) && sinst->isSUM){
 		cout << "- Error: Cannot sum up all attributes.\n";
 		return false;
-	}
+	}*/
 	
 	//檢查是否table name of attribute都存在FROM裡面
 	for(int i = 0 ; i < (int)sinst->selectedAttributesTables.size() ; i++){
@@ -161,16 +161,6 @@ bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 		//檢查table name
 		for(int j = 0 ; j < (int)sinst->tableNames.size() ; j++){
 			string n2 = sinst->tableNames[j];
-			transform(n2.begin(), n2.end(), n2.begin(),::tolower);
-			
-			if(n1.compare(n2) == 0){
-				flag = true;
-				break;
-			}
-		}
-		//檢查alias
-		for(int j = 0 ; j < (int)sinst->tableNameAlias.size() ; j++){
-			string n2 = sinst->tableNameAlias[j];
 			transform(n2.begin(), n2.end(), n2.begin(),::tolower);
 			
 			if(n1.compare(n2) == 0){
@@ -188,7 +178,7 @@ bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 	
 	//檢查沒有table name的attribute是否都出現在FROM的tables, 以及是否都沒出現
 	for(int i = 0 ; i < (int)sinst->selectedAttributesNames.size() ; i++){
-		if(!sinst->isSelectedAttributesTables[i]){
+		if(sinst->selectedAttributesTables[i].compare("") != 0){
 			bool flag = false;
 			bool flag2 = false;
 			for(int j = 0 ; j < (int)selectedTables.size() ; j++){
@@ -273,44 +263,18 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 		//依序檢查每個table
 		for(int i = 0 ; i < (int)selectedTables.size() ; i++){
 			
-			//取得此table的alias name
-			string tableAlias = "";
-			if(sinst->isTableNameAlias[i]){
-				for(int j = 0 ; j < (int) sinst->tableNameAliasIndex.size() ; j++){
-					if(sinst->tableNameAliasIndex[j] == i){
-						tableAlias = sinst->tableNameAlias[j];
-					}
-				}
-			}
-			
 			//檢查Attribute是否屬於這個table並取出Attribute
 			for(int j = 0 ; j < (int)sinst->selectedAttributesNames.size() ; j++){
 				//分成有table name或沒table name
-				if(sinst->isSelectedAttributesTables[j]){
+				if(sinst->selectedAttributesTables[j].compare("") != 0){
 					
-					//取得table (alias) name
-					string TName;
-					for(int k = 0 ; k < (int)sinst->selectedAttributesTablesIndex.size() ; k++){
-						if(sinst->selectedAttributesTablesIndex[k] == j){
-							TName = sinst->selectedAttributesTables[k];
-							break;
-						}
-					}
-					
-					//檢查table name & alias是否屬於這個table
+					//檢查table name是否屬於這個table
 					bool isThisTable = false;
-					string n1 = TName;
+					string n1 = sinst->selectedAttributesTables[j];;
 					transform(n1.begin(), n1.end(), n1.begin(),::tolower);
 					string n2 = selectedTables[i]->getTableName();
 					transform(n2.begin(), n2.end(), n2.begin(),::tolower);
-					
 					if(n1.compare(n2) == 0) isThisTable = true;
-					
-					if(sinst->isTableNameAlias[i]){
-						n2 = tableAlias;
-						transform(n2.begin(), n2.end(), n2.begin(),::tolower);
-						if(n1.compare(n2) == 0) isThisTable = true;
-					}
 					
 					//如果此attribute table屬於此table, 取出attribute放進新table
 					if(isThisTable){
@@ -398,11 +362,13 @@ bool TableSet::SELECT_InsertTuples(Table* t, SelectInst* sinst, vector<Table*> s
 					int tupleIndex = t->InsertEmptyTuple();
 					
 					if(sinst->isSelectAllAttrs[0] || sinst->isSelectAllAttrs[1]){
-						for(int k = 0 ; k < (int)selectedTables.size() ; k++){
-							if(sinst->isSelectAllAttrs[i]){
-								if(!t->CopyValuesToTuple(selectedTables[k], tupleIndex, i))
-									return false;
-							}
+						if(sinst->isSelectAllAttrs[0]){
+							if(!t->CopyValuesToTuple(selectedTables[0], tupleIndex, i))
+								return false;
+						}
+						if(sinst->isSelectAllAttrs[1]){
+							if(!t->CopyValuesToTuple(selectedTables[1], tupleIndex, j))
+								return false;
 						}
 					}
 					else {
@@ -487,11 +453,13 @@ bool TableSet::SELECT_InsertTuplesWithWhere(Table* t, SelectInst* sinst, vector<
 					int tupleIndex = t->InsertEmptyTuple();
 					
 					if(sinst->isSelectAllAttrs[0] || sinst->isSelectAllAttrs[1]){
-						for(int k = 0 ; k < (int)selectedTables.size() ; k++){
-							if(sinst->isSelectAllAttrs[i]){
-								if(!t->CopyValuesToTuple(selectedTables[k], tupleIndex, i))
-									return false;
-							}
+						if(sinst->isSelectAllAttrs[0]){
+							if(!t->CopyValuesToTuple(selectedTables[0], tupleIndex, i))
+								return false;
+						}
+						if(sinst->isSelectAllAttrs[1]){
+							if(!t->CopyValuesToTuple(selectedTables[1], tupleIndex, j))
+								return false;
 						}
 					}
 					else {
