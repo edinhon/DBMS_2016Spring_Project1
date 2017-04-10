@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <cstdlib>
 #include "TableSet.h"
 
 using namespace std;
@@ -631,45 +632,207 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 {
 	//檢查條件
 	if(tplIdx2 == -1){
+		
+		bool cond[2] = {false, false};
+		
 		for(int i = 0 ; i < (int)sinst->WHERE_FirstAttrNames.size() ; i++){
 			int valueFirstInt;
 			string* valueFirstStr;
-			int valueFirstType;	//0 = int, 1 = varchar
-			switch(sinst->WHERE_FirstTypes[i]){
+			int valueFirstType;	//0 = int, 1 = varchar, -1 = NULL
+			
+			if(sinst->WHERE_FirstAttrNames[i].compare("NULL") == 0){
+				valueFirstType = -1;
+			}
+			else {
+				switch(sinst->WHERE_FirstTypes[i]){
+					case 0:{
+						/*Integer*/
+						valueFirstInt = atoi(sinst->WHERE_FirstAttrNames[i].c_str());
+						valueFirstType = 0;
+						break;
+					}
+					case 1:{
+						/*VarChar*/
+						valueFirstStr = new string(sinst->WHERE_FirstAttrNames[i]);
+						valueFirstType = 1;
+						break;
+					}
+					case 2:{
+						/*Attribute*/
+						string *sValue = selectedTables[0]->tuples[tplIdx1].getValue(sinst->WHERE_FirstAttrNames[i]);
+						//如果value是NULL
+						if(sValue == NULL){
+							valueFirstType = -1;
+							break;
+						}
+						switch(selectedTables[0]->GetAttributeType(sinst->WHERE_FirstAttrNames[i])){
+							case 0:
+								valueFirstInt = atoi((*sValue).c_str());
+								valueFirstType = 0;
+								break;
+							case 1:
+								valueFirstStr = sValue;
+								valueFirstType = 1;
+								break;
+						}
+						break;
+					}
+					case -1:{
+						cout << "- Error: WHERE left item has to exist.\n";
+						return false;
+						break;
+					}
+				}
+			}
+			
+			
+			//如果右值不存在且左值不為NULL
+			if(sinst->WHERE_SecondTypes[i] == -1 && valueFirstType != -1){
+				cout << "- Warning: There is only one value in " << (i+1) << 
+					" condition, and it's not NULL!\n";
+				cond[i] = true;
+				continue;
+			}
+			//如果右值不存在且左值為NULL
+			else if(sinst->WHERE_SecondTypes[i] == -1 && valueFirstType == -1){
+				cout << "- Warning: There is only one value in " << (i+1) << 
+					" condition, and it's NULL!\n";
+				cond[i] = false;
+				continue;
+			}
+			
+			int valueSecondInt;
+			string* valueSecondStr;
+			int valueSecondType;	//0 = int, 1 = varchar, -1 = NULL
+			
+			if(sinst->WHERE_SecondAttrNames[i].compare("NULL") == 0){
+				valueSecondType = -1;
+			}
+			else {
+				switch(sinst->WHERE_SecondTypes[i]){
+					case 0:{
+						/*Integer*/
+						valueSecondInt = atoi(sinst->WHERE_SecondAttrNames[i].c_str());
+						valueSecondType = 0;
+						break;
+					}
+					case 1:{
+						/*VarChar*/
+						valueSecondStr = new string(sinst->WHERE_SecondAttrNames[i]);
+						valueSecondType = 1;
+						break;
+					}
+					case 2:{
+						/*Attribute*/
+						string *sValue = selectedTables[0]->tuples[tplIdx1].getValue(sinst->WHERE_SecondAttrNames[i]);
+						//如果value是NULL
+						if(sValue == NULL){
+							valueSecondType = -1;
+							break;
+						}
+						switch(selectedTables[0]->GetAttributeType(sinst->WHERE_SecondAttrNames[i])){
+							case 0:
+								valueSecondInt = atoi((*sValue).c_str());
+								valueSecondType = 0;
+								break;
+							case 1:
+								valueSecondStr = sValue;
+								valueSecondType = 1;
+								break;
+						}
+						break;
+					}
+				}
+			}
+			
+			//不同類型，int != char, 或是其中一方為NULL
+			if(valueFirstType != valueSecondType){
+				cout << "- Warning: The two types cannot be matched in " << (i+1) << 
+					" condition.\n";
+				cond[i] = false;
+				continue;
+			}
+			
+			switch(valueFirstType){
 				case 0:{
 					/*Integer*/
-					valueFirstInt = stoi(sinst->WHERE_FirstAttrNames[i]);
-					valueFirstType = 0;
+					switch(sinst->WHERE_ExprTypes[i]){
+						case 0:
+							if(valueFirstInt == valueSecondInt){
+								cond[i] = true;
+							} else cond[i] = false;
+							break;
+						case 1:
+							if(valueFirstInt != valueSecondInt){
+								cond[i] = true;
+							} else cond[i] = false;
+							break;
+						case 2:
+							if(valueFirstInt < valueSecondInt){
+								cond[i] = true;
+							} else cond[i] = false;
+							break;
+						case 3:
+							if(valueFirstInt > valueSecondInt){
+								cond[i] = true;
+							} else cond[i] = false;
+							break;
+					}
 					break;
 				}
 				case 1:{
-					/*VarChar*/
-					valueFirstStr = new string(sinst->WHERE_FirstAttrNames[i]);
-					valueFirstType = 1;
-					break;
-				}
-				case 2:{
-					/*Attribute*/
-					string *sValue = selectedTables[0]->tuples[tplIdx1].getValue(sinst->WHERE_FirstAttrNames[i]);
-					switch(selectedTables[0]->GetAttributeType(sinst->WHERE_FirstAttrNames[i])){
+					/*String*/
+					switch(sinst->WHERE_ExprTypes[i]){
 						case 0:
-							valueFirstInt = stoi(*sValue);
-							valueFirstType = 0;
+							if((*valueFirstStr).compare(*(valueSecondStr)) == 0){
+								cond[i] = true;
+							} else cond[i] = false;
 							break;
 						case 1:
-							valueFirstStr = new string(*sValue);
-							valueFirstType = 1;
+							if((*valueFirstStr).compare(*(valueSecondStr)) != 0){
+								cond[i] = true;
+							} else cond[i] = false;
+							break;
+						default:
+							cout << "- Warning: The type varchar cannot be bigger or smaller than another.\n";
+							cond[i] = false;
 							break;
 					}
 					break;
 				}
 				case -1:{
-					cout << "- Error: WHERE left item has to exist.\n";
-					return false;
+					/*NULL*/
+					if(sinst->WHERE_ExprTypes[i] == 0) cond[i] = true;
+					else cond[i] = false;
 					break;
 				}
 			}
 		}
+		
+		bool flag = false;
+		for(int i = 0 ; i < 2 ; i++){
+			switch(sinst->WHERE_ExprAO){
+				case 0:
+					/*AND*/
+					if(!cond[i]){
+						return false;
+					} else flag = true;
+					break;
+				case 1:
+					/*OR*/
+					if(cond[i]){
+						return true;
+					} else flag = false;
+					break;
+				case -1:
+					/*Only one condition*/
+					return cond[0];
+					break;
+			}
+		}
+		
+		return flag;
+		
 	}
 	else {
 		
