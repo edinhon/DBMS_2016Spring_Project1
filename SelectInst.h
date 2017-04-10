@@ -18,24 +18,13 @@ class SelectInst : public Instruction {
 		
 		// from
 		// check
-		vector<string> tableNames;	//FROM table name
-									//檢查是否重複	
-		////
-		//vector<bool> isTableNameAlias;	//是否有alias name														
-		///			
-		//vector<string> tableNameAlias;	//Table Name alias
-		////
-		//vector<int> tableNameAliasIndex;	//紀錄alias name對應哪個table name
+		vector<string> tableNames;	//FROM table name，檢查是否重複	
 		
 		// select
 		// check
 		vector<string> selectedAttributesNames;	//SELECT 的 attribute name
-		////
-		//vector<bool> isSelectedAttributesTables;//attribute是否有table name, ex: t.attribute
 		// check
 		vector<string> selectedAttributesTables;//attribute 的 table name, "" = not exist
-		////
-		//vector<int> selectedAttributesTablesIndex;	//紀錄attribute table name對應哪個attribute
 		// check
 		bool isSelectAllAttrs[2];	//是否(*)
 		// check
