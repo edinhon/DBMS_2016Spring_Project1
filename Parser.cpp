@@ -662,12 +662,14 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								// type would be attribute
 								if (!assigning) {
 									left.pop_back ();
+									selectLeftType.pop_back ();
 									selectedTableLeft.pop_back ();
 									selectedTableLeft.push_back (last);
 									selectingInParticularTable = true;
 								} else {	
 									// after operator
 									right.pop_back ();
+									selectRightType.pop_back ();
 									selectedTableRight.pop_back ();
 									selectedTableRight.push_back (last);
 									selectingInParticularTable = true;
@@ -678,6 +680,8 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								if (catchcomma) {
 									if (current == "'") { // end of ''
 										right.push_back (*attach);
+										//selectRightType.pop_back ();
+										selectRightType.push_back (1);
 										selectedTableRight.push_back ("");
 										instruction.popTermTokens ();
 										//assigning = false;
@@ -703,22 +707,33 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 									// if is digit -> int
 									// else -> attribute
 									// if is char -> 會被抓
-									if (isdigit(current[0])) {
-										selectLeftType.push_back (0);
-									} else
-										selectLeftType.push_back (3);
-
 									if (selectingInParticularTable) {
+										selectLeftType.push_back (2);
 										selectingInParticularTable = false;
 									} else {
+										if (isdigit(current[0])) {
+												selectLeftType.push_back (0);
+										} else
+											selectLeftType.push_back (2);
+										
 										selectedTableLeft.push_back ("");
 									}
 								} else {	// after catching the operator, come here
 											// notice that this case happens when we don't have ''
+									if (isdigit(current[0])) {
+										selectRightType.push_back (0);
+									} else
+										selectRightType.push_back (2);
+
 									right.push_back (current);
 									if (selectingInParticularTable) {
+										selectLeftType.push_back (2);
 										selectingInParticularTable = false;
 									} else{
+										if (isdigit(current[0])) {
+												selectLeftType.push_back (0);
+										} else
+											selectLeftType.push_back (2);
 										selectedTableRight.push_back ("");
 									}
 								}
@@ -830,8 +845,8 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			cout << endl;
 			cout << "where table messages" << endl;
 			for (int i=0; i<selectedTableLeft.size(); i++) {
-				cout << selectedTableLeft[i] << " : " << left[i] << " " << operation[i] << ' ' 
-				<< selectedTableRight[i] << " : " << right[i] << endl;
+				cout << selectedTableLeft[i] << " : " << left[i] << " " << selectLeftType[i] << " " << operation[i] << ' ' 
+				<< selectedTableRight[i] << " : " << right[i] << " " << selectRightType[i] << endl;
 			}
 			cout << "---------------------" << endl;
 			select->isValid = true;

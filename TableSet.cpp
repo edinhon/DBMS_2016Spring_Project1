@@ -633,7 +633,7 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 	if(tplIdx2 == -1){
 		for(int i = 0 ; i < (int)sinst->WHERE_FirstAttrNames.size() ; i++){
 			int valueFirstInt;
-			string valueFirstStr;
+			string* valueFirstStr;
 			int valueFirstType;	//0 = int, 1 = varchar
 			switch(sinst->WHERE_FirstTypes[i]){
 				case 0:{
@@ -664,7 +664,7 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 					break;
 				}
 				case -1:{
-					cout << "- Error: WHERE left item has to exist.\n"
+					cout << "- Error: WHERE left item has to exist.\n";
 					return false;
 					break;
 				}
