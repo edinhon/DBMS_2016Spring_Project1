@@ -76,7 +76,7 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 		}
 		instruction->setInstructionString(slicedString);
 		instructionSet->pushInstruction(*instruction);
-		instruction->showTokens ();
+		//instruction->showTokens ();
 	}
 	return instructionSet;
 }
@@ -508,7 +508,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 
 							if (endOfParenthesis) {
 								if (!checkStringWithoutCase (current, "from")) {
-									cout << "end of parenthesis and hasn't finish select!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+									cout << "end of parenthesis and hasn't finish select" << endl;
 									select->isValid = false;
 									return select;
 								}
@@ -523,13 +523,13 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								step = from;
 							} else if (checkStringWithoutCase (current, "count")) {
 								// count (attributes)
-								cout << "count" << endl;
+								select->isCOUNT = true;
 								selectCount = true;
 								instruction.popTermTokens ();
 								step = start;
 							} else if (checkStringWithoutCase (current, "sum")) {
 								// count (attributes)
-								cout << "sum" << endl;
+								select->isSUM = true;
 								selectSum = true;
 								instruction.popTermTokens ();
 								step = start;
@@ -642,11 +642,13 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							//cout << "Caught \'where\' instruction!" << endl;
 							if (checkStringWithoutCase (current, "AND")) {
 								// 'and' instruction
+								select->WHERE_ExprAO = 0;
 								instruction.popTermTokens ();
 								assigning = false;
 								step = where;
 							} else if (checkStringWithoutCase (current, "OR")) {
 								// 'or' instruction
+								select->WHERE_ExprAO = 1;
 								instruction.popTermTokens ();
 								assigning = false;
 								step = where;
@@ -797,7 +799,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 
 			bool aliasExists = true;
 
-			cout << "+++++++++++++++++++++" << endl;
+			//cout << "+++++++++++++++++++++" << endl;
 			for (int i=0; i<sizeForStart; i++) {
 				select->selectedAttributesNames.push_back (startAttributeNames[i]);	// fill in attributes
 				if (startTableNames[i] != "") {
@@ -817,50 +819,69 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 					select->selectedAttributesTables.push_back (""); // fill in null attribute names
 				}
 			}
+			aliasExists = true;
 
 			for (int i=0; i<fromTableNames.size(); i++) {
 				select->tableNames.push_back (fromTableNames[i]);
 			}
 
-			/*
-			for (int i=0; i<select->tableNames.size(); i++) {
-				if (select->selectedAttributesNames[i] == "*") {
-					select->isSelectAllAttrs[i] = true;
-				} else {
-					select->isSelectAllAttrs[i] = false;
-				}
-			}*/
-
 			for (int i=0; i<sizeForWhere; i++) {
-				for (int j=0; j<sizeForFrom; j++) {
-					if (selectedTableLeft[i] != "") {
-						aliasExists = false;
-						if ((selectedTableLeft[i] == fromTableShorthands[j]) || (selectedTableLeft[i] == fromTableNames[j])) {
+				select->WHERE_FirstAttrNames.push_back (left[i]);	// fill in attributes
+				select->WHERE_FirstTypes.push_back (selectLeftType[i]);
+				if (selectedTableLeft[i] != "") {
+					aliasExists = false;
+					for (int j=0; j<sizeForFrom; j++) {
+						if (selectedTableLeft[i] == fromTableShorthands[j] || selectedTableLeft[i] == fromTableNames[j]) {
+							select->WHERE_FirstAttrTables.push_back (fromTableNames[j]);
 							selectedTableLeft[i] = fromTableNames[j];
 							aliasExists = true;
 							break;
 						}
 					}
-				}
-				if (!aliasExists) {
-					cout << "in left, no such alias as : " << startTableNames[i] << endl;
+					if (!aliasExists) {
+						cout << "in left, no such alias as : " << selectedTableLeft[i] << endl;
+					}
+				} else {
+					select->WHERE_FirstAttrTables.push_back (""); // fill in null attribute names
 				}
 			}
+			aliasExists = true;
+
 			for (int i=0; i<sizeForWhere; i++) {
-				for (int j=0; j<sizeForFrom; j++) {
-					if (selectedTableRight[i] != "") {
-						aliasExists = false;
-						if ((selectedTableRight[i] == fromTableShorthands[j]) || (selectedTableRight[i] == fromTableNames[j])) {
+				select->WHERE_SecondAttrNames.push_back (right[i]);	// fill in attributes
+				select->WHERE_SecondTypes.push_back (selectRightType[i]);
+				//select->WHERE_ExprTypes.push_back (operation[i]);
+				if (operation[i] == "=") 
+					select->WHERE_ExprTypes.push_back (0);
+				else if (operation[i] == "<>") 
+					select->WHERE_ExprTypes.push_back (1);
+				else if (operation[i] == "<") 
+					select->WHERE_ExprTypes.push_back (2);
+				else if (operation[i] == ">") 
+					select->WHERE_ExprTypes.push_back (3);
+				else 
+					select->WHERE_ExprTypes.push_back (-1);
+				
+				
+				if (selectedTableRight[i] != "") {
+					aliasExists = false;
+					for (int j=0; j<sizeForFrom; j++) {
+						if (selectedTableRight[i] == fromTableShorthands[j] || selectedTableRight[i] == fromTableNames[j]) {
+							select->WHERE_SecondAttrTables.push_back (fromTableNames[j]);
 							selectedTableRight[i] = fromTableNames[j];
 							aliasExists = true;
 							break;
 						}
 					}
-				}
-				if (!aliasExists) {
-					cout << "in right, no such alias as : " << startTableNames[i] << endl;
+					if (!aliasExists) {
+						cout << "in right, no such alias as : " << selectedTableRight[i] << endl;
+					}
+				} else {
+					select->WHERE_SecondAttrTables.push_back (""); // fill in null attribute names
 				}
 			}
+			aliasExists = true;
+
 			for (int i=0; i<select->selectedAttributesNames.size(); i++) {
 				bool starFlag = false;
 				if (select->selectedAttributesNames[i] == "*") {
@@ -889,8 +910,8 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 					}
 				}
 			}
-			cout << "end checking alias names" << endl;
-
+			//cout << "end checking alias names" << endl;
+/*
 			// generate messages
 			cout << "start table messages : ";
 			cout << startTableNames.size() << ' ' << select->selectedAttributesTables.size () 
@@ -908,11 +929,14 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			cout << endl;
 
 			cout << "where table messages" << endl;
-			for (int i=0; i<selectLeftType.size(); i++) {
-				cout << selectedTableLeft[i] << " : " << left[i] << " " << selectLeftType[i] << " " << operation[i] << ' ' 
-				<< selectedTableRight[i] << " : " << right[i] << " " << selectRightType[i] << endl;
+			for (int i=0; i<select->WHERE_FirstTypes.size(); i++) {
+				cout << select->WHERE_FirstAttrTables[i] << " : " << select->WHERE_FirstAttrNames[i] << " " 
+						<< select->WHERE_FirstTypes[i] << " " << operation[i] << ' ' << select->WHERE_ExprTypes[i] << ' '
+						<< select->WHERE_SecondAttrTables[i] << " : " << select->WHERE_SecondAttrNames[i] << " " 
+						<< select->WHERE_SecondTypes[i] << endl;
 			}
 			cout << "---------------------" << endl;
+*/
 			select->isValid = true;
 			return select;
 			break;

@@ -17,6 +17,8 @@ SelectInst::SelectInst()
 	isCOUNT = false;
 		
 	isSUM = false;
+
+	WHERE_ExprAO = -1;
 }
 
 SelectInst::SelectInst(string const name)
@@ -35,6 +37,8 @@ SelectInst::SelectInst(string const name)
 	isCOUNT = false;
 		
 	isSUM = false;
+
+	WHERE_ExprAO = -1;
 }
 /*
 vector<string> split(const string &s, char delim) {
