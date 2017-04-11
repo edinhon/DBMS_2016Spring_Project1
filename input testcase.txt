@@ -101,3 +101,11 @@ select bookid from book where 'Bible';
 
 SELECT *
 FROM Book, Author;
+
+SELECT *
+FROM Author
+WHERE authorId = 'John';
+
+SELECT Book.*
+FROM Book, Author
+WHERE Book.authorId = Author.name;

@@ -190,7 +190,9 @@ bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 			bool flags [2] = {false, false};
 			for(int j = 0 ; j < (int)selectedTables.size() ; j++){
 				if(selectedTables[j]->ContainAttribute(sinst->selectedAttributesNames[i])){
-					flags[i] = true;
+					cout << "attr = " << sinst->selectedAttributesNames[i] << endl;
+					cout << "attr size = " << sinst->selectedAttributesNames[i].length() << endl;
+					flags[j] = true;
 				} 
 			}
 			
@@ -238,12 +240,18 @@ bool TableSet::SelectTable(SelectInst* sinst)
 	if (!sinst->isWHERE){
 		if(!SELECT_InsertAttributes(returnT, sinst, selectedTables, TIndex))
 			return false;
+		for(int i = 0 ; i < (int)TIndex->size() ; i++){
+			cout << "TIndex "<< i << " = " << TIndex->at(i) <<endl;
+		}
 		if(!SELECT_InsertTuples(returnT, sinst, selectedTables, TIndex))
 			return false;
 	} 
 	else {
 		if(!SELECT_InsertAttributes(returnT, sinst, selectedTables, TIndex))
 			return false;
+		for(int i = 0 ; i < (int)TIndex->size() ; i++){
+			cout << "TIndex "<< i << " = " << TIndex->at(i) <<endl;
+		}
 		if(!SELECT_InsertTuplesWithWhere(returnT, sinst, selectedTables, TIndex))
 			return false;
 	}
@@ -258,13 +266,14 @@ bool TableSet::SelectTable(SelectInst* sinst)
 bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table*> selectedTables, vector<int>* TIndex)
 {
 	if(sinst->isSelectAllAttrs[0] || sinst->isSelectAllAttrs[1]) {
+		TIndex->clear();
 		for(int i = 0 ; i < (int)selectedTables.size() ; i++){
 			if(sinst->isSelectAllAttrs[i]){
 				if(!(t->CopyAttributes(selectedTables[i])))
 					return false;
-			}
-			for(int j = 0 ; j < (int)selectedTables[i]->attributes.size() ; j++){
-				TIndex->push_back(i);
+				for(int j = 0 ; j < (int)selectedTables[i]->attributes.size() ; j++){
+					TIndex->push_back(i);
+				}
 			}
 		}
 	}
@@ -563,25 +572,25 @@ bool TableSet::CheckWhereValid(SelectInst* sinst, vector<Table*> selectedTables)
 	
 	//檢查attribute是否都出現在FROM的tables, 以及是否都沒出現
 	for(int i = 0 ; i < (int)sinst->WHERE_FirstAttrNames.size() ; i++){
+		if(sinst->WHERE_FirstAttrNames[i].compare("NULL") == 0)
+			continue;
 		if(sinst->WHERE_FirstTypes[i] == 2){
-			bool flag = false;
-			bool flag2 = false;
+			bool flags [2] = {false, false};
 			for(int j = 0 ; j < (int)selectedTables.size() ; j++){
 				if(selectedTables[j]->ContainAttribute(sinst->WHERE_FirstAttrNames[i])){
-					flag = true;
-					flag2 = true;
-				} else flag = false;
+					flags[j] = true;
+				}
 			}
 			
 			//都出現且table等於2且此attrbute有table name
-			if(flag && selectedTables.size() == 2 && sinst->WHERE_FirstAttrTables[i].compare("") == 0){
+			if(flags[0] && flags[1] && selectedTables.size() == 2 && sinst->WHERE_FirstAttrTables[i].compare("") == 0){
 				cout << "- Error: The attribute " << sinst->WHERE_FirstAttrNames[i] <<
 					" is an ambiguous attribute between two tables, but not used as a prefix in the attribute.\n";
 				return false;
 			}
 			
 			//都沒出現
-			if(!flag2){
+			if(!flags[0] && !flags[1]){
 				cout << "- Error: The attribute " << sinst->WHERE_FirstAttrNames[i] <<
 					" doesn't exist in all tables.\n";
 				return false;
@@ -589,25 +598,25 @@ bool TableSet::CheckWhereValid(SelectInst* sinst, vector<Table*> selectedTables)
 		}
 	}
 	for(int i = 0 ; i < (int)sinst->WHERE_SecondAttrNames.size() ; i++){
+		if(sinst->WHERE_FirstAttrNames[i].compare("NULL") == 0)
+			continue;
 		if(sinst->WHERE_SecondTypes[i] == 2){
-			bool flag = false;
-			bool flag2 = false;
+			bool flags [2] = {false, false};
 			for(int j = 0 ; j < (int)selectedTables.size() ; j++){
 				if(selectedTables[j]->ContainAttribute(sinst->WHERE_SecondAttrNames[i])){
-					flag = true;
-					flag2 = true;
-				} else flag = false;
+					flags[j] = true;
+				}
 			}
 			
 			//都出現且table等於2且此attrbute有table name
-			if(flag && selectedTables.size() == 2 && sinst->WHERE_SecondAttrTables[i].compare("") == 0){
+			if(flags[0] && flags[1] && selectedTables.size() == 2 && sinst->WHERE_SecondAttrTables[i].compare("") == 0){
 				cout << "- Error: The attribute " << sinst->WHERE_SecondAttrNames[i] <<
 					" is an ambiguous attribute between two tables, but not used as a prefix in the attribute.\n";
 				return false;
 			}
 			
 			//都沒出現
-			if(!flag2){
+			if(!flags[0] && !flags[1]){
 				cout << "- Error: The attribute " << sinst->WHERE_SecondAttrNames[i] <<
 					" doesn't exist in all tables.\n";
 				return false;
@@ -634,7 +643,6 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 			int valueFirstType;	//0 = int, 1 = varchar, -1 = NULL
 			
 			if(sinst->WHERE_FirstAttrNames[i].compare("NULL") == 0){
-			//if(sinst->WHERE_FirstAttrNames[i].compare("") == 0){
 				valueFirstType = -1;
 			}
 			else {
@@ -654,7 +662,6 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 					case 2:{
 						/*Attribute*/
 						if(!selectedTables[0]->ContainAttribute(sinst->WHERE_FirstAttrNames[i])) {
-							cout << "line 654 遇到摟～～～～～～" << endl;
 							return false;
 						}
 						
@@ -704,7 +711,6 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 			int valueSecondType;	//0 = int, 1 = varchar, -1 = NULL
 			
 			if(sinst->WHERE_SecondAttrNames[i].compare("NULL") == 0){
-			//if(sinst->WHERE_SecondAttrNames[i].compare("") == 0){
 				valueSecondType = -1;
 			}
 			else {
