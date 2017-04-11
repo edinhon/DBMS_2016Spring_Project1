@@ -770,23 +770,38 @@ void Table::Count_ShowTable(SelectInst* sinst)
 //---------------------------
 void Table::Sum_ShowTable(SelectInst* sinst)
 {
-	//Set attribute print sizes
-	/*
-	for (int i = 0 ; i < (int)attributes.size() ; i++){
-		//Type = int, 11 size char, 2 space
+	
+	int sumArr[(int)attributes.size()];
+	int sumLenArr[(int)attributes.size()];
+	string sumAttr[(int)attributes.size()];
+	vector<int> printSize;
+	
+	//initial attribute string
+	for(int i = 0 ; i < (int)attributes.size() ; i++){
+		sumAttr[i] = "SUM(";
+	}
+	
+	//Set sum value and attribute print sizes
+	for(int i = 0 ; i < (int)attributes.size() ; i++){
 		if(attributes[i].type == 0){
+			int sum = 0;
+			for(int j = 0 ; j < (int)tuples.size() ; j++){
+				sum += atoi((*(tuples[j].values[i].value)).c_str());
+			}
+			sumArr[i] = sum;
+			
+			stringstream ss;
+			ss << sumArr[i];
+			sumLenArr[i] = ss.str().size();
+			
+			if(sinst->selectedAttributesTables[i].compare("") != 0)
+				sumAttr[i] += (sinst->selectedAttributesTables[i] + ".");
+			sumAttr[i] += attributes[i].name + ")";
+			
 			int maxLength;
-			if(((int)attributes[i].name.size() + (int)sinst->tableNames[attributes[i].from].size() + 1) >= 11){
-				maxLength = ((int)attributes[i].name.size() + (int)sinst->tableNames[attributes[i].from].size() + 1);
+			if(sumAttr[i].size() >= 11){
+				maxLength = sumAttr[i].size();
 			} else maxLength = 11;
-			printSize.push_back(maxLength);
-		} 
-		//Type = varchar, varCharSize size char, 2space
-		else if (attributes[i].type == 1){
-			int maxLength;
-			if(((int)attributes[i].name.size() + (int)sinst->tableNames[attributes[i].from].size() + 1) >= attributes[i].varCharSize){
-				maxLength = ((int)attributes[i].name.size() + (int)sinst->tableNames[attributes[i].from].size() + 1);
-			} else maxLength = attributes[i].varCharSize;
 			printSize.push_back(maxLength);
 		}
 	}
@@ -805,10 +820,10 @@ void Table::Sum_ShowTable(SelectInst* sinst)
 	//Print attribute names
 	cout << " |";
 	for (int i = 0 ; i < (int)attributes.size() ; i++){
-		for(int j = 0 ; j < (printSize[i] - (int)attributes[i].name.size() - (int)sinst->tableNames[attributes[i].from].size() - 1) ; j++){
+		for(int j = 0 ; j < (printSize[i] - (int)sumAttr[i].size()) ; j++){
 			cout << " ";
 		}
-		cout << sinst->tableNames[attributes[i].from] << "." << attributes[i].name << "|";
+		cout << sumAttr[i] << "|";
 	}
 	cout << endl;
 	
@@ -821,15 +836,28 @@ void Table::Sum_ShowTable(SelectInst* sinst)
 		if(i != ((int)printSize.size()-1)) cout << "-";
 		else cout << " ";
 	}
-	cout << endl;*/
+	cout << endl;
 	
-	for(int i = 0 ; i < (int)attributes.size() ; i++){
-		int sum = 0;
-		string tmp = "";
-		for(int j = 0 ; j < (int)tuples.size() ; j++){
-			tmp += (*(tuples[j].values[i].value) + "+");
+	//Print out tuples
+	cout << " |" ;
+	for (int i = 0 ; i < (int)attributes.size() ; i++){
+		
+		for (int j = 0 ; j < (printSize[i] - (int)sumLenArr[i]) ; j++){
+			cout << " ";
 		}
-		cout << tmp << endl;
+		cout << sumArr[i] << "|";
 	}
+	cout << endl;
+		
+	//Line in bottom
+	cout << "  ";
+	for (int i = 0 ; i < (int)printSize.size() ; i++){
+		for (int j = 0 ; j < printSize[i] ; j++){
+			cout << "-";
+		}
+		if(i != ((int)printSize.size()-1)) cout << "-";
+		else cout << " ";
+	}
+	cout << endl;
 }
 

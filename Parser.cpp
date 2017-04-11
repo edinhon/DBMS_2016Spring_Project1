@@ -972,26 +972,26 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			aliasExists = true;
 
 			for (int i=0; i<(int)select->selectedAttributesNames.size(); i++) {
-				bool starFlag = false;
+				//bool starFlag = false;
 				if (select->selectedAttributesNames[i] == "*") {
 					for (int j=0; j<(int)select->tableNames.size(); j++) {
 						//cout << "in *************" << endl;
 						//cout << select->selectedAttributesTables[i] << ' ' <<  select->tableNames[j] << endl;
 						if (select->selectedAttributesTables[i] == select->tableNames[j]) {
-							starFlag = true;
+							//starFlag = true;
 							select->isSelectAllAttrs[j] = true;
 							break;
 						}
 						if (select->selectedAttributesTables[i] == "" && select->tableNames.size() == 1) {
 							// select all and without assigning certain table
 							// and has only one 'from' table
-							starFlag = true;
+							//starFlag = true;
 							select->isSelectAllAttrs[j] = true;
 							break;
 						} 
 						else {
 							//cout << "parser line 993" << endl;
-							for (int k=0; k<select->tableNames.size(); k++) {
+							for (int k=0; k<(int)select->tableNames.size(); k++) {
 								select->isSelectAllAttrs[k] = true;
 							}
 							/*

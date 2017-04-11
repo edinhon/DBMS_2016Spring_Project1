@@ -57,7 +57,7 @@ void DBMS(string fileName)
 	InstructionSet* instructionSet;
 	
 	instructionSet = parser.ParseAllInstructions(fp);
-	int i = 0;
+	
 	while(!instructionSet->isEmpty()){
 		// fetch instructions
 		Instruction instruction = instructionSet->fetchInstruction();
@@ -113,11 +113,8 @@ void DBMS(string fileName)
 			}
 		}
 		
-		i++;
-		//cout << "FUCKYYYYYYYYYYYY111111\n";
 		cout << endl << "============================" << endl;
 		instructionSet->popInstruction ();
-		//cout << "i = " << i << endl;
 	}
 
 	fp->close ();
