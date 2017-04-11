@@ -469,9 +469,11 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				bool selectCount = false, selectSum = false;
 				bool selectLeftParenthesis = false;
 				bool endOfParenthesis = false;
-				int fromStep = 0;
+				//int fromStep = 0;
 				// in case from :
 				bool tableAlias = false;
+				bool evenAttributes = false;
+				bool haveComma = false;
 				// in case where :
 				bool assigning = false;	/*
 											in where, 
@@ -485,7 +487,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 
 				string last;
 				int step = start;
-
+				int fromStep = 0;
 				while (!instruction.isEmpty()) {
 					string current = instruction.getTermTokens();
 
@@ -590,7 +592,60 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							}
 							break;
 						}
-						case from : {						
+						case from : {	
+							switch (fromStep) {
+								case 0: {
+									// table name
+									if (checkStringWithoutCase (current, "where")) {
+										if (fromTableNames.size () == 0) {
+											cout << "Syntax Error : line 601" << endl;
+											select->isValid = false;
+											return select;
+										} 
+										instruction.popTermTokens ();
+										step = where;
+										select->isWHERE = true;
+									} else {
+										fromTableNames.push_back (current);
+										fromTableShorthands.push_back ("");
+										step = from;
+										fromStep = 1;
+										instruction.popTermTokens ();
+									}
+									break;
+								}
+								case 1: {
+									if (checkStringWithoutCase (current, ",")) {
+										instruction.popTermTokens ();
+										step = from;
+										fromStep = 0;
+									} else if (checkStringWithoutCase (current, "as")) {
+										fromTableShorthands.pop_back ();
+										instruction.popTermTokens ();
+										current = instruction.getTermTokens ();
+										fromTableShorthands.push_back (current);	// found alias
+										instruction.popTermTokens();
+										step = from;
+										cout << "after as : " << instruction.getTermTokens () << endl;
+										fromStep = 1;
+									} else if (checkStringWithoutCase (current, "where")) {
+										// 
+										cout << "here" << fromTableNames.size() << ' ' << fromTableShorthands.size () << endl;
+										select->isWHERE = true;
+										instruction.popTermTokens ();
+										step = where;
+									} else {
+										// straight to alias
+										fromTableShorthands.pop_back ();
+										fromTableShorthands.push_back (current);
+										instruction.popTermTokens ();
+										step = from;
+										fromStep = 0;
+									}
+									break;
+								}
+							}
+/*
 							if (checkStringWithoutCase(current, "where")) {
 								// jump to where
 								instruction.popTermTokens();	// pop till 'where'
@@ -601,11 +656,14 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								// 'as' instruction
 								// we have alias
 								tableAlias = true;
+								evenAttributes = false;
 								instruction.popTermTokens ();
 								step = from;
 							} else if (current == ",") {
 								// continue to do next token
+								haveComma = true;
 								instruction.popTermTokens ();
+								evenAttributes = false;
 								step = from;
 							} else {
 								// keep parsing
@@ -616,12 +674,26 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 									fromTableShorthands.push_back (current);
 									tableAlias = false;
 								} else {
-									fromTableShorthands.push_back ("");
-									fromTableNames.push_back (current);
+									if (!evenAttributes) {
+										// 現在在地偶數個
+										fromTableShorthands.push_back ("");
+										fromTableNames.push_back (current);
+										evenAttributes = true;
+									} else if (evenAttributes) {
+										evenAttributes = false;
+										fromTableShorthands.pop_back ();
+										fromTableShorthands.push_back (current);
+									} else {
+										cout << "parser line 629" << endl;
+									}
+
+									//fromTableShorthands.push_back ("");
+									//fromTableNames.push_back (current);
 								}
 								instruction.popTermTokens ();	
 								step = from;
 							}
+*/
 							break;
 						}
 						case where : {
@@ -836,7 +908,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				if (startTableNames[i] != "") {
 					aliasExists = false;
 					for (int j=0; j<sizeForFrom; j++) {
-						if (startTableNames[i] == fromTableShorthands[j]) {
+						if (startTableNames[i] == fromTableShorthands[j] || startTableNames[i] == fromTableNames[j]) {
 							select->selectedAttributesTables.push_back (fromTableNames[j]);
 							startTableNames[i] = fromTableNames[j];
 							aliasExists = true;

@@ -99,5 +99,6 @@ WHERE authorId = 2;
 
 select bookid from book where 'Bible';
 
-SELECT *
-FROM Book, Author;
+SELECT a.name, title
+FROM Author  a, Book
+WHERE Book.authorId = a.authorId AND Book.pages > 200;
