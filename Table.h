@@ -21,6 +21,7 @@ class Table {
 				int varCharSize; // size of varchar
 				string *value;
 				bool isPK;
+				int from;	//Only use in SELECT
 				Attribute& operator= (Attribute const &that){
 					if (this != &that) {
 						name = that.name;
@@ -28,6 +29,7 @@ class Table {
 						varCharSize = that.varCharSize;
 						value = that.value;
 						isPK = that.isPK;
+						from = from;
 					}
 					return *this;
 				}
@@ -106,16 +108,16 @@ class Table {
 		bool CheckInsertInst(InsertInst*);
 
 		//-------------------------------------------------
-		// bool CopyAttribute(Table*, string)
+		// bool CopyAttribute(Table*, string, int)
 		//		Copy a new attribute column into a empty Table.
 		//-------------------------------------------------
-		bool CopyAttribute(Table*, string);
+		bool CopyAttribute(Table*, string, int);
 		
 		//-------------------------------------------------
-		// bool CopyAttributes(Table*)
+		// bool CopyAttributes(Table*, int)
 		//		Copy all attribute columns of input Table into a empty Table.
 		//-------------------------------------------------
-		bool CopyAttributes(Table*);
+		bool CopyAttributes(Table*, int);
 		
 		//-------------------------------------------------
 		// bool ContainAttribute(string)
@@ -146,6 +148,8 @@ class Table {
 		string getTableName();
 
 		void ShowTable();
+		
+		void ShowTable(SelectInst*);
 		
 		bool isHidedPK;
 		

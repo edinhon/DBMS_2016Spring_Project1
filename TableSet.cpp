@@ -190,8 +190,6 @@ bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 			bool flags [2] = {false, false};
 			for(int j = 0 ; j < (int)selectedTables.size() ; j++){
 				if(selectedTables[j]->ContainAttribute(sinst->selectedAttributesNames[i])){
-					cout << "attr = " << sinst->selectedAttributesNames[i] << endl;
-					cout << "attr size = " << sinst->selectedAttributesNames[i].length() << endl;
 					flags[j] = true;
 				} 
 			}
@@ -269,7 +267,7 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 		TIndex->clear();
 		for(int i = 0 ; i < (int)selectedTables.size() ; i++){
 			if(sinst->isSelectAllAttrs[i]){
-				if(!(t->CopyAttributes(selectedTables[i])))
+				if(!(t->CopyAttributes(selectedTables[i], i)))
 					return false;
 				for(int j = 0 ; j < (int)selectedTables[i]->attributes.size() ; j++){
 					TIndex->push_back(i);
@@ -299,7 +297,7 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 					if(isThisTable){
 						//檢查此attribute是否存在於此table
 						if(selectedTables[i]->ContainAttribute(sinst->selectedAttributesNames[j])){
-							if(!(t->CopyAttribute(selectedTables[i], sinst->selectedAttributesNames[j]))){
+							if(!(t->CopyAttribute(selectedTables[i], sinst->selectedAttributesNames[j], i))){
 								return false;
 							} else {
 								TIndex->at(j) = i;
@@ -315,7 +313,7 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 				else {
 					//檢查此attribute是否存在於此table, 是則取出attribute放進新table
 					if(selectedTables[i]->ContainAttribute(sinst->selectedAttributesNames[j])){
-						if(!(t->CopyAttribute(selectedTables[i], sinst->selectedAttributesNames[j]))){
+						if(!(t->CopyAttribute(selectedTables[i], sinst->selectedAttributesNames[j], i))){
 							return false;
 						} else {
 							TIndex->at(j) = i;

@@ -21,6 +21,7 @@ Table::Table(CreateInst *cinst)
 			isHidedPK = false;
 		}
 		a.varCharSize = cinst->varCharSizes[i];
+		a.from = -1;
 		
 		attributes.push_back(a);
 	}
@@ -348,10 +349,10 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 }
 
 //-------------------------------------------------
-// bool CopyAttribute(Table*, string)
-//		Copy a new attribute column into a empty Table.
+// bool CopyAttribute(Table*, string, int)
+//		Copy a new attribute column from input Table into a this empty Table.
 //-------------------------------------------------
-bool Table::CopyAttribute(Table* t, string attrName)
+bool Table::CopyAttribute(Table* t, string attrName, int TIndex)
 {
 	if(tuples.size() != 0){
 		cout << "- Error: Cannot copy the attribute into a non-empty table.\n";
@@ -362,9 +363,22 @@ bool Table::CopyAttribute(Table* t, string attrName)
 	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
 	
 	if(ContainAttribute(attrName)){
-		cout << "- Error: There exists the same attribute " << attrName <<
+		int AIndex;
+		for(int i = 0 ; i < (int)attributes.size() ; i++){
+			string n2 = attributes[i].name;
+			transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+			
+			if(n1.compare(n2) == 0){
+				AIndex = i;
+				break;
+			}
+		}
+		
+		if(AIndex == TIndex){
+			cout << "- Error: There exists the same attribute " << attrName <<
 			" in this table.\n";
-		return false;
+			return false;
+		}
 	}
 	
 	for(int i = 0 ; i < (int)t->attributes.size() ; i++){
@@ -374,6 +388,7 @@ bool Table::CopyAttribute(Table* t, string attrName)
 		if(n1.compare(n2) == 0){
 			Attribute a = t->attributes[i];
 			a.isPK = false;
+			a.from = TIndex;
 			attributes.push_back(a);
 			return true;
 		}
@@ -382,13 +397,13 @@ bool Table::CopyAttribute(Table* t, string attrName)
 }
 
 //-------------------------------------------------
-// bool CopyAttributes(Table*)
-//		Copy all attribute columns of input Table into a empty Table.
+// bool CopyAttributes(Table*, int)
+//		Copy all attribute columns of input Table into this empty Table.
 //-------------------------------------------------
-bool Table::CopyAttributes(Table* t)
+bool Table::CopyAttributes(Table* t, int TIndex)
 {
 	for(int i = 0 ; i < (int)t->attributes.size() ; i++){
-		if(!CopyAttribute(t, t->attributes[i].name))
+		if(!CopyAttribute(t, t->attributes[i].name, TIndex))
 			return false;
 	}
 	return true;
@@ -552,6 +567,97 @@ void Table::ShowTable()
 			cout << " ";
 		}
 		cout << attributes[i].name << "|";
+	}
+	cout << endl;
+	
+	//Line in bottom
+	cout << "  ";
+	for (int i = 0 ; i < (int)printSize.size() ; i++){
+		for (int j = 0 ; j < printSize[i] ; j++){
+			cout << "-";
+		}
+		if(i != ((int)printSize.size()-1)) cout << "-";
+		else cout << " ";
+	}
+	cout << endl;
+		
+	//Print out tuples
+	for (int i = 0 ; i < (int)tuples.size() ; i++){
+		cout << " |" ;
+		for (int j = 0 ; j < (int)tuples[i].values.size() ; j++){
+			if(tuples[i].values[j].value != NULL){
+				for (int k = 0 ; k < (printSize[j] - (int)((*(tuples[i].values[j].value)).size())) ; k++){
+					cout << " ";
+				}
+				cout << *(tuples[i].values[j].value) << "|";
+			} else {
+				for (int k = 0 ; k < printSize[j] ; k++){
+					cout << " ";
+				}
+				cout << "|";
+			}
+		}
+		cout << endl;
+		
+		//Line in bottom
+		cout << "  ";
+		for (int k = 0 ; k < (int)printSize.size() ; k++){
+			for (int j = 0 ; j < printSize[k] ; j++){
+				cout << "-";
+			}
+			if(k != ((int)printSize.size()-1)) cout << "-";
+			else cout << " ";
+		}
+		cout << endl;
+	}
+	cout << endl;
+}
+
+void Table::ShowTable(SelectInst* sinst)
+{
+	vector<int> printSize;
+	
+	//Print out table name
+	cout << tableName << endl;
+	
+	//Set attribute print sizes
+	for (int i = 0 ; i < (int)attributes.size() ; i++){
+		//Type = int, 11 size char, 2 space
+		if(attributes[i].type == 0){
+			int maxLength;
+			if(((int)attributes[i].name.size() + (int)sinst->tableNames[attributes[i].from].size() + 1) >= 11){
+				maxLength = ((int)attributes[i].name.size() + (int)sinst->tableNames[attributes[i].from].size() + 1);
+			} else maxLength = 11;
+			printSize.push_back(maxLength);
+		} 
+		//Type = varchar, varCharSize size char, 2space
+		else if (attributes[i].type == 1){
+			int maxLength;
+			if(((int)attributes[i].name.size() + (int)sinst->tableNames[attributes[i].from].size() + 1) >= attributes[i].varCharSize){
+				maxLength = ((int)attributes[i].name.size() + (int)sinst->tableNames[attributes[i].from].size() + 1);
+			} else maxLength = attributes[i].varCharSize;
+			printSize.push_back(maxLength);
+		}
+	}
+	
+	//Line in above
+	cout << "  ";
+	for (int i = 0 ; i < (int)printSize.size() ; i++){
+		for (int j = 0 ; j < printSize[i] ; j++){
+			cout << "-";
+		}
+		if(i != ((int)printSize.size()-1)) cout << "-";
+		else cout << " ";
+	}
+	cout << endl;
+	
+	//Print attribute names
+	cout << " |";
+	for (int i = 0 ; i < (int)attributes.size() ; i++){
+		for(int j = 0 ; j < (printSize[i] - (int)attributes[i].name.size() - (int)sinst->tableNames[attributes[i].from].size() - 1) ; j++){
+			cout << " ";
+		}
+		cout << sinst->tableNames[attributes[i].from] << "." << attributes[i].name << "|";
 	}
 	cout << endl;
 	

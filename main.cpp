@@ -97,7 +97,7 @@ void DBMS(string fileName)
 				if(tableSet.ContainTables(sinst->tableNames)){
 					if(tableSet.SelectTable(sinst)){
 						Table *t = tableSet.GetSelectedTable();
-						t->ShowTable();
+						t->ShowTable(sinst);
 						tableSet.DeleteSelectedTable();
 						
 						if(sinst->isCOUNT){
