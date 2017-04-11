@@ -264,6 +264,9 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 				if(!(t->CopyAttributes(selectedTables[i])))
 					return false;
 			}
+			for(int j = 0 ; j < (int)selectedTables[i]->attributes.size() ; j++){
+				TIndex->push_back(i);
+			}
 		}
 	}
 	else {
@@ -291,8 +294,7 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 							if(!(t->CopyAttribute(selectedTables[i], sinst->selectedAttributesNames[j]))){
 								return false;
 							} else {
-								vector<int>::iterator it = TIndex->begin();
-								TIndex->insert(it + j, i);
+								TIndex->at(j) = i;
 							}
 						} else {
 							cout << "- Error: The attribute " << sinst->selectedAttributesNames[j] << 
@@ -308,8 +310,7 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 						if(!(t->CopyAttribute(selectedTables[i], sinst->selectedAttributesNames[j]))){
 							return false;
 						} else {
-							vector<int>::iterator it = TIndex->begin();
-							TIndex->insert(it + j, i);
+							TIndex->at(j) = i;
 						}
 					}
 				}
@@ -334,6 +335,7 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 bool TableSet::SELECT_InsertTuples(Table* t, SelectInst* sinst, vector<Table*> selectedTables, vector<int>* TIndex)
 {
 	if (selectedTables.size() == 1){
+		
 		for(int i = 0 ; i < (int)selectedTables[0]->tuples.size() ; i++){
 			
 			int tupleIndex = t->InsertEmptyTuple();
@@ -359,6 +361,7 @@ bool TableSet::SELECT_InsertTuples(Table* t, SelectInst* sinst, vector<Table*> s
 			}
 		}
 	} else if (selectedTables.size() == 2){
+		
 		if(selectedTables[0]->tuples.size() == 0){
 			vector<Table*> tempTables;
 			tempTables.push_back(selectedTables[1]);
@@ -370,6 +373,7 @@ bool TableSet::SELECT_InsertTuples(Table* t, SelectInst* sinst, vector<Table*> s
 			if(!SELECT_InsertTuples(t, sinst, tempTables, TIndex))
 				return false;
 		} else{
+			
 			for(int i = 0 ; i < (int)selectedTables[0]->tuples.size() ; i++){
 				for(int j = 0 ; j < (int)selectedTables[1]->tuples.size() ; j++){
 					
@@ -466,6 +470,7 @@ bool TableSet::SELECT_InsertTuplesWithWhere(Table* t, SelectInst* sinst, vector<
 			if(!SELECT_InsertTuples(t, sinst, tempTables, TIndex))
 				return false;
 		} else{
+			
 			for(int i = 0 ; i < (int)selectedTables[0]->tuples.size() ; i++){
 				for(int j = 0 ; j < (int)selectedTables[1]->tuples.size() ; j++){
 					
