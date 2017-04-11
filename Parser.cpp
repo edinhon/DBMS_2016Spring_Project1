@@ -819,8 +819,8 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						cout << "in start, no such alias as : " << startTableNames[i] << endl;
 					}
 				} else {
-					//select->selectedAttributesTables.push_back ("");
-					
+					select->selectedAttributesTables.push_back ("");
+					/*
 					if (select->tableNames.size() == 1) {
 						select->selectedAttributesTables.push_back (select->tableNames[0]);
 					} else {
@@ -830,7 +830,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							select->selectedAttributesTables.push_back (select->tableNames[k]);
 						}
 					}
-					
+					*/
 				}
 			}
 			aliasExists = true;
@@ -852,7 +852,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						cout << "in left, no such alias as : " << selectedTableLeft[i] << endl;
 					}
 				} else {
-					//select->WHERE_FirstAttrTables.push_back ("");
+					select->WHERE_FirstAttrTables.push_back ("");
 					
 					if (select->tableNames.size() == 1) {
 						select->WHERE_FirstAttrTables.push_back (select->tableNames[0]);

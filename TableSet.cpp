@@ -155,6 +155,9 @@ bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 	
 	//檢查是否table name of attribute都存在FROM裡面
 	for(int i = 0 ; i < (int)sinst->selectedAttributesTables.size() ; i++){
+		// 如果沒有特別 assign 就跳過
+		if (sinst->selectedAttributesTables[i] == "")
+			continue;
 		bool flag = false;
 		string n1 = sinst->selectedAttributesTables[i];
 		transform(n1.begin(), n1.end(), n1.begin(),::tolower);
@@ -178,6 +181,10 @@ bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 	
 	//檢查沒有table name的attribute是否都出現在FROM的tables, 以及是否都沒出現
 	for(int i = 0 ; i < (int)sinst->selectedAttributesNames.size() ; i++){
+		// select all 的話就不用檢查了
+		if (sinst->isSelectAllAttrs[i]) 
+			continue;
+
 		if(sinst->selectedAttributesTables[i].compare("") != 0){
 			bool flag = false;
 			bool flag2 = false;
@@ -189,12 +196,15 @@ bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 			}
 			
 			//都出現
+			// 都出現錯在哪？
+			/*
 			if(flag && sinst->tableNames.size() == 2){
 				cout << "- Error: The attribute " << sinst->selectedAttributesNames[i] <<
 					" is an ambiguous attribute between two tables, but not used as a prefix in the attribute.\n";
 				return false;
 			}
-			
+			*/
+
 			//都沒出現
 			if(!flag2){
 				cout << "- Error: The attribute " << sinst->selectedAttributesNames[i] <<
@@ -274,6 +284,7 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 					transform(n1.begin(), n1.end(), n1.begin(),::tolower);
 					string n2 = selectedTables[i]->getTableName();
 					transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+
 					if(n1.compare(n2) == 0) isThisTable = true;
 					
 					//如果此attribute table屬於此table, 取出attribute放進新table
