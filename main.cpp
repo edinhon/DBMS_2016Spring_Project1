@@ -98,14 +98,14 @@ void DBMS(string fileName)
 					if(tableSet.SelectTable(sinst)){
 						Table *t = tableSet.GetSelectedTable();
 						t->ShowTable(sinst);
-						tableSet.DeleteSelectedTable();
 						
 						if(sinst->isCOUNT){
-							
+							t->Count_ShowTable(sinst);
 						}
 						if(sinst->isSUM){
-							
+							t->Sum_ShowTable(sinst);
 						}
+						tableSet.DeleteSelectedTable();
 					}
 				}
 				//cout << "end select" << endl;

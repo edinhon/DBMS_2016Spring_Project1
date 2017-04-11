@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <sstream>
 #include "Table.h"
 
 //--------------
@@ -363,7 +364,7 @@ bool Table::CopyAttribute(Table* t, string attrName, int TIndex)
 	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
 	
 	if(ContainAttribute(attrName)){
-		int AIndex;
+		int AIndex = -1;
 		for(int i = 0 ; i < (int)attributes.size() ; i++){
 			string n2 = attributes[i].name;
 			transform(n2.begin(), n2.end(), n2.begin(),::tolower);
@@ -374,7 +375,7 @@ bool Table::CopyAttribute(Table* t, string attrName, int TIndex)
 			}
 		}
 		
-		if(AIndex == TIndex){
+		if(AIndex == TIndex || AIndex == -1){
 			cout << "- Error: There exists the same attribute " << attrName <<
 			" in this table.\n";
 			return false;
@@ -702,5 +703,133 @@ void Table::ShowTable(SelectInst* sinst)
 		cout << endl;
 	}
 	cout << endl;
+}
+
+//---------------------------
+// void Count_ShowTable(SelectInst*)
+//---------------------------
+void Table::Count_ShowTable(SelectInst* sinst)
+{
+	int printSize = 0;
+	
+	string attrName = "COUNT(";
+	for(int i = 0 ; i < (int)sinst->selectedAttributesNames.size() ; i++){
+		if(i != 0)
+			attrName += ", ";
+		if(sinst->selectedAttributesTables[i].compare("") != 0)
+			attrName += (sinst->selectedAttributesTables[i] + ".");
+		attrName += sinst->selectedAttributesNames[i];
+	}
+	attrName += ")";
+	
+	stringstream ss;
+	ss << tuples.size();
+	
+	if(ss.str().size() >= attrName.size()){
+		printSize = ss.str().size();
+	} else printSize = attrName.size();
+	
+	//Line in above
+	cout << "  ";
+	for (int j = 0 ; j < printSize ; j++){
+		cout << "-";
+	}
+	cout << " " << endl;
+	
+	//Print attribute names
+	cout << " |";
+	for(int i = 0 ; i < (int)(printSize - attrName.size()) ; i++){
+		cout << " ";
+	}
+	cout << attrName << "|" << endl;
+	
+	//Line in bottom
+	cout << "  ";
+	for (int j = 0 ; j < printSize ; j++){
+		cout << "-";
+	}
+	cout << " " << endl;
+		
+	//Print out COUNT
+	cout << " |" ;
+	for(int i = 0 ; i < (int)(printSize - ss.str().size()) ; i++){
+		cout << " ";
+	}
+	cout << tuples.size() << "|" << endl;
+	
+	//Line in bottom
+	cout << "  ";
+	for (int j = 0 ; j < printSize ; j++){
+		cout << "-";
+	}
+	cout << " " << endl;
+}
+
+//---------------------------
+// void Sum_ShowTable(SelectInst*)
+//---------------------------
+void Table::Sum_ShowTable(SelectInst* sinst)
+{
+	//Set attribute print sizes
+	/*
+	for (int i = 0 ; i < (int)attributes.size() ; i++){
+		//Type = int, 11 size char, 2 space
+		if(attributes[i].type == 0){
+			int maxLength;
+			if(((int)attributes[i].name.size() + (int)sinst->tableNames[attributes[i].from].size() + 1) >= 11){
+				maxLength = ((int)attributes[i].name.size() + (int)sinst->tableNames[attributes[i].from].size() + 1);
+			} else maxLength = 11;
+			printSize.push_back(maxLength);
+		} 
+		//Type = varchar, varCharSize size char, 2space
+		else if (attributes[i].type == 1){
+			int maxLength;
+			if(((int)attributes[i].name.size() + (int)sinst->tableNames[attributes[i].from].size() + 1) >= attributes[i].varCharSize){
+				maxLength = ((int)attributes[i].name.size() + (int)sinst->tableNames[attributes[i].from].size() + 1);
+			} else maxLength = attributes[i].varCharSize;
+			printSize.push_back(maxLength);
+		}
+	}
+	
+	//Line in above
+	cout << "  ";
+	for (int i = 0 ; i < (int)printSize.size() ; i++){
+		for (int j = 0 ; j < printSize[i] ; j++){
+			cout << "-";
+		}
+		if(i != ((int)printSize.size()-1)) cout << "-";
+		else cout << " ";
+	}
+	cout << endl;
+	
+	//Print attribute names
+	cout << " |";
+	for (int i = 0 ; i < (int)attributes.size() ; i++){
+		for(int j = 0 ; j < (printSize[i] - (int)attributes[i].name.size() - (int)sinst->tableNames[attributes[i].from].size() - 1) ; j++){
+			cout << " ";
+		}
+		cout << sinst->tableNames[attributes[i].from] << "." << attributes[i].name << "|";
+	}
+	cout << endl;
+	
+	//Line in bottom
+	cout << "  ";
+	for (int i = 0 ; i < (int)printSize.size() ; i++){
+		for (int j = 0 ; j < printSize[i] ; j++){
+			cout << "-";
+		}
+		if(i != ((int)printSize.size()-1)) cout << "-";
+		else cout << " ";
+	}
+	cout << endl;*/
+	
+	for(int i = 0 ; i < (int)attributes.size() ; i++){
+		int sum = 0;
+		string tmp = "";
+		for(int j = 0 ; j < (int)tuples.size() ; j++){
+			tmp += (*(tuples[j].values[i].value) + "+");
+		}
+		cout << tmp << endl;
+	}
 }
 

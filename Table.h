@@ -151,6 +151,10 @@ class Table {
 		
 		void ShowTable(SelectInst*);
 		
+		void Count_ShowTable(SelectInst*);
+		
+		void Sum_ShowTable(SelectInst*);
+		
 		bool isHidedPK;
 		
 		friend class TableSet;
