@@ -799,7 +799,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 
 			bool aliasExists = true;
 
-			for (int i=0; i<fromTableNames.size(); i++) {
+			for (int i=0; i<(int)fromTableNames.size(); i++) {
 				select->tableNames.push_back (fromTableNames[i]);
 			}
 
@@ -906,10 +906,10 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			}
 			aliasExists = true;
 
-			for (int i=0; i<select->selectedAttributesNames.size(); i++) {
+			for (int i=0; i<(int)select->selectedAttributesNames.size(); i++) {
 				bool starFlag = false;
 				if (select->selectedAttributesNames[i] == "*") {
-					for (int j=0; j<select->tableNames.size(); j++) {
+					for (int j=0; j<(int)select->tableNames.size(); j++) {
 						//cout << "in *************" << endl;
 						//cout << select->selectedAttributesTables[i] << ' ' <<  select->tableNames[j] << endl;
 						if (select->selectedAttributesTables[i] == select->tableNames[j]) {
@@ -941,20 +941,20 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			cout << "start table messages : ";
 			cout << startTableNames.size() << ' ' << select->selectedAttributesTables.size () 
 						<< ' ' << select->selectedAttributesNames.size () << endl;
-			for (int i=0; i<select->selectedAttributesTables.size(); i++)
+			for (int i=0; i<(int)select->selectedAttributesTables.size(); i++)
 			{
 				cout << select->selectedAttributesTables[i] << " : " << select->selectedAttributesNames[i] << endl;
 			}
 			cout << endl;
 			
 			cout << "number of tables involed : " << select->tableNames.size() << ' ' << "select all : ";
-			for (int i=0; i<fromTableNames.size(); i++) {
+			for (int i=0; i<(int)fromTableNames.size(); i++) {
 				cout << select->tableNames[i] << ' ' << select->isSelectAllAttrs[i] << endl;
 			}
 			cout << endl;
 
 			cout << "where table messages" << endl;
-			for (int i=0; i<select->WHERE_FirstTypes.size(); i++) {
+			for (int i=0; i<(int)select->WHERE_FirstTypes.size(); i++) {
 				cout << select->WHERE_FirstAttrTables[i] << " : " << select->WHERE_FirstAttrNames[i] << " " 
 						<< select->WHERE_FirstTypes[i] << " " << operation[i] << ' ' << select->WHERE_ExprTypes[i] << ' '
 						<< select->WHERE_SecondAttrTables[i] << " : " << select->WHERE_SecondAttrNames[i] << " " 
