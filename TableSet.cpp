@@ -203,6 +203,7 @@ bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 			
 			//都沒出現
 			if (!flags[0] && !flags[1]) {
+				cout << "in select, ";
 				cout << "- Error: The attribute " << sinst->selectedAttributesNames[i] <<
 					" doesn't exist in all tables.\n";
 				return false;

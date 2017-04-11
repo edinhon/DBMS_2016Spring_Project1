@@ -469,7 +469,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				bool selectCount = false, selectSum = false;
 				bool selectLeftParenthesis = false;
 				bool endOfParenthesis = false;
-				
+				int fromStep = 0;
 				// in case from :
 				bool tableAlias = false;
 				// in case where :
@@ -590,7 +590,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							}
 							break;
 						}
-						case from : {
+						case from : {						
 							if (checkStringWithoutCase(current, "where")) {
 								// jump to where
 								instruction.popTermTokens();	// pop till 'where'
