@@ -156,8 +156,9 @@ bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 	//檢查是否table name of attribute都存在FROM裡面
 	for(int i = 0 ; i < (int)sinst->selectedAttributesTables.size() ; i++){
 		// 如果沒有特別 assign 就跳過
-		if (sinst->selectedAttributesTables[i] == "")
+		if (sinst->selectedAttributesTables[i].compare("") == 0)
 			continue;
+		
 		bool flag = false;
 		string n1 = sinst->selectedAttributesTables[i];
 		transform(n1.begin(), n1.end(), n1.begin(),::tolower);
@@ -185,7 +186,7 @@ bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 		if (sinst->isSelectAllAttrs[i]) 
 			continue;
 
-		if(sinst->selectedAttributesTables[i].compare("") != 0){
+		if(sinst->selectedAttributesTables[i].compare("") == 0){
 			bool flag = false;
 			bool flag2 = false;
 			for(int j = 0 ; j < (int)selectedTables.size() ; j++){
@@ -196,15 +197,12 @@ bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 			}
 			
 			//都出現
-			// 都出現錯在哪？
-			/*
 			if(flag && sinst->tableNames.size() == 2){
 				cout << "- Error: The attribute " << sinst->selectedAttributesNames[i] <<
 					" is an ambiguous attribute between two tables, but not used as a prefix in the attribute.\n";
 				return false;
 			}
-			*/
-
+			
 			//都沒出現
 			if(!flag2){
 				cout << "- Error: The attribute " << sinst->selectedAttributesNames[i] <<
@@ -447,6 +445,7 @@ bool TableSet::SELECT_InsertTuplesWithWhere(Table* t, SelectInst* sinst, vector<
 			}
 		}
 	} else if (selectedTables.size() == 2){
+		//TODO: This part have not finish.
 		if(selectedTables[0]->tuples.size() == 0){
 			vector<Table*> tempTables;
 			tempTables.push_back(selectedTables[1]);
