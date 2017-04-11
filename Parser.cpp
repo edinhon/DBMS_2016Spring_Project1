@@ -639,7 +639,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 										fromTableShorthands.push_back (current);	// found alias
 										instruction.popTermTokens();
 										step = from;
-										cout << "after as : " << instruction.getTermTokens () << endl;
+										//cout << "after as : " << instruction.getTermTokens () << endl;
 										fromStep = 1;
 										caughtAlias = 4;
 									} else if (checkStringWithoutCase (current, "where")) {
@@ -988,15 +988,24 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							starFlag = true;
 							select->isSelectAllAttrs[j] = true;
 							break;
-						} else {
+						} 
+						else {
+							cout << "parser line 993" << endl;
+							for (int k=0; k<select->tableNames.size(); k++) {
+								select->isSelectAllAttrs[k] = true;
+							}
+							/*
 							cout << "select star without saying which table, and has multiple tables" << endl;
 							select->isValid = false;
 							return select;
+							*/
 						}
 					}
+					/*
 					if (!starFlag) {
 						cout << "************ i don't know what went wrong " << select->selectedAttributesTables[i]<< endl;
 					}
+					*/
 				}
 			}
 			//cout << "end checking alias names" << endl;

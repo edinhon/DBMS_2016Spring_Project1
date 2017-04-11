@@ -240,18 +240,18 @@ bool TableSet::SelectTable(SelectInst* sinst)
 	if (!sinst->isWHERE){
 		if(!SELECT_InsertAttributes(returnT, sinst, selectedTables, TIndex))
 			return false;
-		for(int i = 0 ; i < (int)TIndex->size() ; i++){
+		/*for(int i = 0 ; i < (int)TIndex->size() ; i++){
 			cout << "TIndex "<< i << " = " << TIndex->at(i) <<endl;
-		}
+		}*/
 		if(!SELECT_InsertTuples(returnT, sinst, selectedTables, TIndex))
 			return false;
 	} 
 	else {
 		if(!SELECT_InsertAttributes(returnT, sinst, selectedTables, TIndex))
 			return false;
-		for(int i = 0 ; i < (int)TIndex->size() ; i++){
+		/*for(int i = 0 ; i < (int)TIndex->size() ; i++){
 			cout << "TIndex "<< i << " = " << TIndex->at(i) <<endl;
-		}
+		}*/
 		if(!SELECT_InsertTuplesWithWhere(returnT, sinst, selectedTables, TIndex))
 			return false;
 	}
@@ -691,18 +691,25 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 				}
 			}
 			
-			//如果右值不存在且左值不為NULL
-			if(sinst->WHERE_SecondTypes[i] == -1 && valueFirstType != -1){
-				cout << "- Warning: There is only one value in " << (i+1) << 
-					" condition, and it's not NULL!\n";
-				cond[i] = true;
-				continue;
-			}
 			//如果右值不存在且左值為NULL
-			else if(sinst->WHERE_SecondTypes[i] == -1 && valueFirstType == -1){
+			if(sinst->WHERE_SecondTypes[i] == -1 && valueFirstType == -1){
 				cout << "- Warning: There is only one value in " << (i+1) << 
 					" condition, and it's NULL!\n";
 				cond[i] = false;
+				continue;
+			}
+			//如果右值不存在且左值為int且為0
+			else if(sinst->WHERE_SecondTypes[i] == -1 && valueFirstType == 0 && valueFirstInt == 0){
+				cout << "- Warning: There is only one value in " << (i+1) << 
+					" condition, and it's 0!\n";
+				cond[i] = false;
+				continue;
+			}
+			//如果右值不存在且左值不為NULL && 不是int且為0
+			else if(sinst->WHERE_SecondTypes[i] == -1){
+				cout << "- Warning: There is only one value in " << (i+1) << 
+					" condition, and it's not NULL!\n";
+				cond[i] = true;
 				continue;
 			}
 			
@@ -929,19 +936,25 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 				}
 			}
 			
-			
-			//如果右值不存在且左值不為NULL
-			if(sinst->WHERE_SecondTypes[i] == -1 && valueFirstType != -1){
-				cout << "- Warning: There is only one value in " << (i+1) << 
-					" condition, and it's not NULL!\n";
-				cond[i] = true;
-				continue;
-			}
 			//如果右值不存在且左值為NULL
-			else if(sinst->WHERE_SecondTypes[i] == -1 && valueFirstType == -1){
+			if(sinst->WHERE_SecondTypes[i] == -1 && valueFirstType == -1){
 				cout << "- Warning: There is only one value in " << (i+1) << 
 					" condition, and it's NULL!\n";
 				cond[i] = false;
+				continue;
+			}
+			//如果右值不存在且左值為int且為0
+			else if(sinst->WHERE_SecondTypes[i] == -1 && valueFirstType == 0 && valueFirstInt == 0){
+				cout << "- Warning: There is only one value in " << (i+1) << 
+					" condition, and it's 0!\n";
+				cond[i] = false;
+				continue;
+			}
+			//如果右值不存在且左值不為NULL && 不是int且為0
+			else if(sinst->WHERE_SecondTypes[i] == -1){
+				cout << "- Warning: There is only one value in " << (i+1) << 
+					" condition, and it's not NULL!\n";
+				cond[i] = true;
 				continue;
 			}
 			
