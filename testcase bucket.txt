@@ -97,4 +97,4 @@ WHERE nationality = 'Taiwan';
 SELECT SUM(pages) FROM Book
 WHERE authorId = 2;
 
-select dd from book where title = 'Bible';
+select bookid from book where 'Bible';
