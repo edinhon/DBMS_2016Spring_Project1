@@ -108,13 +108,14 @@ void DBMS(string fileName)
 						}
 					}
 				}
-				cout << "end select" << endl;
+				//cout << "end select" << endl;
 				break;
 			}
 		}
 		
 		i++;
 		//cout << "FUCKYYYYYYYYYYYY111111\n";
+		cout << endl << "============================" << endl;
 		instructionSet->popInstruction ();
 		//cout << "i = " << i << endl;
 	}

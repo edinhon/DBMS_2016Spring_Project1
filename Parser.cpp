@@ -471,9 +471,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				bool endOfParenthesis = false;
 				//int fromStep = 0;
 				// in case from :
-				bool tableAlias = false;
-				bool evenAttributes = false;
-				bool haveComma = false;
+				int caughtAlias = 0;
 				// in case where :
 				bool assigning = false;	/*
 											in where, 
@@ -596,6 +594,13 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							switch (fromStep) {
 								case 0: {
 									// table name
+									if (caughtAlias == 4) {
+										//沒經過逗號就回來了
+										cout << "Syntax Error : line 599" << endl;
+										select->isValid = false;
+										return select;
+									}
+
 									if (checkStringWithoutCase (current, "where")) {
 										if (fromTableNames.size () == 0) {
 											cout << "Syntax Error : line 601" << endl;
@@ -606,6 +611,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 										step = where;
 										select->isWHERE = true;
 									} else {
+										caughtAlias = 1;
 										fromTableNames.push_back (current);
 										fromTableShorthands.push_back ("");
 										step = from;
@@ -616,10 +622,17 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								}
 								case 1: {
 									if (checkStringWithoutCase (current, ",")) {
+										caughtAlias = 3;
 										instruction.popTermTokens ();
 										step = from;
 										fromStep = 0;
 									} else if (checkStringWithoutCase (current, "as")) {
+										if (caughtAlias == 4) {
+											//沒經過逗號就回來了
+											cout << "Syntax Error : line 633" << endl;
+											select->isValid = false;
+											return select;
+										}
 										fromTableShorthands.pop_back ();
 										instruction.popTermTokens ();
 										current = instruction.getTermTokens ();
@@ -628,72 +641,32 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 										step = from;
 										cout << "after as : " << instruction.getTermTokens () << endl;
 										fromStep = 1;
+										caughtAlias = 4;
 									} else if (checkStringWithoutCase (current, "where")) {
 										// 
-										cout << "here" << fromTableNames.size() << ' ' << fromTableShorthands.size () << endl;
+										//cout << "here" << fromTableNames.size() << ' ' << fromTableShorthands.size () << endl;
 										select->isWHERE = true;
 										instruction.popTermTokens ();
 										step = where;
+										//caughtAlias = 4;
 									} else {
 										// straight to alias
+										if (caughtAlias == 4) {
+											//沒經過逗號就回來了
+											cout << "Syntax Error : line 657" << endl;
+											select->isValid = false;
+											return select;
+										}
 										fromTableShorthands.pop_back ();
 										fromTableShorthands.push_back (current);
 										instruction.popTermTokens ();
 										step = from;
-										fromStep = 0;
+										fromStep = 1;
+										caughtAlias = 4;
 									}
 									break;
 								}
 							}
-/*
-							if (checkStringWithoutCase(current, "where")) {
-								// jump to where
-								instruction.popTermTokens();	// pop till 'where'
-								select->isWHERE = true;
-								selectingInParticularTable = false;
-								step = where;
-							} else if (checkStringWithoutCase (current, "as")) {
-								// 'as' instruction
-								// we have alias
-								tableAlias = true;
-								evenAttributes = false;
-								instruction.popTermTokens ();
-								step = from;
-							} else if (current == ",") {
-								// continue to do next token
-								haveComma = true;
-								instruction.popTermTokens ();
-								evenAttributes = false;
-								step = from;
-							} else {
-								// keep parsing
-								if (tableAlias) {
-									// caught table with alias
-
-									fromTableShorthands.pop_back ();
-									fromTableShorthands.push_back (current);
-									tableAlias = false;
-								} else {
-									if (!evenAttributes) {
-										// 現在在地偶數個
-										fromTableShorthands.push_back ("");
-										fromTableNames.push_back (current);
-										evenAttributes = true;
-									} else if (evenAttributes) {
-										evenAttributes = false;
-										fromTableShorthands.pop_back ();
-										fromTableShorthands.push_back (current);
-									} else {
-										cout << "parser line 629" << endl;
-									}
-
-									//fromTableShorthands.push_back ("");
-									//fromTableNames.push_back (current);
-								}
-								instruction.popTermTokens ();	
-								step = from;
-							}
-*/
 							break;
 						}
 						case where : {
@@ -1027,7 +1000,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				}
 			}
 			//cout << "end checking alias names" << endl;
-
+/*
 			// generate messages
 			cout << "+++++++++++++++++++++" << endl;
 			cout << "start table messages : ";
@@ -1054,7 +1027,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						<< select->WHERE_SecondTypes[i] << endl;
 			}
 			cout << "---------------------" << endl;
-
+*/
 			select->isValid = true;
 			return select;
 			break;
