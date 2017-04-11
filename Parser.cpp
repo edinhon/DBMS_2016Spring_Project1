@@ -799,7 +799,10 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 
 			bool aliasExists = true;
 
-			//cout << "+++++++++++++++++++++" << endl;
+			for (int i=0; i<fromTableNames.size(); i++) {
+				select->tableNames.push_back (fromTableNames[i]);
+			}
+
 			for (int i=0; i<sizeForStart; i++) {
 				select->selectedAttributesNames.push_back (startAttributeNames[i]);	// fill in attributes
 				if (startTableNames[i] != "") {
@@ -816,14 +819,21 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						cout << "in start, no such alias as : " << startTableNames[i] << endl;
 					}
 				} else {
-					select->selectedAttributesTables.push_back (""); // fill in null attribute names
+					//select->selectedAttributesTables.push_back ("");
+					
+					if (select->tableNames.size() == 1) {
+						select->selectedAttributesTables.push_back (select->tableNames[0]);
+					} else {
+						//select->selectedAttributesTables.push_back (select->tableNames[0]);
+						select->selectedAttributesNames.push_back (startAttributeNames[i]);
+						for (int k=0; k<select->tableNames.size(); k++) {
+							select->selectedAttributesTables.push_back (select->tableNames[k]);
+						}
+					}
+					
 				}
 			}
 			aliasExists = true;
-
-			for (int i=0; i<fromTableNames.size(); i++) {
-				select->tableNames.push_back (fromTableNames[i]);
-			}
 
 			for (int i=0; i<sizeForWhere; i++) {
 				select->WHERE_FirstAttrNames.push_back (left[i]);	// fill in attributes
@@ -842,7 +852,14 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						cout << "in left, no such alias as : " << selectedTableLeft[i] << endl;
 					}
 				} else {
-					select->WHERE_FirstAttrTables.push_back (""); // fill in null attribute names
+					//select->WHERE_FirstAttrTables.push_back ("");
+					
+					if (select->tableNames.size() == 1) {
+						select->WHERE_FirstAttrTables.push_back (select->tableNames[0]);
+					} else {
+						select->WHERE_FirstAttrTables.push_back (select->tableNames[0]);
+					}
+					
 				}
 			}
 			aliasExists = true;
@@ -877,7 +894,14 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						cout << "in right, no such alias as : " << selectedTableRight[i] << endl;
 					}
 				} else {
-					select->WHERE_SecondAttrTables.push_back (""); // fill in null attribute names
+					//select->WHERE_SecondAttrTables.push_back ("");
+					
+					if (select->tableNames.size() == 1) {
+						select->WHERE_SecondAttrTables.push_back (select->tableNames[0]);
+					} else {
+						select->WHERE_SecondAttrTables.push_back (select->tableNames[0]);
+					}
+					
 				}
 			}
 			aliasExists = true;
@@ -911,8 +935,9 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				}
 			}
 			//cout << "end checking alias names" << endl;
-/*
+
 			// generate messages
+			cout << "+++++++++++++++++++++" << endl;
 			cout << "start table messages : ";
 			cout << startTableNames.size() << ' ' << select->selectedAttributesTables.size () 
 						<< ' ' << select->selectedAttributesNames.size () << endl;
@@ -936,7 +961,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						<< select->WHERE_SecondTypes[i] << endl;
 			}
 			cout << "---------------------" << endl;
-*/
+
 			select->isValid = true;
 			return select;
 			break;

@@ -102,7 +102,8 @@ void DBMS(string fileName)
 			sinst->isSUM = false;
 			inst = sinst;
 		}
-		cout << "FUCK\n";
+		*/
+		//cout << "FUCK\n";
 		if (!inst->isValid) {
 			instructionSet->popInstruction();
 			continue;
@@ -133,27 +134,27 @@ void DBMS(string fileName)
 			}
 			case SELECT :{
 				SelectInst *sinst = dynamic_cast<SelectInst*>(inst);
-				cout << "FUCK\n";
+				//cout << "FUCK\n";
 				if(tableSet.ContainTables(sinst->tableNames)){
-					cout << "FUCK\n";
+					//cout << "FUCK\n";
 					if(tableSet.SelectTable(sinst)){
 						Table *t = tableSet.GetSelectedTable();
 						t->ShowTable();
 						tableSet.DeleteSelectedTable();
 						
 						if(sinst->isCOUNT){
-							cout << "COUNT: " << t->tuples.size() << endl;
+							//cout << "COUNT: " << t->tuples.size() << endl;
 						}
 						if(sinst->isSUM){
 							//t->SELECT_SumUp()
 						}
 					}
 				}
-				
+				cout << "end select" << endl;
 				break;
 			}
 		}
-		*/
+		
 		i++;
 		//cout << "FUCKYYYYYYYYYYYY111111\n";
 		instructionSet->popInstruction ();
