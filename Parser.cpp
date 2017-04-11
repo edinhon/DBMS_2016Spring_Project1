@@ -391,24 +391,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							break;
 						}
 						case 6 : {
-							if (catchcomma) {
-								int ts = (int)tmpt.size();
-								if (tmpt[ts-1] == 39) {
-									*attach += tmpt.substr(0, ts-1);
-									tuple->insertedValues.push_back (attach);
-									tuple->insertedValueTypes.push_back(1);
-									instruction.popTermTokens();
-									catchcomma = false;
-									step = 7;
-								} else {
-									*attach += tmpt;
-									*attach += " ";
-									instruction.popTermTokens();
-									catchcomma = true;
-									step = 6;
-								}
-							}
-							else if (tmpt == "'" || catchcomma) {
+							if (tmpt == "'" || catchcomma) {
 								if (catchcomma) {
 									if (tmpt == "'") {
 										tuple->insertedValues.push_back (attach);
@@ -417,8 +400,10 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 										catchcomma = false;
 										step = 7;
 									} else {
-										*attach += " ";
+										if (*attach != "")
+											*attach += " ";
 										*attach += tmpt;
+										instruction.popTermTokens ();
 										catchcomma = true;
 										step = 6;
 									}
@@ -740,7 +725,8 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 											step = where;
 										}
 									} else {
-										*attach += " ";
+										if (*attach != "")
+											*attach += " ";
 										*attach += current;
 										instruction.popTermTokens ();
 										catchcomma = true;
@@ -909,6 +895,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 					select->WHERE_ExprTypes.push_back (3);
 				else if (operation[i] == "NULL") 
 					select->WHERE_ExprTypes.push_back (-1);
+				
 				else 
 					cout << "I don't know what went wrong in operations!!!!!!!!!!!!!!!!!!" << endl;
 				

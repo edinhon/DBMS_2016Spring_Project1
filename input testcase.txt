@@ -52,49 +52,10 @@ VALUES (10, 'VPN Architectures', 450, 2, 'Barrons');
 
 SELECT b.title
 FROM Book AS b
-WHERE pages > 100 AND editorial = 'Prentice Hall';
-
-SELECT bookId, title, pages, authorId, editorial FROM Book;
-
-SELECT * FROM Author;
-
-SELECT title
-FROM Book
-WHERE bookId = 1;
-
-SELECT *
-FROM Book
-WHERE authorId = 1 OR pages < 200;
-
-SELECT b.*
-FROM Book AS b, Author AS a
-WHERE a.name = 'Michael Crichton' and b.authorId = a.authorId;
-
-SELECT bookId, title, pages, name
-FROM Book, Author
-WHERE Book.authorId = Author.authorId;
-
-SELECT a.name, title
-FROM Book, Author AS a
-WHERE Book.authorId = a.authorId AND Book.pages > 200;
-
-SELECT a.name
-FROM Author AS a, Book AS b
-WHERE a.authorId = b.authorId AND b.title = 'Star Wars';
-
-SELECT a.name, b.title
-FROM Author AS a, Book AS b
-WHERE a.authorId = b.authorId AND a.nationality <> 'Taiwan';
-
-SELECT COUNT(*) FROM Book;
-
-SELECT COUNT(editorial) FROM Book;
+WHERE editorial = 'Prentice Hall' and pages > 100 ;
 
 SELECT COUNT(*)
-FROM Author
-WHERE nationality = 'Taiwan';
+            FROM Author
+            WHERE nationality = 'Taiwan';
 
-SELECT SUM(pages) FROM Book
-WHERE authorId = 2;
-
-select dd from book where title = 'Bible';
+            select bookid from book where title = 'Bible';

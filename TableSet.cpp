@@ -631,6 +631,7 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 			int valueFirstType;	//0 = int, 1 = varchar, -1 = NULL
 			
 			if(sinst->WHERE_FirstAttrNames[i].compare("NULL") == 0){
+			//if(sinst->WHERE_FirstAttrNames[i].compare("") == 0){
 				valueFirstType = -1;
 			}
 			else {
@@ -649,8 +650,10 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 					}
 					case 2:{
 						/*Attribute*/
-						if(!selectedTables[0]->ContainAttribute(sinst->WHERE_FirstAttrNames[i]))
+						if(!selectedTables[0]->ContainAttribute(sinst->WHERE_FirstAttrNames[i])) {
+							cout << "line 654 遇到摟～～～～～～" << endl;
 							return false;
+						}
 						
 						string *sValue = selectedTables[0]->tuples[tplIdx1].getValue(sinst->WHERE_FirstAttrNames[i]);
 						//如果value是NULL
@@ -677,7 +680,7 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 					}
 				}
 			}
-			
+			cout << "here!!" << *valueFirstStr << "!!!!!!!!!" << endl;
 			
 			//如果右值不存在且左值不為NULL
 			if(sinst->WHERE_SecondTypes[i] == -1 && valueFirstType != -1){
@@ -693,12 +696,14 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 				cond[i] = false;
 				continue;
 			}
+			cout << "here2!!" << *valueFirstStr << "!!!!!!!!!" << endl;
 			
 			int valueSecondInt;
 			string* valueSecondStr;
 			int valueSecondType;	//0 = int, 1 = varchar, -1 = NULL
 			
 			if(sinst->WHERE_SecondAttrNames[i].compare("NULL") == 0){
+			//if(sinst->WHERE_SecondAttrNames[i].compare("") == 0){
 				valueSecondType = -1;
 			}
 			else {
@@ -740,6 +745,7 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 					}
 				}
 			}
+			cout << "here second!!" << *valueSecondStr << "!!!!!!!!!" << endl;
 			
 			//不同類型，int != char, 或是其中一方為NULL
 			if(valueFirstType != valueSecondType){
@@ -770,6 +776,7 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 							break;
 						case 3:
 							if(valueFirstInt > valueSecondInt){
+								cout << valueFirstInt << " > " << valueSecondInt << endl;
 								cond[i] = true;
 							} else cond[i] = false;
 							break;
@@ -781,6 +788,7 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 					switch(sinst->WHERE_ExprTypes[i]){
 						case 0:
 							if((*valueFirstStr).compare(*(valueSecondStr)) == 0){
+								cout << "catch!!!!!!!!!!!!!" << endl;
 								cond[i] = true;
 							} else cond[i] = false;
 							break;
@@ -805,6 +813,10 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 			}
 		}
 		
+		for (int i=0; i<2; i++) {
+			cout << cond[i] << ' ';
+		}
+		cout << endl;
 		bool flag = false;
 		for(int i = 0 ; i < 2 ; i++){
 			switch(sinst->WHERE_ExprAO){
@@ -841,6 +853,7 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 			int FirstTIndex = -1;
 			
 			if(sinst->WHERE_FirstAttrNames[i].compare("NULL") == 0){
+			//if(sinst->WHERE_FirstAttrNames[i].compare("") == 0){
 				valueFirstType = -1;
 			}
 			else {
@@ -938,6 +951,7 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 			int SecondTIndex = -1;
 			
 			if(sinst->WHERE_SecondAttrNames[i].compare("NULL") == 0){
+			//if(sinst->WHERE_SecondAttrNames[i].compare("") == 0){
 				valueSecondType = -1;
 			}
 			else {
