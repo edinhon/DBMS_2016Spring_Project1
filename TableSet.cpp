@@ -187,24 +187,22 @@ bool TableSet::CheckSelectInst(SelectInst* sinst, vector<Table*> selectedTables)
 			continue;
 
 		if(sinst->selectedAttributesTables[i].compare("") == 0){
-			bool flag = false;
-			bool flag2 = false;
+			bool flags [2] = {false, false};
 			for(int j = 0 ; j < (int)selectedTables.size() ; j++){
 				if(selectedTables[j]->ContainAttribute(sinst->selectedAttributesNames[i])){
-					flag = true;
-					flag2 = true;
-				} else flag = false;
+					flags[i] = true;
+				} 
 			}
 			
 			//都出現
-			if(flag && sinst->tableNames.size() == 2){
+			if (flags[0] && flags[1] && sinst->tableNames.size() == 2) {
 				cout << "- Error: The attribute " << sinst->selectedAttributesNames[i] <<
 					" is an ambiguous attribute between two tables, but not used as a prefix in the attribute.\n";
 				return false;
 			}
 			
 			//都沒出現
-			if(!flag2){
+			if (!flags[0] && !flags[1]) {
 				cout << "- Error: The attribute " << sinst->selectedAttributesNames[i] <<
 					" doesn't exist in all tables.\n";
 				return false;
@@ -571,7 +569,7 @@ bool TableSet::CheckWhereValid(SelectInst* sinst, vector<Table*> selectedTables)
 			}
 			
 			//都出現且table等於2且此attrbute有table name
-			if(flag && selectedTables.size() == 2 && sinst->WHERE_FirstAttrTables[i].compare("") != 0){
+			if(flag && selectedTables.size() == 2 && sinst->WHERE_FirstAttrTables[i].compare("") == 0){
 				cout << "- Error: The attribute " << sinst->WHERE_FirstAttrNames[i] <<
 					" is an ambiguous attribute between two tables, but not used as a prefix in the attribute.\n";
 				return false;
@@ -597,7 +595,7 @@ bool TableSet::CheckWhereValid(SelectInst* sinst, vector<Table*> selectedTables)
 			}
 			
 			//都出現且table等於2且此attrbute有table name
-			if(flag && selectedTables.size() == 2 && sinst->WHERE_SecondAttrTables[i].compare("") != 0){
+			if(flag && selectedTables.size() == 2 && sinst->WHERE_SecondAttrTables[i].compare("") == 0){
 				cout << "- Error: The attribute " << sinst->WHERE_SecondAttrNames[i] <<
 					" is an ambiguous attribute between two tables, but not used as a prefix in the attribute.\n";
 				return false;
@@ -680,7 +678,6 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 					}
 				}
 			}
-			cout << "here!!" << *valueFirstStr << "!!!!!!!!!" << endl;
 			
 			//如果右值不存在且左值不為NULL
 			if(sinst->WHERE_SecondTypes[i] == -1 && valueFirstType != -1){
@@ -696,7 +693,6 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 				cond[i] = false;
 				continue;
 			}
-			cout << "here2!!" << *valueFirstStr << "!!!!!!!!!" << endl;
 			
 			int valueSecondInt;
 			string* valueSecondStr;
@@ -745,7 +741,6 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 					}
 				}
 			}
-			cout << "here second!!" << *valueSecondStr << "!!!!!!!!!" << endl;
 			
 			//不同類型，int != char, 或是其中一方為NULL
 			if(valueFirstType != valueSecondType){
@@ -776,7 +771,6 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 							break;
 						case 3:
 							if(valueFirstInt > valueSecondInt){
-								cout << valueFirstInt << " > " << valueSecondInt << endl;
 								cond[i] = true;
 							} else cond[i] = false;
 							break;
@@ -788,7 +782,6 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 					switch(sinst->WHERE_ExprTypes[i]){
 						case 0:
 							if((*valueFirstStr).compare(*(valueSecondStr)) == 0){
-								cout << "catch!!!!!!!!!!!!!" << endl;
 								cond[i] = true;
 							} else cond[i] = false;
 							break;
@@ -813,10 +806,6 @@ bool TableSet::CheckWhereCondition(SelectInst* sinst, vector<Table*> selectedTab
 			}
 		}
 		
-		for (int i=0; i<2; i++) {
-			cout << cond[i] << ' ';
-		}
-		cout << endl;
 		bool flag = false;
 		for(int i = 0 ; i < 2 ; i++){
 			switch(sinst->WHERE_ExprAO){
