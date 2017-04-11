@@ -990,7 +990,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							break;
 						} 
 						else {
-							cout << "parser line 993" << endl;
+							//cout << "parser line 993" << endl;
 							for (int k=0; k<select->tableNames.size(); k++) {
 								select->isSelectAllAttrs[k] = true;
 							}
