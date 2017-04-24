@@ -23,6 +23,73 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 	while (getline (*inputFile, inputString, ';')) {
 		
 		Instruction* instruction = new Instruction();
+		inputString.append (";");
+		int length = inputString.size ();
+		cout << "length of instrucion : " << length << endl;
+		cout << inputString << endl;
+		
+		int position = 0;
+		bool quotationFlag = false;	// catch quotation mark
+		bool wordFlag = false;
+
+		while (inputString[position] != ';') {
+			
+			if (isalpha (inputString[position]) && !wordFlag) {
+				inputString.insert (position, "$");
+				position += 1;
+				wordFlag = true;
+			}
+			if (isdigit (inputString[position]) && !wordFlag) {
+				inputString.insert (position, "$");
+				position += 1;
+				wordFlag = true;
+			}
+
+			if (!isalpha (inputString[position]) && !isdigit (inputString[position])) {
+				if (!quotationFlag) {
+					wordFlag = false;
+				}
+
+				if (inputString[position] == 39) {
+					quotationFlag = !quotationFlag;
+					
+					inputString.insert (position, "$");
+					position += 1;
+				}
+
+				if (!quotationFlag) {
+					if (inputString[position] == ' ')
+						inputString[position] = '$';
+					else if (inputString[position] == '\n')
+						inputString[position] = '$';
+					else {
+						inputString.insert (position, "$");
+						position += 1;
+					}
+				}
+			}
+
+			position += 1;
+		}
+
+		inputString = inputString.substr (0, position);
+		inputString.append ("$");
+		cout << "length of instrucion $ : " << inputString.size() << endl;
+		cout << inputString << endl;
+
+		char charBuffer[1000];
+		char *trying;
+
+		strcpy(charBuffer, inputString.c_str());
+			
+		trying = strtok (charBuffer,"$");
+
+		while (trying != NULL) { 
+			instruction->setTermTokens(trying);
+		    trying = strtok (NULL, "$");
+		}
+
+		/* 
 		string slicedString = "\0";
 		char charBuffer[1000];
 		char* trying;
@@ -74,7 +141,9 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 			}
 	        trying = strtok (NULL, " \n\t");
 		}
-		instruction->setInstructionString(slicedString);
+
+		*/
+		instruction->setInstructionString(inputString);
 		instructionSet->pushInstruction(*instruction);
 		//instruction->showTokens ();
 	}
@@ -112,7 +181,10 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			if (checkStringWithoutCase(instruction.getTermTokens(), "table")) {
 				instruction.popTermTokens();
 				for (int i=0; i<(int)instruction.getTermTokens().size(); i++) {
-					if (!isalpha(instruction.getTermTokens()[i]) && instruction.getTermTokens()[i] != '_') {
+					//if (!isalpha(instruction.getTermTokens()[i]) && instruction.getTermTokens()[i] != '_') {
+					if (!isalpha(instruction.getTermTokens()[i]) && instruction.getTermTokens()[i] != '_' 
+						&& !isdigit(instruction.getTermTokens()[i])) {
+						//cout << "here "<< instruction.getTermTokens()[i] << endl;
 						table = new CreateInst ();
 						table->isValid = false;
 						cout << "- Syntax Error : table name cannot contain charactors besides alphabats or '_' " << endl;
@@ -135,7 +207,8 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			if (checkStringWithoutCase(instruction.getTermTokens(), "into")) {
 				instruction.popTermTokens();
 				for (int i=0; i<(int)instruction.getTermTokens().size(); i++) {
-					if (!isalpha(instruction.getTermTokens()[i]) && instruction.getTermTokens()[i] != '_') {
+					if (!isalpha(instruction.getTermTokens()[i]) && instruction.getTermTokens()[i] != '_'
+						&& !isdigit (instruction.getTermTokens()[i])) {
 						tuple = new InsertInst ();
 						tuple->isValid = false;
 						cout << "- Syntax Error : table name cannot contain charactors besides alphabats or '_' " << endl;
@@ -392,16 +465,27 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 						case 6 : {
 							if (tmpt == "'" || catchcomma) {
+
+								/*
+								instruction.popTermTokens ();
+								attach = new string (instruction.getTermTokens());
+								cout << "attach : " << *attach << endl;
+								tuple->insertedValues.push_back (attach);
+								tuple->insertedValueTypes.push_back(1);
+								instruction.popTermTokens ();
+								instruction.popTermTokens ();
+								step = 7;
+								*/
 								if (catchcomma) {
 									if (tmpt == "'") {
+										cout << "attach :" << *attach << endl;
+								
 										tuple->insertedValues.push_back (attach);
 										tuple->insertedValueTypes.push_back(1);
 										instruction.popTermTokens();
 										catchcomma = false;
 										step = 7;
 									} else {
-										if (*attach != "")
-											*attach += " ";
 										*attach += tmpt;
 										instruction.popTermTokens ();
 										catchcomma = true;
@@ -412,6 +496,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 									instruction.popTermTokens ();
 									catchcomma = true;
 								}
+								
 							} else if (tmpt[0] == ',') {
 								string* toAdd = new string ("NULL_VALUE");
 								tuple->insertedValues.push_back (toAdd);
@@ -748,6 +833,31 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								instruction.popTermTokens ();
 								step = where;
 							} else if (current == "'" || catchcomma) {
+/*
+								instruction.popTermTokens ();
+
+								if (assigning) {
+									attach = new string (instruction.getTermTokens ());
+									right.push_back (*attach);
+									//selectRightType.pop_back ();
+									selectRightType.push_back (1);
+									selectedTableRight.push_back ("");
+									instruction.popTermTokens ();
+									instruction.popTermTokens ();
+									//assigning = false;
+									step = where;
+								} else {
+									attach = new string (instruction.getTermTokens ());
+									left.push_back (*attach);
+									//selectRightType.pop_back ();
+									selectLeftType.push_back (1);
+									selectedTableLeft.push_back ("");
+									instruction.popTermTokens ();
+									instruction.popTermTokens ();
+									//assigning = false;
+									step = where;
+								}
+								*/
 								if (catchcomma) {
 									if (current == "'") { // end of ''
 										if (assigning) {
@@ -770,8 +880,6 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 											step = where;
 										}
 									} else {
-										if (*attach != "")
-											*attach += " ";
 										*attach += current;
 										instruction.popTermTokens ();
 										catchcomma = true;
@@ -782,6 +890,8 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 									instruction.popTermTokens ();
 									catchcomma = true;
 								}
+
+								
 							} else {
 								catchingNot = false;
 								//parsing

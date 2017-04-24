@@ -61,7 +61,9 @@ void DBMS(string fileName)
 	while(!instructionSet->isEmpty()){
 		// fetch instructions
 		Instruction instruction = instructionSet->fetchInstruction();
+		//cout << instruction.getInstructionString () << endl;
 		Instruction *inst = parser.ParseSingleInstruction(instruction);
+
 		
 		if (!inst->isValid) {
 			instructionSet->popInstruction();
@@ -88,7 +90,7 @@ void DBMS(string fileName)
 					if(!t->CheckInsertInst(iinst)) break;
 					t->InsertTuple(iinst);
 				}
-				tableSet.ShowTables();
+				//tableSet.ShowTables();
 				break;
 			}
 			case SELECT :{
