@@ -3,12 +3,20 @@ CC = g++ -lm -std=c++11 -Wall
 SRCS = ./*.cpp
 OBS = ./*.o
 
+QDBM_INCDIR := -I ./qdbm/include
+
+QDBM_LIBDIR := -L ./qdbm/lib
+
+QDBM_LIB := -lxqdbm -lqdbm
+
+CXXFLAGS := $(QDBM_INCDIR) $(QDBM_LIBDIR) $(QDBM_LIB)
+
 # The following line means that do SRC first.
 DBMSProject1: SRC
-	$(CC) -o $@ *.o
+	$(CC) -o $@  *.o $(CXXFLAGS)
 
 SRC: $(SRCS)
-	$(CC) -c $(SRCS)
+	$(CC) -c $(CXXFLAGS) $(SRCS)
 	
 .PHONY :
 	clean

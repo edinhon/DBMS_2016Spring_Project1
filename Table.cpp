@@ -11,6 +11,8 @@ Table::Table(CreateInst *cinst)
 {
 	tableName = cinst->tableName;
 	
+	depot = new Depot(tableName.c_str(), Depot::OWRITER | Depot::OCREAT);
+	
 	isHidedPK = true;
 	for(int i = 0 ; i < (int)cinst->attributeNames.size() ; i++){
 		Attribute a;

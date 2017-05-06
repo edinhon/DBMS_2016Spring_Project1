@@ -8,8 +8,11 @@
 #include "CreateInst.h"
 #include "InsertInst.h"
 #include "SelectInst.h"
+#include <xadbm.h>
+#include <xdepot.h>
 
 using namespace std;
+using namespace qdbm;
 
 class Table {
 	public:
@@ -168,5 +171,7 @@ class Table {
 		string tableName;
 		
 		vector<int> PKIndexes;
+		
+		Depot *depot;
 };
 #endif
