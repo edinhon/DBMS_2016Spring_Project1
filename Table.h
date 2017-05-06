@@ -10,6 +10,7 @@
 #include "SelectInst.h"
 #include <xadbm.h>
 #include <xdepot.h>
+#include <xvilla.h>
 
 using namespace std;
 using namespace qdbm;
@@ -158,6 +159,13 @@ class Table {
 		
 		void Sum_ShowTable(SelectInst*);
 		
+		//-----------------------------------------------
+		// bool CreateIndex(string[] attrName, int mode)
+		//		Create index structure, parameter mode implies
+		//	which structure is used, 1 = B+ tree, 2 = Hashing.
+		//-----------------------------------------------
+		bool CreateIndex(string[], int);
+		
 		bool isHidedPK;
 		
 		friend class TableSet;
@@ -172,6 +180,10 @@ class Table {
 		
 		vector<int> PKIndexes;
 		
-		Depot *depot;
+		Depot *mainData;
+		
+		vector<Depot> depots;
+		
+		vector<Villa> villas;
 };
 #endif

@@ -11,7 +11,7 @@ Table::Table(CreateInst *cinst)
 {
 	tableName = cinst->tableName;
 	
-	depot = new Depot(tableName.c_str(), Depot::OWRITER | Depot::OCREAT);
+	mainData = new Depot(tableName.c_str(), Depot::OWRITER | Depot::OCREAT);
 	
 	isHidedPK = true;
 	for(int i = 0 ; i < (int)cinst->attributeNames.size() ; i++){
@@ -861,5 +861,36 @@ void Table::Sum_ShowTable(SelectInst* sinst)
 		else cout << " ";
 	}
 	cout << endl;
+}
+
+//-----------------------------------------------
+// bool CreateIndex(string[] attrName, int mode)
+//		Create index structure, parameter mode implies
+//	which structure is used, 1 = B+ tree, 2 = Hashing.
+//-----------------------------------------------
+bool CreateIndex(string[] attrName, int mode){
+	switch(mode){
+		case 1:{
+			string idxName = "IDX_BPtree_" + tableName + "_";
+			for(int i = 0 ; i < sizeof(attrName)/sizeof(*attrName) ; i++){
+				idxName += attrName[i];
+			}
+			
+			Depot depot(idxName, Depot::OWRITER | Depot::OCREAT);
+			
+			
+			break;
+		}
+		case 2:{
+			string idxName = "IDX_Hash_" + tableName + "_";
+			for(int i = 0 ; i < sizeof(attrName)/sizeof(*attrName) ; i++){
+				idxName += attrName[i];
+			}
+			break;
+		}
+		default:{
+			
+		}
+	}
 }
 
