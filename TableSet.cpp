@@ -1157,7 +1157,7 @@ void TableSet::InformationWrite_TableSet ()
 	ofstream* tablesetInformation= new ofstream();
 	tablesetInformation->open (TableSetIndexFile, ios::out);
 	
-	for (int i=0; i<tableVector.size(); i++) {
+	for (int i=0; i<(int)tableVector.size(); i++) {
 		*tablesetInformation << tableVector[i].returnTableFileName () << endl;
 
 		tableVector[i].InformationWrite_Table ();

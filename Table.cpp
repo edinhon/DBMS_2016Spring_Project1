@@ -171,11 +171,19 @@ void Table::InsertTuple(InsertInst *iinst)
 	tuples.push_back(t);
 
 	// Date 05.07.2017
+	//Write into disk
 	const char* formatted = t.FormatTuple ();
-	//cout << "++++I am here :: size = " << strlen(formatted) << ' ' << formatted << endl;
+	
 	Depot* depot = new Depot(tableName.c_str(), Depot::OWRITER);
 	depot->put(to_string(tuples.size()).c_str(), -1, formatted, -1);
 	depot->close();
+	
+	//TEST READ
+	depot = new Depot(tableName.c_str(), Depot::OREADER);
+	char* tmp = depot->get(to_string(tuples.size()).c_str(), -1);
+	cout << tmp << endl;
+	depot->close();
+	//TEST END
 }
 
 //-----------------------
@@ -882,22 +890,30 @@ bool Table::CreateIndex(string attrName, int mode){
 		case 1:{
 			string idxName = "IDX_BPtree_" + tableName + "_" + attrName;
 			
-			SetAttributeIndex(attrName, mode);
+			if(SetAttributeIndex(attrName, mode)){
+				
+			}
 			
 			//Depot depot(idxName, Depot::OWRITER | Depot::OCREAT);
 			
 			//TODO:Serialize data to put into Depot.
+			return true;
 			break;
 		}
 		case 2:{
 			string idxName = "IDX_Hash_" + tableName + "_" + attrName;
 			
-			SetAttributeIndex(attrName, mode);
+			if(SetAttributeIndex(attrName, mode)){
+				
+			}
 			
+			return true;
 			break;
 		}
 		default:{
 			
+			return true;
+			break;
 		}
 	}
 }
@@ -919,9 +935,11 @@ bool Table::SetAttributeIndex(string attrName, int mode){
 		
 		if(n1.compare(n2) == 0){
 			attributes[i].isIdx = mode;
-			//TODO: write into attribute data.
+			InformationWrite_Table();
+			return true;
 		}
 	}
+	return false;
 }
 
 //-----------------------------------------------
@@ -932,11 +950,13 @@ void Table::InformationWrite_Table ()
 	// TableInformationFile
 	fstream* tableInformation= new fstream();
 	tableInformation->open (TableInformationFile, ios::out);
+	
 	*tableInformation << tableName << endl;
-	for (int i=0; i<attributes.size(); i++) {
+	for (int i=0; i<(int)attributes.size(); i++) {
 		*tableInformation << attributes[i].name << endl << attributes[i].type << endl
 			<< attributes[i].varCharSize << endl << attributes[i].isPK << endl << attributes[i].isIdx << endl;
 	}
+	
 }
 void Table::InformationRead_Table (string fileName)
 {
