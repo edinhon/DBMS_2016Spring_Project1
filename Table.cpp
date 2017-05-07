@@ -25,6 +25,7 @@ Table::Table(CreateInst *cinst)
 		}
 		a.varCharSize = cinst->varCharSizes[i];
 		a.from = -1;
+		a.isIdx = 0;
 		
 		attributes.push_back(a);
 	}
