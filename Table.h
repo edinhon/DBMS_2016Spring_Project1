@@ -73,6 +73,12 @@ class Table {
 				//		Check if this Tuple is a empty Tuple.
 				//-----------------
 				bool CheckEmpty();
+
+				//-----------------------------------------------
+				// format the tuple
+				//-----------------------------------------------
+				const char* FormatTuple ();
+
 				
 				string* hidedPK;
 				

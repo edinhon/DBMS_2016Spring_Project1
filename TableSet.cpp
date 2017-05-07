@@ -1171,7 +1171,6 @@ void TableSet::InformationRead_TableSet ()
 	fstream fp;
 	string inputString;
 	fp.open (TableSetIndexFile, ios::in);
-	//cout << "- No Existing Tables\n- Initializing..." << endl;
 	if (!fp) {
 		cout << "- No Existing TableSet\n- Initializing..." << endl;
 		return;

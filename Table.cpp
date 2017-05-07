@@ -137,6 +137,7 @@ void Table::InsertTuple(InsertInst *iinst)
 	Tuple t;
 	t.values = attributes;
 	t.isHidedPK = isHidedPK;
+
 	for (int i = 0 ; i < (int)attributes.size() ; i++){
 		t.values[i].value = NULL;
 	}
@@ -168,6 +169,13 @@ void Table::InsertTuple(InsertInst *iinst)
 	}
 	
 	tuples.push_back(t);
+
+	// Date 05.07.2017
+	const char* formatted = t.FormatTuple ();
+	//cout << "++++I am here :: size = " << strlen(formatted) << ' ' << formatted << endl;
+	Depot* depot = new Depot(tableName.c_str(), Depot::OWRITER);
+	depot->put(to_string(tuples.size()).c_str(), -1, formatted, -1);
+	depot->close();
 }
 
 //-----------------------
@@ -990,4 +998,52 @@ void Table::InformationRead_Table (string fileName)
 	}
 	cout << "Table " << tableName << " created" << endl;
 	tableInformation.close();
+}
+
+// format the tuple to store into disk
+const char* Table::Tuple::FormatTuple () 
+{
+	string* output = new string();
+	int numOfAttributes = values.size();
+	
+	for (int i=0; i<numOfAttributes; i++) {
+		int type = values[i].type;
+		switch (type) {
+			case 0 : {	// int, size = 11
+				string* thisValue = new string();
+
+				if(values[i].value != NULL){
+					for (int k = 0 ; k < (11 - (int)((*(values[i].value)).size())) ; k++){
+						*thisValue += "\4";
+					}
+					*thisValue += *(values[i].value); 
+				} else {
+					for (int k = 0 ; k < 11 ; k++){
+						*thisValue += "\4";
+					}
+				}
+				
+				*output += *thisValue;
+				break;
+			}
+			case 1 : {	// varchar
+				string* thisValue = new string();
+				
+				if(values[i].value != NULL){
+					for (int k = 0 ; k < (values[i].varCharSize - (int)((*(values[i].value)).size())) ; k++){
+						*thisValue += "\4";
+					}
+					*thisValue += *(values[i].value);
+				} else {
+					for (int k = 0 ; k < values[i].varCharSize ; k++){
+						*thisValue += "\4";
+					}
+				}
+				
+				*output += *thisValue;
+				break;
+			}
+		}
+	}
+	return (*output).c_str();
 }

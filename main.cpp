@@ -47,8 +47,8 @@ int main () {
 void DBMS(string fileName)
 {
 	tableSet.InformationRead_TableSet();
-	tableSet.ShowTables ();
-	cout << "*********\n********" << endl;
+//	tableSet.ShowTables ();
+//	cout << "*********\n********" << endl;
 	
 	fstream* fp = new fstream();
 	fp->open (fileName, ios::in);
@@ -63,9 +63,7 @@ void DBMS(string fileName)
 	instructionSet = parser.ParseAllInstructions(fp);
 	
 	while(!instructionSet->isEmpty()){
-		// fetch instructions
 		Instruction instruction = instructionSet->fetchInstruction();
-		//cout << instruction.getInstructionString () << endl;
 		Instruction *inst = parser.ParseSingleInstruction(instruction);
 
 		
