@@ -192,8 +192,8 @@ class Table {
 		
 		Depot *mainData;
 		
-		vector<Depot> depots;
+		//vector<Depot> depots;
 		
-		vector<Villa> villas;
+		//vector<Villa> villas;
 };
 #endif
