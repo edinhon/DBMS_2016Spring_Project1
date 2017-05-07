@@ -1,2 +1,3 @@
 Todo ::
-	difference : makefile / qdbm file
+check
+difference : makefile / qdbm file
