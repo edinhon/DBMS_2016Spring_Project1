@@ -1,6 +1,8 @@
 #ifndef TABLESET_H
 #define TABLESET_H
 
+#define TableSetIndexFile "TableSetIndexFile.idx"
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -116,6 +118,14 @@ class TableSet{
 		//		Delete the table of SELECT.
 		//------------------------------
 		bool DeleteSelectedTable();
+
+		//-----------------------------------------------
+		// a function to store table set information in disk
+		// works like a hash table
+		//-----------------------------------------------
+		void InformationWrite_TableSet ();
+		void InformationRead_TableSet ();
+
 		
 	private:
 		

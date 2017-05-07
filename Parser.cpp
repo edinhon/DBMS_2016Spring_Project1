@@ -25,8 +25,8 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 		Instruction* instruction = new Instruction();
 		inputString.append (";");
 		int length = inputString.size ();
-		cout << "length of instrucion : " << length << endl;
-		cout << inputString << endl;
+		//cout << "length of instrucion : " << length << endl;
+		//cout << inputString << endl;
 		
 		int position = 0;
 		bool quotationFlag = false;	// catch quotation mark
@@ -74,8 +74,8 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 
 		inputString = inputString.substr (0, position);
 		inputString.append ("$");
-		cout << "length of instrucion $ : " << inputString.size() << endl;
-		cout << inputString << endl;
+		//cout << "length of instrucion $ : " << inputString.size() << endl;
+		//cout << inputString << endl;
 
 		char charBuffer[1000];
 		char *trying;
@@ -478,7 +478,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								*/
 								if (catchcomma) {
 									if (tmpt == "'") {
-										cout << "attach :" << *attach << endl;
+										//cout << "attach :" << *attach << endl;
 								
 										tuple->insertedValues.push_back (attach);
 										tuple->insertedValueTypes.push_back(1);

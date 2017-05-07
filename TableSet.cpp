@@ -1147,3 +1147,41 @@ bool TableSet::DeleteSelectedTable()
 	cout << "- Error: The last table is not SELECT Table.\n";
 	return false;
 }
+
+//-----------------------------------------------
+// a function to store table information in disk
+//-----------------------------------------------
+void TableSet::InformationWrite_TableSet () 
+{
+	// TableSetIndexFile
+	ofstream* tablesetInformation= new ofstream();
+	tablesetInformation->open (TableSetIndexFile, ios::out);
+	
+	for (int i=0; i<tableVector.size(); i++) {
+		*tablesetInformation << tableVector[i].returnTableFileName () << endl;
+
+		tableVector[i].InformationWrite_Table ();
+	}
+
+	tablesetInformation->close();
+}
+
+void TableSet::InformationRead_TableSet () 
+{
+	fstream fp;
+	string inputString;
+	fp.open (TableSetIndexFile, ios::in);
+	//cout << "- No Existing Tables\n- Initializing..." << endl;
+	if (!fp) {
+		cout << "- No Existing TableSet\n- Initializing..." << endl;
+		return;
+	}
+
+	while (getline (fp, inputString)) {
+		Table* t = new Table();
+		t->InformationRead_Table(inputString);
+		PushTable(*t);
+	}
+	fp.close();
+}
+

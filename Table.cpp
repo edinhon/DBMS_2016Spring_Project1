@@ -916,3 +916,78 @@ bool Table::SetAttributeIndex(string attrName, int mode){
 	}
 }
 
+//-----------------------------------------------
+// a function to store table information in disk
+//-----------------------------------------------
+void Table::InformationWrite_Table ()
+{
+	// TableInformationFile
+	fstream* tableInformation= new fstream();
+	tableInformation->open (TableInformationFile, ios::out);
+	*tableInformation << tableName << endl;
+	for (int i=0; i<attributes.size(); i++) {
+		*tableInformation << attributes[i].name << endl << attributes[i].type << endl
+			<< attributes[i].varCharSize << endl << attributes[i].isPK << endl << attributes[i].isIdx << endl;
+	}
+}
+void Table::InformationRead_Table (string fileName)
+{
+	string inputString;
+	int step = 0;
+	int numOfAttributes = 0;
+	// TableInformationFile
+	fstream tableInformation;
+	tableInformation.open (fileName, ios::in);
+	if (!tableInformation) {
+		cout << "- No Existing Table\n- Initializing..." << endl;
+		return;
+	}
+	getline (tableInformation, inputString);
+	tableName = inputString;
+
+	while (getline (tableInformation, inputString)) {
+		// dealing with each tuples
+		Attribute* a;
+		switch (step) {
+			case 0 : {
+				a = new Attribute ();
+				a->name = inputString;
+				a->from = -1;
+				step += 1;
+				break;
+			}
+			case 1 : {
+				a->type = atoi(inputString.c_str());
+				step += 1;
+				break;
+			}
+			case 2 : {
+				a->varCharSize = atoi(inputString.c_str());
+				step += 1;
+				break;
+			}
+			case 3 : {
+				if (inputString == "1")
+					a->isPK = true;
+				else
+					a->isPK = false;
+
+				if (a->isPK){
+					PKIndexes.push_back(numOfAttributes);
+					isHidedPK = false;
+				}
+				step += 1;
+				break;
+			}
+			case 4 : {
+				a->isIdx = atoi(inputString.c_str());
+				attributes.push_back(*a);
+				numOfAttributes += 1;
+				step = 0;
+				break;
+			}
+		}
+	}
+	cout << "Table " << tableName << " created" << endl;
+	tableInformation.close();
+}

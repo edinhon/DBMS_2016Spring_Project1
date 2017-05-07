@@ -1,9 +1,12 @@
 #ifndef TABLE_H
 #define TABLE_H
 
+#define TableInformationFile tableName + "InformationFile.idx"
+
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 #include "Instruction.h"
 #include "CreateInst.h"
 #include "InsertInst.h"
@@ -175,6 +178,17 @@ class Table {
 		//	1 = B+ tree, 2 = Hashing.
 		//-----------------------------------------------
 		bool SetAttributeIndex(string, int);
+
+		//-----------------------------------------------
+		// a function to store table information in disk
+		//-----------------------------------------------
+		void InformationWrite_Table ();
+		void InformationRead_Table (string);
+
+		string returnTableFileName () {
+			string tmpt(TableInformationFile);
+			return tmpt;
+		}
 		
 		bool isHidedPK;
 		
@@ -192,8 +206,8 @@ class Table {
 		
 		Depot *mainData;
 		
-		//vector<Depot> depots;
+		vector<Depot*> depots;
 		
-		//vector<Villa> villas;
+		vector<Villa*> villas;
 };
 #endif
