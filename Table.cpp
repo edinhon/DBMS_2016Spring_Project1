@@ -864,32 +864,53 @@ void Table::Sum_ShowTable(SelectInst* sinst)
 }
 
 //-----------------------------------------------
-// bool CreateIndex(string[] attrName, int mode)
+// bool CreateIndex(string attrName, int mode)
 //		Create index structure, parameter mode implies
 //	which structure is used, 1 = B+ tree, 2 = Hashing.
 //-----------------------------------------------
-bool CreateIndex(string[] attrName, int mode){
+bool CreateIndex(string attrName, int mode){
 	switch(mode){
 		case 1:{
-			string idxName = "IDX_BPtree_" + tableName + "_";
-			for(int i = 0 ; i < sizeof(attrName)/sizeof(*attrName) ; i++){
-				idxName += attrName[i];
-			}
+			string idxName = "IDX_BPtree_" + tableName + "_" + attrName;
+			
+			SetAttributeIndex(attrName, mode);
 			
 			Depot depot(idxName, Depot::OWRITER | Depot::OCREAT);
 			
-			
+			//TODO:Serialize data to put into Depot.
 			break;
 		}
 		case 2:{
-			string idxName = "IDX_Hash_" + tableName + "_";
-			for(int i = 0 ; i < sizeof(attrName)/sizeof(*attrName) ; i++){
-				idxName += attrName[i];
-			}
+			string idxName = "IDX_Hash_" + tableName + "_" + attrName;
+			
+			SetAttributeIndex(attrName, mode);
+			
 			break;
 		}
 		default:{
 			
+		}
+	}
+}
+
+//-----------------------------------------------
+// bool SetAttributeIndex(string attrName, int mode)
+//		Set attribute isIdx and write into data, 
+//	parameter mode implies which structure is used, 
+//	1 = B+ tree, 2 = Hashing.
+//-----------------------------------------------
+bool SetAttributeIndex(string attrName, int mode){
+	
+	string n1 = attrName;
+	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
+	
+	for(int i = 0 ; i < (int)attributes.size() ; i++){
+		string n2 = attributes[i].name;
+		transform(n2.begin(), n2.end(), n2.begin(),::tolower);
+		
+		if(n1.compare(n2) == 0){
+			attributes[i].isIdx = mode;
+			//TODO: write into attribute data.
 		}
 	}
 }

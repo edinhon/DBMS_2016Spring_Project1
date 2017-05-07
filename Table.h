@@ -26,6 +26,7 @@ class Table {
 				string *value;
 				bool isPK;
 				int from;	//Only use in SELECT
+				int isIdx;	//Only use in INDEX, 0 = None, 1 = BP, 2 = Hash
 				Attribute& operator= (Attribute const &that){
 					if (this != &that) {
 						name = that.name;
@@ -33,7 +34,8 @@ class Table {
 						varCharSize = that.varCharSize;
 						value = that.value;
 						isPK = that.isPK;
-						from = from;
+						from = that.from;
+						isIdx = that.isIdx;
 					}
 					return *this;
 				}
@@ -160,11 +162,19 @@ class Table {
 		void Sum_ShowTable(SelectInst*);
 		
 		//-----------------------------------------------
-		// bool CreateIndex(string[] attrName, int mode)
+		// bool CreateIndex(string attrName, int mode)
 		//		Create index structure, parameter mode implies
 		//	which structure is used, 1 = B+ tree, 2 = Hashing.
 		//-----------------------------------------------
-		bool CreateIndex(string[], int);
+		bool CreateIndex(string, int);
+		
+		//-----------------------------------------------
+		// bool SetAttributeIndex(string attrName, int mode)
+		//		Set attribute isIdx and write into data, 
+		//	parameter mode implies which structure is used, 
+		//	1 = B+ tree, 2 = Hashing.
+		//-----------------------------------------------
+		bool SetAttributeIndex(string, int);
 		
 		bool isHidedPK;
 		
