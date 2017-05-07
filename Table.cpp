@@ -868,14 +868,14 @@ void Table::Sum_ShowTable(SelectInst* sinst)
 //		Create index structure, parameter mode implies
 //	which structure is used, 1 = B+ tree, 2 = Hashing.
 //-----------------------------------------------
-bool CreateIndex(string attrName, int mode){
+bool Table::CreateIndex(string attrName, int mode){
 	switch(mode){
 		case 1:{
 			string idxName = "IDX_BPtree_" + tableName + "_" + attrName;
 			
 			SetAttributeIndex(attrName, mode);
 			
-			Depot depot(idxName, Depot::OWRITER | Depot::OCREAT);
+			//Depot depot(idxName, Depot::OWRITER | Depot::OCREAT);
 			
 			//TODO:Serialize data to put into Depot.
 			break;
@@ -899,7 +899,7 @@ bool CreateIndex(string attrName, int mode){
 //	parameter mode implies which structure is used, 
 //	1 = B+ tree, 2 = Hashing.
 //-----------------------------------------------
-bool SetAttributeIndex(string attrName, int mode){
+bool Table::SetAttributeIndex(string attrName, int mode){
 	
 	string n1 = attrName;
 	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
