@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <vector>
 #include <fstream>
 #include "Instruction.h"
@@ -183,12 +184,12 @@ class Table {
 		bool CreateIndex(string, int);
 		
 		//-----------------------------------------------
-		// bool SetAttributeIndex(string attrName, int mode)
+		// int SetAttributeIndex(string attrName, int mode)
 		//		Set attribute isIdx and write into data, 
 		//	parameter mode implies which structure is used, 
 		//	1 = B+ tree, 2 = Hashing.
 		//-----------------------------------------------
-		bool SetAttributeIndex(string, int);
+		int SetAttributeIndex(string, int);
 
 		//-----------------------------------------------
 		// a function to store/write table information in disk
@@ -219,11 +220,5 @@ class Table {
 		string tableName;
 		
 		vector<int> PKIndexes;
-		
-		Depot *mainData;
-		
-		vector<Depot*> depots;
-		
-		vector<Villa*> villas;
 };
 #endif

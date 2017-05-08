@@ -11,7 +11,8 @@ Table::Table(CreateInst *cinst)
 {
 	tableName = cinst->tableName;
 	
-	mainData = new Depot(tableName.c_str(), Depot::OWRITER | Depot::OCREAT);
+	Depot *depot = new Depot(tableName.c_str(), Depot::OWRITER | Depot::OCREAT);
+	depot->close();
 	
 	isHidedPK = true;
 	for(int i = 0 ; i < (int)cinst->attributeNames.size() ; i++){
@@ -173,18 +174,10 @@ void Table::InsertTuple(InsertInst *iinst)
 	// Date 05.07.2017
 	//Write into disk
 	const char* formatted = t.FormatTuple ();
-	//cout << formatted << endl;
-	
 	Depot* depot = new Depot(tableName.c_str(), Depot::OWRITER);
 	depot->put(to_string(tuples.size()).c_str(), -1, formatted, -1);
 	depot->close();
 	
-	//TEST READ
-	depot = new Depot(tableName.c_str(), Depot::OREADER);
-	char* tmp = depot->get(to_string(tuples.size()).c_str(), -1);
-	//cout << tmp << endl;
-	depot->close();
-	//TEST END
 }
 
 //-----------------------
@@ -891,41 +884,56 @@ bool Table::CreateIndex(string attrName, int mode){
 		case 1:{
 			string idxName = "IDX_BPtree_" + tableName + "_" + attrName;
 			
-			if(SetAttributeIndex(attrName, mode)){
+			if(ContainAttribute(attrName)){
 				
+				int attrIdx = SetAttributeIndex(attrName, mode);
+				if(attrIdx == -1) 
+					return false;
+				
+				Depot depot(idxName.c_str(), Depot::OWRITER | Depot::OCREAT);
+				for(int i = 0 ; i < (int)tuples.size() ; i++){
+					const char* formatted = tuples[i].FormatTuple ();
+					depot.put(tuples[i].values[attrIdx].value->c_str(), -1, formatted, -1, Depot::DKEEP);
+				}
+				depot.close();
 			}
-			
-			//Depot depot(idxName, Depot::OWRITER | Depot::OCREAT);
-			
-			//TODO:Serialize data to put into Depot.
 			return true;
 			break;
 		}
 		case 2:{
 			string idxName = "IDX_Hash_" + tableName + "_" + attrName;
 			
-			if(SetAttributeIndex(attrName, mode)){
+			if(ContainAttribute(attrName)){
 				
+				int attrIdx = SetAttributeIndex(attrName, mode);
+				if(attrIdx == -1) 
+					return false;
+				
+				Villa villa(idxName.c_str(), Villa::OWRITER | Villa::OCREAT);
+				for(int i = 0 ; i < (int)tuples.size() ; i++){
+					const char* formatted = tuples[i].FormatTuple ();
+					villa.put(tuples[i].values[attrIdx].value->c_str(), -1, formatted, -1);
+				}
+				villa.close();
 			}
-			
 			return true;
 			break;
 		}
 		default:{
-			
-			return true;
+			cout << "- Error: Index type error.\n";
+			return false;
 			break;
 		}
 	}
 }
 
 //-----------------------------------------------
-// bool SetAttributeIndex(string attrName, int mode)
+// int SetAttributeIndex(string attrName, int mode)
 //		Set attribute isIdx and write into data, 
 //	parameter mode implies which structure is used, 
-//	1 = B+ tree, 2 = Hashing.
+//	1 = B+ tree, 2 = Hashing, and return attribute index.
 //-----------------------------------------------
-bool Table::SetAttributeIndex(string attrName, int mode){
+int Table::SetAttributeIndex(string attrName, int mode){
 	
 	string n1 = attrName;
 	transform(n1.begin(), n1.end(), n1.begin(),::tolower);
@@ -937,10 +945,10 @@ bool Table::SetAttributeIndex(string attrName, int mode){
 		if(n1.compare(n2) == 0){
 			attributes[i].isIdx = mode;
 			InformationWrite_Table();
-			return true;
+			return i;
 		}
 	}
-	return false;
+	return -1;
 }
 
 //-----------------------------------------------
@@ -1044,10 +1052,12 @@ void Table::LoadTable ()
 			tuples.push_back (*t);
 			key = depot->iternext ();
 		} catch (Depot_error& e) {
-			//cerr << e << endl;
+			cerr << e << endl;
 			return;
 		}
 	}
+	
+	depot->close();
 }
 
 
