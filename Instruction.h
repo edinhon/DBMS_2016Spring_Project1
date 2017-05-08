@@ -4,6 +4,7 @@
 #define CREATE_TABLE 0
 #define INSERT_TUPLE 1
 #define SELECTION 2
+#define CREATE_INDEX 3
 
 #include <iostream>
 #include <string>

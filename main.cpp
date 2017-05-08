@@ -6,13 +6,14 @@
 #include "CreateInst.h"
 #include "InsertInst.h"
 #include "SelectInst.h"
+#include "CreateIndexInst.h"
 #include "Table.h"
 #include "TableSet.h"
 #include <algorithm>
 
 using namespace std;
 
-enum InstructionType {CREATE, INSERT, SELECT};
+enum InstructionType {CREATE, INSERT, SELECT, CREATEIDX};
 
 void DBMS(string fileName);
 bool ChooseInputFileOrNot();
@@ -114,6 +115,17 @@ void DBMS(string fileName)
 					}
 				}
 				//cout << "end select" << endl;
+				break;
+			}
+			case CREATEIDX :{
+				CreateIndexInst *ciinst = dynamic_cast<CreateIndexInst*>(inst);
+				
+				int tableIndex = tableSet.SearchTable(ciinst->tableName);
+				if (tableIndex != -1){
+					Table *t = tableSet.GetTable(tableIndex);
+					t->CreateIndex(ciinst);
+				}
+				
 				break;
 			}
 		}

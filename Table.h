@@ -12,6 +12,7 @@
 #include "CreateInst.h"
 #include "InsertInst.h"
 #include "SelectInst.h"
+#include "CreateIndexInst.h"
 #include <xadbm.h>
 #include <xdepot.h>
 #include <xvilla.h>
@@ -164,8 +165,6 @@ class Table {
 		//-------------------------------------------------
 		bool CopyValuesToTuple(Table*, int, int);
 		
-		vector<Tuple> tuples;
-		
 		string getTableName();
 
 		void ShowTable();
@@ -177,11 +176,10 @@ class Table {
 		void Sum_ShowTable(SelectInst*);
 		
 		//-----------------------------------------------
-		// bool CreateIndex(string attrName, int mode)
-		//		Create index structure, parameter mode implies
-		//	which structure is used, 1 = B+ tree, 2 = Hashing.
+		// bool CreateIndex(CreateIndexInst* ciinst)
+		//		Create index structure.
 		//-----------------------------------------------
-		bool CreateIndex(string, int);
+		bool CreateIndex(CreateIndexInst*);
 		
 		//-----------------------------------------------
 		// int SetAttributeIndex(string attrName, int mode)
@@ -208,6 +206,8 @@ class Table {
 		}
 		
 		bool isHidedPK;
+		
+		vector<Tuple> tuples;
 		
 		friend class TableSet;
 		

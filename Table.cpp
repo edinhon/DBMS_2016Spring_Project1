@@ -875,46 +875,50 @@ void Table::Sum_ShowTable(SelectInst* sinst)
 }
 
 //-----------------------------------------------
-// bool CreateIndex(string attrName, int mode)
-//		Create index structure, parameter mode implies
-//	which structure is used, 1 = B+ tree, 2 = Hashing.
+// bool CreateIndex(CreateIndexInst* ciinst)
+//		Create index structure.
 //-----------------------------------------------
-bool Table::CreateIndex(string attrName, int mode){
-	switch(mode){
+bool Table::CreateIndex(CreateIndexInst* ciinst){
+	switch(ciinst->IdxType){
 		case 1:{
-			string idxName = "IDX_BPtree_" + tableName + "_" + attrName;
-			
-			if(ContainAttribute(attrName)){
+			for(int k = 0 ; k < (int)ciinst->attrName.size() ; k++){
+				string idxName = "IDX_BPtree_" + tableName + "_" + ciinst->attrName[k];
 				
-				int attrIdx = SetAttributeIndex(attrName, mode);
-				if(attrIdx == -1) 
-					return false;
-				
-				Depot depot(idxName.c_str(), Depot::OWRITER | Depot::OCREAT);
-				for(int i = 0 ; i < (int)tuples.size() ; i++){
-					const char* formatted = tuples[i].FormatTuple ();
-					depot.put(tuples[i].values[attrIdx].value->c_str(), -1, formatted, -1, Depot::DKEEP);
+				if(ContainAttribute(ciinst->attrName[k])){
+					
+					int attrIdx = SetAttributeIndex(ciinst->attrName[k], ciinst->IdxType);
+					if(attrIdx == -1) 
+						return false;
+					
+					Depot depot(idxName.c_str(), Depot::OWRITER | Depot::OCREAT);
+					for(int i = 0 ; i < (int)tuples.size() ; i++){
+						const char* formatted = tuples[i].FormatTuple ();
+						depot.put(tuples[i].values[attrIdx].value->c_str(), -1, formatted, -1, Depot::DKEEP);
+					}
+					depot.close();
 				}
-				depot.close();
 			}
+			
 			return true;
 			break;
 		}
 		case 2:{
-			string idxName = "IDX_Hash_" + tableName + "_" + attrName;
-			
-			if(ContainAttribute(attrName)){
+			for(int k = 0 ; k < (int)ciinst->attrName.size() ; k++){
+				string idxName = "IDX_Hash_" + tableName + "_" + ciinst->attrName[k];
 				
-				int attrIdx = SetAttributeIndex(attrName, mode);
-				if(attrIdx == -1) 
-					return false;
-				
-				Villa villa(idxName.c_str(), Villa::OWRITER | Villa::OCREAT);
-				for(int i = 0 ; i < (int)tuples.size() ; i++){
-					const char* formatted = tuples[i].FormatTuple ();
-					villa.put(tuples[i].values[attrIdx].value->c_str(), -1, formatted, -1);
+				if(ContainAttribute(ciinst->attrName[k])){
+					
+					int attrIdx = SetAttributeIndex(ciinst->attrName[k], ciinst->IdxType);
+					if(attrIdx == -1) 
+						return false;
+					
+					Villa villa(idxName.c_str(), Villa::OWRITER | Villa::OCREAT);
+					for(int i = 0 ; i < (int)tuples.size() ; i++){
+						const char* formatted = tuples[i].FormatTuple ();
+						villa.put(tuples[i].values[attrIdx].value->c_str(), -1, formatted, -1);
+					}
+					villa.close();
 				}
-				villa.close();
 			}
 			return true;
 			break;
@@ -1126,7 +1130,6 @@ void Table::Tuple::LoadTuple (char* input)
 {
 	char* trying;
 	trying = strtok (input,"\4");
-	int length = values.size();
 	
 	int i = 0;
 	while (trying != NULL) { 
