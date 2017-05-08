@@ -1185,3 +1185,10 @@ void TableSet::InformationRead_TableSet ()
 	cout << "- Start Database" << endl;
 }
 
+void TableSet::LoadTableSet ()
+{
+	for (int i=0; i<(int)tableVector.size(); i++) {
+		tableVector[i].LoadTable ();
+	}
+	cout << "- Finish Loading Table" << endl;
+}

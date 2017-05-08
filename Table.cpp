@@ -173,6 +173,7 @@ void Table::InsertTuple(InsertInst *iinst)
 	// Date 05.07.2017
 	//Write into disk
 	const char* formatted = t.FormatTuple ();
+	//cout << formatted << endl;
 	
 	Depot* depot = new Depot(tableName.c_str(), Depot::OWRITER);
 	depot->put(to_string(tuples.size()).c_str(), -1, formatted, -1);
@@ -960,6 +961,7 @@ void Table::InformationWrite_Table ()
 }
 void Table::InformationRead_Table (string fileName)
 {
+	Attribute* a;
 	string inputString;
 	int step = 0;
 	int numOfAttributes = 0;
@@ -975,7 +977,6 @@ void Table::InformationRead_Table (string fileName)
 
 	while (getline (tableInformation, inputString)) {
 		// dealing with each tuples
-		Attribute* a;
 		switch (step) {
 			case 0 : {
 				a = new Attribute ();
@@ -1020,13 +1021,48 @@ void Table::InformationRead_Table (string fileName)
 	tableInformation.close();
 }
 
+//-----------------------------------------------
+// a function to load table information
+//-----------------------------------------------
+void Table::LoadTable () 
+{
+	char* key;
+	char* loadedVal;
+	Depot* depot = new Depot(tableName.c_str(), Depot::OREADER);
+
+	depot->iterinit();
+
+	key = depot->iternext();
+	while(1){
+		try {
+			loadedVal = depot->get(key, -1);
+
+			//cout << loadedVal << endl;
+			Tuple *t = new Tuple ();
+			t->values = attributes;
+			t->LoadTuple (loadedVal);
+			tuples.push_back (*t);
+			key = depot->iternext ();
+		} catch (Depot_error& e) {
+			cerr << e << endl;
+			return;
+		}
+	}
+}
+
+
 // format the tuple to store into disk
 const char* Table::Tuple::FormatTuple () 
 {
 	string* output = new string();
 	int numOfAttributes = values.size();
-	
+	*output += "\4";
 	for (int i=0; i<numOfAttributes; i++) {
+		
+		//cout << *(values[i].value) << endl;
+		*output += *(values[i].value); 
+		*output += "\4";
+		/*
 		int type = values[i].type;
 		switch (type) {
 			case 0 : {	// int, size = 11
@@ -1064,6 +1100,25 @@ const char* Table::Tuple::FormatTuple ()
 				break;
 			}
 		}
+	*/	
 	}
+	
+	//cout << output << endl;
 	return (*output).c_str();
+}
+
+void Table::Tuple::LoadTuple (char* input)
+{
+	char* trying;
+	trying = strtok (input,"\4");
+	int length = values.size();
+	
+	int i = 0;
+	while (trying != NULL) { 
+		string *tmpt = new string (trying);
+		values[i].value = tmpt;
+		//cout << *(values[i].value) << endl;
+		i += 1;
+	    trying = strtok (NULL, "\4");
+	}
 }

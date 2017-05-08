@@ -47,8 +47,8 @@ int main () {
 void DBMS(string fileName)
 {
 	tableSet.InformationRead_TableSet();
+	tableSet.LoadTableSet ();
 //	tableSet.ShowTables ();
-//	cout << "*********\n********" << endl;
 	
 	fstream* fp = new fstream();
 	fp->open (fileName, ios::in);

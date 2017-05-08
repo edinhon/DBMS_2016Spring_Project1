@@ -126,6 +126,8 @@ class TableSet{
 		void InformationWrite_TableSet ();
 		void InformationRead_TableSet ();
 
+		void LoadTableSet ();
+
 		
 	private:
 		

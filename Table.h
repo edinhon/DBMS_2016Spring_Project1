@@ -79,6 +79,11 @@ class Table {
 				//-----------------------------------------------
 				const char* FormatTuple ();
 
+				//-----------------------------------------------
+				// load tuple from disk
+				//-----------------------------------------------
+				void LoadTuple (char*);
+
 				
 				string* hidedPK;
 				
@@ -186,10 +191,15 @@ class Table {
 		bool SetAttributeIndex(string, int);
 
 		//-----------------------------------------------
-		// a function to store table information in disk
+		// a function to store/write table information in disk
 		//-----------------------------------------------
 		void InformationWrite_Table ();
 		void InformationRead_Table (string);
+
+		//-----------------------------------------------
+		// a function to load table information
+		//-----------------------------------------------
+		void LoadTable ();		
 
 		string returnTableFileName () {
 			string tmpt(TableInformationFile);
