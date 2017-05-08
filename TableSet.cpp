@@ -225,11 +225,10 @@ bool TableSet::SelectTable(SelectInst* sinst)
 		Table* t = GetTable(sinst->tableNames[i]);
 		selectedTables.push_back(t);
 	}
-	
+
 	//檢查合法性
 	if(!CheckSelectInst(sinst, selectedTables))
 		return false;
-	
 	
 	Table *returnT = new Table();
 	vector<int> *TIndex = new vector<int>((int)sinst->selectedAttributesNames.size(), -1);
@@ -243,6 +242,7 @@ bool TableSet::SelectTable(SelectInst* sinst)
 		}*/
 		if(!SELECT_InsertTuples(returnT, sinst, selectedTables, TIndex))
 			return false;
+		//cout << "hi" << endl;
 	} 
 	else {
 		if(!SELECT_InsertAttributes(returnT, sinst, selectedTables, TIndex))
@@ -341,7 +341,7 @@ bool TableSet::SELECT_InsertAttributes(Table* t, SelectInst* sinst, vector<Table
 bool TableSet::SELECT_InsertTuples(Table* t, SelectInst* sinst, vector<Table*> selectedTables, vector<int>* TIndex)
 {
 	if (selectedTables.size() == 1){
-		
+
 		for(int i = 0 ; i < (int)selectedTables[0]->tuples.size() ; i++){
 			
 			int tupleIndex = t->InsertEmptyTuple();

@@ -102,13 +102,13 @@ void DBMS(string fileName)
 				if(tableSet.ContainTables(sinst->tableNames)){
 					if(tableSet.SelectTable(sinst)){
 						Table *t = tableSet.GetSelectedTable();
-						//t->ShowTable(sinst);
+						t->ShowTable(sinst);
 						
 						if(sinst->isCOUNT){
-							//t->Count_ShowTable(sinst);
+							t->Count_ShowTable(sinst);
 						}
 						if(sinst->isSUM){
-							//t->Sum_ShowTable(sinst);
+							t->Sum_ShowTable(sinst);
 						}
 						tableSet.DeleteSelectedTable();
 					}
@@ -118,11 +118,11 @@ void DBMS(string fileName)
 			}
 		}
 		
-		//cout << endl << "============================" << endl;
+		cout << endl << "============================" << endl;
 		
 		instructionSet->popInstruction ();
 	}
-
+	//tableSet.ShowTables ();
 	fp->close ();
 	tableSet.InformationWrite_TableSet ();
 }
