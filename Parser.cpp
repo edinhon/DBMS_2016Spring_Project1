@@ -479,7 +479,6 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								if (catchcomma) {
 									if (tmpt == "'") {
 										//cout << "attach :" << *attach << endl;
-								
 										tuple->insertedValues.push_back (attach);
 										tuple->insertedValueTypes.push_back(1);
 										instruction.popTermTokens();

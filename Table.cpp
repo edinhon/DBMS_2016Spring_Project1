@@ -1060,7 +1060,12 @@ const char* Table::Tuple::FormatTuple ()
 	for (int i=0; i<numOfAttributes; i++) {
 		
 		//cout << *(values[i].value) << endl;
-		*output += *(values[i].value); 
+		if (*(values[i].value) == "") {
+			//cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+			*output += "____++++====";
+		}
+		else
+			*output += *(values[i].value); 
 		*output += "\4";
 		/*
 		int type = values[i].type;
@@ -1116,8 +1121,13 @@ void Table::Tuple::LoadTuple (char* input)
 	int i = 0;
 	while (trying != NULL) { 
 		string *tmpt = new string (trying);
-		values[i].value = tmpt;
-		//cout << *(values[i].value) << endl;
+		if (*tmpt == "____++++===="){
+			values[i].value = new string ("");
+			//cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+		}
+		else 
+			values[i].value = tmpt;
+		cout << *(values[i].value) << endl;
 		i += 1;
 	    trying = strtok (NULL, "\4");
 	}
