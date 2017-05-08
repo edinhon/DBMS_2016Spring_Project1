@@ -1044,7 +1044,7 @@ void Table::LoadTable ()
 			tuples.push_back (*t);
 			key = depot->iternext ();
 		} catch (Depot_error& e) {
-			cerr << e << endl;
+			//cerr << e << endl;
 			return;
 		}
 	}
