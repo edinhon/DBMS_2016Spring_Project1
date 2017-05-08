@@ -63,15 +63,15 @@ void DBMS(string fileName)
 	instructionSet = parser.ParseAllInstructions(fp);
 	
 	while(!instructionSet->isEmpty()){
+		
 		Instruction instruction = instructionSet->fetchInstruction();
 		Instruction *inst = parser.ParseSingleInstruction(instruction);
-
 		
 		if (!inst->isValid) {
 			instructionSet->popInstruction();
 			continue;
 		}
-
+		
 		switch(inst->type){
 			case CREATE :{
 				CreateInst *cinst = dynamic_cast<CreateInst*>(inst);

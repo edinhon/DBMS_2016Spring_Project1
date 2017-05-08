@@ -998,6 +998,8 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 					}
 					if (!aliasExists) {
+						//alias not exists, but it still need to push into selectedAttributesTables.
+						select->selectedAttributesTables.push_back (startTableNames[i]);
 						cout << "in start, no such alias as : " << startTableNames[i] << endl;
 					}
 				} else {
@@ -1085,7 +1087,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				if (select->selectedAttributesNames[i] == "*") {
 					for (int j=0; j<(int)select->tableNames.size(); j++) {
 						//cout << "in *************" << endl;
-						//cout << select->selectedAttributesTables[i] << ' ' <<  select->tableNames[j] << endl;
+						//cout << select->selectedAttributesTables[i] << " " <<  select->tableNames[j] << endl;
 						if (select->selectedAttributesTables[i] == select->tableNames[j]) {
 							//starFlag = true;
 							select->isSelectAllAttrs[j] = true;
