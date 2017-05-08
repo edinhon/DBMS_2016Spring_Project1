@@ -181,7 +181,7 @@ void Table::InsertTuple(InsertInst *iinst)
 	//TEST READ
 	depot = new Depot(tableName.c_str(), Depot::OREADER);
 	char* tmp = depot->get(to_string(tuples.size()).c_str(), -1);
-	cout << tmp << endl;
+	//cout << tmp << endl;
 	depot->close();
 	//TEST END
 }
@@ -1016,7 +1016,7 @@ void Table::InformationRead_Table (string fileName)
 			}
 		}
 	}
-	cout << "Table " << tableName << " created" << endl;
+	//cout << "Table " << tableName << " created" << endl;
 	tableInformation.close();
 }
 

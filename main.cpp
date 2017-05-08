@@ -80,8 +80,8 @@ void DBMS(string fileName)
 					Table t(cinst);
 					tableSet.PushTable(t);
 				}
-				tableSet.ShowTables();
-				cout << endl << "============================" << endl;
+				//tableSet.ShowTables();
+				//cout << endl << "============================" << endl;
 				break;
 			}
 			case INSERT :{

@@ -1175,12 +1175,13 @@ void TableSet::InformationRead_TableSet ()
 		cout << "- No Existing TableSet\n- Initializing..." << endl;
 		return;
 	}
-
+	cout << "- Loading Existing TableSet..." << endl;
 	while (getline (fp, inputString)) {
 		Table* t = new Table();
 		t->InformationRead_Table(inputString);
 		PushTable(*t);
 	}
 	fp.close();
+	cout << "- Start Database" << endl;
 }
 
