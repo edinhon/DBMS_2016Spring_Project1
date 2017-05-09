@@ -214,7 +214,6 @@ void Table::InsertTuple(InsertInst *iinst)
 				break;
 			}
 		}
-		cout << i << endl;
 	}
 }
 
@@ -264,7 +263,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 		
 		//Check NULL value of PK.
 		for (int i = 0 ; i < (int)PKIndexes.size() ; i++){
-			if (iinst->insertedValueTypes[i] == -1){
+			if (iinst->insertedValueTypes[PKIndexes[i]] == -1){
 				cout << "- Error: There exists NULL value in PK.\n";
 				return false;
 			}
@@ -286,7 +285,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 				}
 			} else {
 				for(int j = 0 ; j < (int)PKIndexes.size() ; j++){
-					if((*(tuples[i].values[j].value)).compare(*(iinst->insertedValues[j])) == 0){
+					if((*(tuples[i].values[PKIndexes[j]].value)).compare(*(iinst->insertedValues[PKIndexes[j]])) == 0){
 						cout << "- Error: There exists duplicate PK value.\n";
 						return false;
 					}
@@ -350,18 +349,18 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 			bool nullPKChecker;
 			for (int i = 0 ; i < (int)PKIndexes.size() ; i++){
 				nullPKChecker = false;
-				string n1 = attributes[i].name;
+				string n1 = attributes[PKIndexes[i]].name;
 				transform(n1.begin(), n1.end(), n1.begin(), ::tolower);
 				for (int j = 0 ; j < (int)iinst->insertedAttributes.size() ; j++){
-					string n2 = iinst->insertedAttributes[i];
+					string n2 = iinst->insertedAttributes[PKIndexes[i]];
 					transform(n2.begin(), n2.end(), n2.begin(), ::tolower);
 					if(n1.compare(n2) == 0){
 						//For NULL
-						if(iinst->insertedValueTypes[i] != -1)
+						if(iinst->insertedValueTypes[PKIndexes[i]] != -1)
 							nullPKChecker = true;
 						//For duplicate
 						for (int k = 0 ; k < (int)tuples.size() ; k++){
-							if((*(tuples[k].values[i].value)).compare(*(iinst->insertedValues[j])) == 0){
+							if((*(tuples[k].values[PKIndexes[i]].value)).compare(*(iinst->insertedValues[j])) == 0){
 								cout << "- Error: There exists duplicate PK value.\n";
 								return false;
 							}
