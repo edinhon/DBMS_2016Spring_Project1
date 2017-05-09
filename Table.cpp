@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <sstream>
+#include <cstddef>
 #include "Table.h"
 
 //--------------
@@ -1029,12 +1030,12 @@ void Table::InformationRead_Table (string fileName)
 			}
 		}
 	}
-	//cout << "Table " << tableName << " created" << endl;
 	tableInformation.close();
 }
 
 //-----------------------------------------------
-// a function to load table information
+// void LoadTuple()
+//		Load database data from dbfile.
 //-----------------------------------------------
 void Table::LoadTable () 
 {
@@ -1048,12 +1049,12 @@ void Table::LoadTable ()
 	while(1){
 		try {
 			loadedVal = depot->get(key, -1);
-
-			//cout << loadedVal << endl;
+			
 			Tuple *t = new Tuple ();
 			t->values = attributes;
 			t->LoadTuple (loadedVal);
 			tuples.push_back (*t);
+			
 			key = depot->iternext ();
 		} catch (Depot_error& e) {
 			cerr << e << endl;
@@ -1070,10 +1071,11 @@ const char* Table::Tuple::FormatTuple ()
 {
 	string* output = new string();
 	int numOfAttributes = values.size();
-	*output += "\4";
+	//*output += "\4";
 	for (int i=0; i<numOfAttributes; i++) {
 		
 		//cout << *(values[i].value) << endl;
+		/*
 		if (*(values[i].value) == "") {
 			//cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 			*output += "____++++====";
@@ -1081,53 +1083,56 @@ const char* Table::Tuple::FormatTuple ()
 		else
 			*output += *(values[i].value); 
 		*output += "\4";
-		/*
+		*/
 		int type = values[i].type;
 		switch (type) {
 			case 0 : {	// int, size = 11
-				string* thisValue = new string();
+				string thisValue;
 
 				if(values[i].value != NULL){
 					for (int k = 0 ; k < (11 - (int)((*(values[i].value)).size())) ; k++){
-						*thisValue += "\4";
+						thisValue += "\4";
 					}
-					*thisValue += *(values[i].value); 
+					thisValue += *(values[i].value);
+					thisValue += "1";
 				} else {
 					for (int k = 0 ; k < 11 ; k++){
-						*thisValue += "\4";
+						thisValue += "\4";
 					}
+					thisValue += "0";
 				}
 				
-				*output += *thisValue;
+				*output += thisValue;
 				break;
 			}
 			case 1 : {	// varchar
-				string* thisValue = new string();
+				string thisValue;
 				
 				if(values[i].value != NULL){
 					for (int k = 0 ; k < (values[i].varCharSize - (int)((*(values[i].value)).size())) ; k++){
-						*thisValue += "\4";
+						thisValue += "\4";
 					}
-					*thisValue += *(values[i].value);
+					thisValue += *(values[i].value);
+					thisValue += "1";
 				} else {
 					for (int k = 0 ; k < values[i].varCharSize ; k++){
-						*thisValue += "\4";
+						thisValue += "\4";
 					}
+					thisValue += "0";
 				}
 				
-				*output += *thisValue;
+				*output += thisValue;
 				break;
 			}
 		}
-	*/	
 	}
 	
-	//cout << output << endl;
 	return (*output).c_str();
 }
 
 void Table::Tuple::LoadTuple (char* input)
 {
+	/*
 	char* trying;
 	trying = strtok (input,"\4");
 	
@@ -1144,4 +1149,53 @@ void Table::Tuple::LoadTuple (char* input)
 		i += 1;
 	    trying = strtok (NULL, "\4");
 	}
+	*/
+	int readPtr = 0;
+	string inputStr(input);
+	
+	for(int i = 0 ; i < (int)values.size() ; i++){
+		switch(values[i].type){
+			case 0: {
+				//Integer
+				string tmp = inputStr.substr(readPtr, 11);
+				readPtr += 11;
+				string nullByte = inputStr.substr(readPtr, 1);
+				readPtr += 1;
+				
+				if(nullByte == "0"){
+					values[i].value = NULL;
+				} else if (nullByte == "1"){
+					size_t pos = tmp.find_first_not_of("\4");
+					if(pos == string::npos){
+						values[i].value = new string("");
+					} else {
+						values[i].value = new string(tmp.substr(pos));
+					}
+				}
+				
+				break;
+			}
+			case 1: {
+				//String
+				string tmp = inputStr.substr(readPtr, values[i].varCharSize);
+				readPtr += values[i].varCharSize;
+				string nullByte = inputStr.substr(readPtr, 1);
+				readPtr += 1;
+				
+				if(nullByte == "0"){
+					values[i].value = NULL;
+				} else if (nullByte == "1"){
+					size_t pos = tmp.find_first_not_of("\4");
+					if(pos == string::npos){
+						values[i].value = new string("");
+					} else {
+						values[i].value = new string(tmp.substr(pos));
+					}
+				}
+				
+				break;
+			}
+		}
+	}
+	
 }
