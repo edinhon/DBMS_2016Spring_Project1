@@ -20,8 +20,6 @@ class CreateIndexInst : public Instruction {
 		vector<string> attrName;
 		
 		int IdxType;	//1 = B+ tree, 2 = Hash
-
-		bool isValid;
 };
 
 #endif

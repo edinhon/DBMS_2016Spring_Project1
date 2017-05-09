@@ -90,60 +90,6 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 		    trying = strtok (NULL, "$");
 		}
 
-		/* 
-		string slicedString = "\0";
-		char charBuffer[1000];
-		char* trying;
-
-		strcpy(charBuffer, inputString.c_str());
-		
-		trying = strtok (charBuffer," \n\t");
-
-		while (trying != NULL) { 
-			string stringBuffer (trying);
-			
-			queue<string> parse;
-			int flag = 0;
-			int p = stringBuffer.size();
-			int j=0;
-			bool alreadyPushed = false;
-			while (j < p) {
-				if (!isalpha(stringBuffer[j])) {
-					if (!isdigit(stringBuffer[j])) {
-						if (flag == j) {
-							parse.push (stringBuffer.substr(j, 1));
-							alreadyPushed = true;
-							flag = j+1;
-						}
-						else {
-							parse.push (stringBuffer.substr(flag, j-flag));
-							parse.push (stringBuffer.substr(j, 1));
-							alreadyPushed = true;
-							flag = j+1;
-						}
-					} else {
-						if (alreadyPushed)
-							flag = j;
-						alreadyPushed = false;
-					}
-				} else {
-					alreadyPushed = false;
-				}
-				j++;
-			}
-			if (!alreadyPushed) {
-				parse.push (stringBuffer.substr (flag, p-flag));
-			}
-			int t=parse.size();
-			for (int r=0; r<t; r++)
-			{
-				instruction->setTermTokens(parse.front());
-				parse.pop();
-			}
-	        trying = strtok (NULL, " \n\t");
-		}
-
-		*/
 		instruction->setInstructionString(inputString);
 		instructionSet->pushInstruction(*instruction);
 		//instruction->showTokens ();
@@ -198,17 +144,6 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				type = CREATE_TABLE;
 			} else if (checkStringWithoutCase(instruction.getTermTokens(), "index")) {
 				instruction.popTermTokens();
-				for (int i=0; i<(int)instruction.getTermTokens().size(); i++) {
-					//if (!isalpha(instruction.getTermTokens()[i]) && instruction.getTermTokens()[i] != '_') {
-					if (!isalpha(instruction.getTermTokens()[i]) && instruction.getTermTokens()[i] != '_' 
-						&& !isdigit(instruction.getTermTokens()[i])) {
-						//cout << "here "<< instruction.getTermTokens()[i] << endl;
-						index = new CreateIndexInst ();
-						index->isValid = false;
-						cout << "- Syntax Error : index table name cannot contain charactors besides alphabats or '_' " << endl;
-						return index;
-					}
-				}
 				index = new CreateIndexInst ();
 				type = CREATE_INDEX;
 			}
@@ -1013,6 +948,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 		}
 		
 	}
+
 	switch (type) {
 		case CREATE_TABLE : {
 			table->isValid = true;
@@ -1177,48 +1113,14 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							*/
 						}
 					}
-					/*
-					if (!starFlag) {
-						cout << "************ i don't know what went wrong " << select->selectedAttributesTables[i]<< endl;
-					}
-					*/
 				}
 			}
-			//cout << "end checking alias names" << endl;
-/*
-			// generate messages
-			cout << "+++++++++++++++++++++" << endl;
-			cout << "start table messages : ";
-			cout << startTableNames.size() << ' ' << select->selectedAttributesTables.size () 
-						<< ' ' << select->selectedAttributesNames.size () << endl;
-			for (int i=0; i<(int)select->selectedAttributesTables.size(); i++)
-			{
-				cout << select->selectedAttributesTables[i] << " : " << select->selectedAttributesNames[i] << endl;
-			}
-			cout << endl;
-			
-			cout << "number of tables involed : " << select->tableNames.size() << ' ' << "select all : ";
-			for (int i=0; i<(int)fromTableNames.size(); i++) {
-				cout << select->tableNames[i] << ' ' << select->isSelectAllAttrs[i] << endl;
-			}
-			cout << endl;
 
-			cout << "where table messages" << endl;
-			//cout << select->WHERE_FirstAttrTables.size () << " vs " << select->WHERE_SecondAttrNames.size();
-			for (int i=0; i<(int)select->WHERE_FirstTypes.size(); i++) {
-				cout << select->WHERE_FirstAttrTables[i] << " : " << select->WHERE_FirstAttrNames[i] << " " 
-						<< select->WHERE_FirstTypes[i] << " " << operation[i] << ' ' << select->WHERE_ExprTypes[i] << ' '
-						<< select->WHERE_SecondAttrTables[i] << " : " << select->WHERE_SecondAttrNames[i] << " " 
-						<< select->WHERE_SecondTypes[i] << endl;
-			}
-			cout << "---------------------" << endl;
-*/
 			select->isValid = true;
 			return select;
 			break;
 		}
 		case CREATE_INDEX : {
-			//cout << "is valid" << endl;
 			index->isValid = true;
 			return index;
 			break;

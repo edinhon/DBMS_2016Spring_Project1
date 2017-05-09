@@ -72,7 +72,7 @@ void DBMS(string fileName)
 			instructionSet->popInstruction();
 			continue;
 		}
-		
+		cout << "type is " << inst->type << endl;
 		switch(inst->type){
 			case CREATE :{
 				CreateInst *cinst = dynamic_cast<CreateInst*>(inst);

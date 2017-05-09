@@ -1087,3 +1087,5 @@ WHERE user1.userId = tweets.userId AND userId = 'hello';
 
 CREATE INDEX hash
 ON user1 (userID);
+CREATE INDEX hash
+ON user1 (userID);
