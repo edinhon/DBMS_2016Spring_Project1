@@ -48,8 +48,10 @@ int main () {
 
 void DBMS(string fileName)
 {
+	clock_t startLoad = clock();
 	tableSet.InformationRead_TableSet();
 	tableSet.LoadTableSet ();
+	//cout << "Loading Time : " << (clock() - startLoad) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << endl;
 //	tableSet.ShowTables ();
 	
 	fstream* fp = new fstream();
@@ -106,10 +108,11 @@ void DBMS(string fileName)
 						//t->ShowTable(sinst);
 						
 						if(sinst->isCOUNT){
-							//t->Count_ShowTable(sinst);
-						}
-						if(sinst->isSUM){
-							//t->Sum_ShowTable(sinst);
+							t->Count_ShowTable(sinst);
+						} else if(sinst->isSUM){
+							t->Sum_ShowTable(sinst);
+						} else {
+							t->ShowTable(sinst);
 						}
 						tableSet.DeleteSelectedTable();
 					}
