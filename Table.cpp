@@ -1095,6 +1095,7 @@ void Table::LoadTable ()
 			loadedVal = depot->get(key, -1);
 			
 			Tuple *t = new Tuple ();
+			t->isHidedPK = isHidedPK;
 			t->values = attributes;
 			t->LoadTuple (loadedVal);
 			tuples.push_back (*t);
@@ -1211,5 +1212,15 @@ void Table::Tuple::LoadTuple (char* input)
 				break;
 			}
 		}
+	}
+	
+	if (isHidedPK){
+		string s = "";
+		for (int i = 0 ; i < (int)values.size() ; i++){
+			if(values[i].value != NULL) {
+				s += *(values[i].value);
+			}
+		}
+		hidedPK = new string(s);
 	}
 }
