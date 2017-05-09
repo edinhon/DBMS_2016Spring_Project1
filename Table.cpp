@@ -192,7 +192,7 @@ void Table::InsertTuple(InsertInst *iinst)
 					villa.put(t.values[i].value->c_str(), -1, formatted, -1);
 					villa.close();
 				} catch (Villa_error& e) {
-					cerr << e << endl;
+					//cerr << e << endl;
 					return;
 				}
 				break;
@@ -204,8 +204,8 @@ void Table::InsertTuple(InsertInst *iinst)
 					Depot depot(idxName.c_str(), Depot::OWRITER | Depot::ONOLCK);
 					depot.put(t.values[i].value->c_str(), -1, formatted, -1, Depot::DKEEP);
 					depot.close();
-				} catch (Villa_error& e) {
-					cerr << e << endl;
+				} catch (Depot_error& e) {
+					//cerr << e << endl;
 					return;
 				}
 				break;
@@ -276,6 +276,54 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 				if(iinst->insertedValueTypes[i] != -1)
 					s += *(iinst->insertedValues[i]);
 			}
+		}/*
+		if(!isHidedPK){//If there is index of PK in disk, use index to boost speed.
+			for(int i = 0 ; i < (int)PKIndexes.size() ; i++){
+				string attrName = attributes[PKIndexes[i]].name;
+				switch(attributes[PKIndexes[i]].isIdx){
+					case 1: {
+						//B+tree
+						string idxName = "IDX_BPtree_" + tableName + "_" + attrName;
+						try{
+							Villa* villa = new Villa(idxName.c_str(), Villa::OREADER | Villa::ONOLCK);
+							try{
+								villa->get(iinst->insertedValues[PKIndexes[i]]->c_str(), -1);
+								cout << "- Error: There exists duplicate PK value.\n";
+								return false;
+							} catch(Villa_error& e){
+								//Tuple doesn't exist, and it can be insert.
+							}
+							villa->close();
+						} catch(Villa_error& e){}
+						break;
+					}
+					case 2: {
+						//Hash
+						string idxName = "IDX_Hash_" + tableName + "_" + attrName;
+						try{
+							Depot* depot = new Depot(idxName.c_str(), Depot::OREADER | Depot::ONOLCK);
+							try{
+								depot->get(iinst->insertedValues[PKIndexes[i]]->c_str(), -1);
+								cout << "- Error: There exists duplicate PK value.\n";
+								return false;
+							} catch(Depot_error& e){
+								//Tuple doesn't exist, and it can be insert.
+							}
+							depot->close();
+						} catch(Depot_error& e){}
+						break;
+					}
+					default: {
+						for(int j = 0 ; j < (int)tuples.size() ; j++){
+							if((*(tuples[j].values[PKIndexes[i]].value)).compare(*(iinst->insertedValues[PKIndexes[i]])) == 0){
+								cout << "- Error: There exists duplicate PK value.\n";
+								return false;
+							}
+						}
+						break;
+					}
+				} 
+			}
 		}
 		for (int i = 0 ; i < (int)tuples.size() ; i++){
 			if (isHidedPK) {
@@ -283,7 +331,16 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 					cout << "- Error: There exists duplicate tuple.\n";
 					return false;
 				}
-			} else {
+			} 
+		}*/
+		
+		for (int i = 0 ; i < (int)tuples.size() ; i++){
+			if (isHidedPK) {
+				if (tuples[i].hidedPK != NULL && (*(tuples[i].hidedPK)).compare(s) == 0){
+					cout << "- Error: There exists duplicate tuple.\n";
+					return false;
+				}
+			} else{
 				for(int j = 0 ; j < (int)PKIndexes.size() ; j++){
 					if((*(tuples[i].values[PKIndexes[j]].value)).compare(*(iinst->insertedValues[PKIndexes[j]])) == 0){
 						cout << "- Error: There exists duplicate PK value.\n";
@@ -292,6 +349,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 				}
 			}
 		}
+		
 		
 		//Check varchar size.
 		for (int i = 0 ; i < (int)attributes.size() ; i++){
