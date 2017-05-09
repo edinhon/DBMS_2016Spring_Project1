@@ -25,7 +25,7 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 		
 		Instruction* instruction = new Instruction();
 		inputString.append (";");
-		int length = inputString.size ();
+		//int length = inputString.size ();
 		//cout << "length of instrucion : " << length << endl;
 		//cout << inputString << endl;
 		

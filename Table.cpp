@@ -172,13 +172,50 @@ void Table::InsertTuple(InsertInst *iinst)
 	
 	tuples.push_back(t);
 
-	// Date 05.07.2017
 	//Write into disk
 	const char* formatted = t.FormatTuple ();
-	Depot* depot = new Depot(tableName.c_str(), Depot::OWRITER);
-	depot->put(to_string(tuples.size()).c_str(), -1, formatted, -1);
-	depot->close();
+	try{
+		Depot* depot = new Depot(tableName.c_str(), Depot::OWRITER | Depot::ONOLCK);
+		depot->put(to_string(tuples.size()).c_str(), -1, formatted, -1);
+		depot->close();
+	} catch(Depot_error& e){
+		cerr << e << endl;
+	}
 	
+	for(int i = 0 ; i < (int)attributes.size() ; i++){
+		switch(attributes[i].isIdx){
+			case 1: {
+				//B+ tree
+				string idxName = "IDX_BPtree_" + tableName + "_" + attributes[i].name;
+				try{
+					Villa villa(idxName.c_str(), Villa::OWRITER | Depot::ONOLCK);
+					villa.put(t.values[i].value->c_str(), -1, formatted, -1);
+					villa.close();
+				} catch (Villa_error& e) {
+					cerr << e << endl;
+					return;
+				}
+				break;
+			}
+			case 2: {
+				//Hashing
+				string idxName = "IDX_Hash_" + tableName + "_" + attributes[i].name;
+				try{
+					Depot depot(idxName.c_str(), Depot::OWRITER | Depot::ONOLCK);
+					depot.put(t.values[i].value->c_str(), -1, formatted, -1, Depot::DKEEP);
+					depot.close();
+				} catch (Villa_error& e) {
+					cerr << e << endl;
+					return;
+				}
+				break;
+			}
+			default: {
+				break;
+			}
+		}
+		cout << i << endl;
+	}
 }
 
 //-----------------------
@@ -891,12 +928,16 @@ bool Table::CreateIndex(CreateIndexInst* ciinst){
 					if(attrIdx == -1) 
 						return false;
 					
-					Depot depot(idxName.c_str(), Depot::OWRITER | Depot::OCREAT);
-					for(int i = 0 ; i < (int)tuples.size() ; i++){
-						const char* formatted = tuples[i].FormatTuple ();
-						depot.put(tuples[i].values[attrIdx].value->c_str(), -1, formatted, -1, Depot::DKEEP);
+					try{
+						Villa villa(idxName.c_str(), Villa::OWRITER | Villa::OCREAT | Villa::OTRUNC);
+						for(int i = 0 ; i < (int)tuples.size() ; i++){
+							const char* formatted = tuples[i].FormatTuple ();
+							villa.put(tuples[i].values[attrIdx].value->c_str(), -1, formatted, -1);
+						}
+						villa.close();
+					} catch (Villa_error& e){
+						cerr << e << endl;
 					}
-					depot.close();
 				}
 			}
 			
@@ -913,12 +954,16 @@ bool Table::CreateIndex(CreateIndexInst* ciinst){
 					if(attrIdx == -1) 
 						return false;
 					
-					Villa villa(idxName.c_str(), Villa::OWRITER | Villa::OCREAT);
-					for(int i = 0 ; i < (int)tuples.size() ; i++){
-						const char* formatted = tuples[i].FormatTuple ();
-						villa.put(tuples[i].values[attrIdx].value->c_str(), -1, formatted, -1);
+					try{
+						Depot depot(idxName.c_str(), Depot::OWRITER | Depot::OCREAT | Depot::OTRUNC);
+						for(int i = 0 ; i < (int)tuples.size() ; i++){
+							const char* formatted = tuples[i].FormatTuple ();
+							depot.put(tuples[i].values[attrIdx].value->c_str(), -1, formatted, -1, Depot::DKEEP);
+						}
+						depot.close();
+					} catch(Depot_error& e){
+						cerr << e << endl;
 					}
-					villa.close();
 				}
 			}
 			return true;
@@ -1057,7 +1102,7 @@ void Table::LoadTable ()
 			
 			key = depot->iternext ();
 		} catch (Depot_error& e) {
-			//cerr << e << endl;
+			cerr << e << endl;
 			return;
 		}
 	}
@@ -1071,19 +1116,8 @@ const char* Table::Tuple::FormatTuple ()
 {
 	string* output = new string();
 	int numOfAttributes = values.size();
-	//*output += "\4";
+	
 	for (int i=0; i<numOfAttributes; i++) {
-		
-		//cout << *(values[i].value) << endl;
-		/*
-		if (*(values[i].value) == "") {
-			//cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-			*output += "____++++====";
-		}
-		else
-			*output += *(values[i].value); 
-		*output += "\4";
-		*/
 		int type = values[i].type;
 		switch (type) {
 			case 0 : {	// int, size = 11
@@ -1132,24 +1166,6 @@ const char* Table::Tuple::FormatTuple ()
 
 void Table::Tuple::LoadTuple (char* input)
 {
-	/*
-	char* trying;
-	trying = strtok (input,"\4");
-	
-	int i = 0;
-	while (trying != NULL) { 
-		string *tmpt = new string (trying);
-		if (*tmpt == "____++++===="){
-			values[i].value = new string ("");
-			//cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-		}
-		else 
-			values[i].value = tmpt;
-		cout << *(values[i].value) << endl;
-		i += 1;
-	    trying = strtok (NULL, "\4");
-	}
-	*/
 	int readPtr = 0;
 	string inputStr(input);
 	
@@ -1197,5 +1213,4 @@ void Table::Tuple::LoadTuple (char* input)
 			}
 		}
 	}
-	
 }

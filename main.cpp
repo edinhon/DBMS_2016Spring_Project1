@@ -48,11 +48,8 @@ int main () {
 
 void DBMS(string fileName)
 {
-	clock_t startLoad = clock();
 	tableSet.InformationRead_TableSet();
 	tableSet.LoadTableSet ();
-	//cout << "Loading Time : " << (clock() - startLoad) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << endl;
-//	tableSet.ShowTables ();
 	
 	fstream* fp = new fstream();
 	fp->open (fileName, ios::in);
@@ -82,8 +79,10 @@ void DBMS(string fileName)
 				if (tableSet.CheckDuplicateTable(cinst)){
 					Table t(cinst);
 					tableSet.PushTable(t);
+					
+					tableSet.ShowTables();
 				}
-				//tableSet.ShowTables();
+				
 				break;
 			}
 			case INSERT :{
@@ -94,8 +93,10 @@ void DBMS(string fileName)
 					Table *t = tableSet.GetTable(tableIndex);
 					if(!t->CheckInsertInst(iinst)) break;
 					t->InsertTuple(iinst);
+					
+					//tableSet.ShowTables();
 				}
-				//tableSet.ShowTables();
+			
 				break;
 			}
 			case SELECT :{
@@ -105,19 +106,18 @@ void DBMS(string fileName)
 				if(tableSet.ContainTables(sinst->tableNames)){
 					if(tableSet.SelectTable(sinst)){
 						Table *t = tableSet.GetSelectedTable();
-						//t->ShowTable(sinst);
 						
 						if(sinst->isCOUNT){
 							t->Count_ShowTable(sinst);
 						} else if(sinst->isSUM){
 							t->Sum_ShowTable(sinst);
 						} else {
-							t->ShowTable(sinst);
+							//t->ShowTable(sinst);
 						}
 						tableSet.DeleteSelectedTable();
 					}
 				}
-				//cout << "end select" << endl;
+				
 				cout << "Time: " << (clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << endl;
 				break;
 			}
