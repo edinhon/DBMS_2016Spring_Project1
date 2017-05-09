@@ -7,6 +7,7 @@
 #include <queue>
 #include "Parser.h"
 #include "CreateInst.h"
+#include "CreateIndexInst.h"
 #include "InsertInst.h"
 #include "SelectInst.h"
 
@@ -159,6 +160,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 	CreateInst *table;
 	InsertInst *tuple;
 	SelectInst *select;
+	CreateIndexInst *index;
 	int type = -1;
 	int tableSize = -1;
 	bool catchingNot = false;
@@ -194,6 +196,21 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 				table = new CreateInst (instruction.getTermTokens());
 				instruction.popTermTokens();
 				type = CREATE_TABLE;
+			} else if (checkStringWithoutCase(instruction.getTermTokens(), "index")) {
+				instruction.popTermTokens();
+				for (int i=0; i<(int)instruction.getTermTokens().size(); i++) {
+					//if (!isalpha(instruction.getTermTokens()[i]) && instruction.getTermTokens()[i] != '_') {
+					if (!isalpha(instruction.getTermTokens()[i]) && instruction.getTermTokens()[i] != '_' 
+						&& !isdigit(instruction.getTermTokens()[i])) {
+						//cout << "here "<< instruction.getTermTokens()[i] << endl;
+						index = new CreateIndexInst ();
+						index->isValid = false;
+						cout << "- Syntax Error : index table name cannot contain charactors besides alphabats or '_' " << endl;
+						return index;
+					}
+				}
+				index = new CreateIndexInst ();
+				type = CREATE_INDEX;
 			}
 			else {
 				table = new CreateInst ();
@@ -832,31 +849,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								instruction.popTermTokens ();
 								step = where;
 							} else if (current == "'" || catchcomma) {
-/*
-								instruction.popTermTokens ();
 
-								if (assigning) {
-									attach = new string (instruction.getTermTokens ());
-									right.push_back (*attach);
-									//selectRightType.pop_back ();
-									selectRightType.push_back (1);
-									selectedTableRight.push_back ("");
-									instruction.popTermTokens ();
-									instruction.popTermTokens ();
-									//assigning = false;
-									step = where;
-								} else {
-									attach = new string (instruction.getTermTokens ());
-									left.push_back (*attach);
-									//selectRightType.pop_back ();
-									selectLeftType.push_back (1);
-									selectedTableLeft.push_back ("");
-									instruction.popTermTokens ();
-									instruction.popTermTokens ();
-									//assigning = false;
-									step = where;
-								}
-								*/
 								if (catchcomma) {
 									if (current == "'") { // end of ''
 										if (assigning) {
@@ -937,6 +930,78 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 						}
 					}
 					//last = current;
+				}
+				break;
+			}
+			case CREATE_INDEX : {
+				int step = 1;
+				while (!instruction.isEmpty()) {
+					string tmpt = instruction.getTermTokens();
+					//cout << tmpt << endl;
+					switch (step) {
+						case 1 : {
+							if (checkStringWithoutCase(tmpt, "hash")) {
+								index->IdxType = 2;
+								step = 2;
+								instruction.popTermTokens ();
+							} else if (checkStringWithoutCase (tmpt, "tree")) {
+								index->IdxType = 1;
+								step = 2;
+								instruction.popTermTokens ();
+							} else {
+								cout << "- Syntax Error : did not assign indexing type " << endl;
+								index->isValid = false;
+								return index;
+							}
+							break;
+						}
+						case 2 : {
+							if (checkStringWithoutCase (tmpt, "on")) {
+								step = 3;
+								instruction.popTermTokens ();
+							} else {
+								cout << "- Syntax Error : did not assign target table " << endl;
+								index->isValid = false;
+								return index;
+							}
+							break;
+						}
+						case 3 : {
+							index->tableName = tmpt;
+							//cout << index -> tableName << endl;
+							step = 4;
+							instruction.popTermTokens ();
+							break;
+						}
+						case 4 : {
+							if (tmpt == "(") {
+								step = 5;
+								instruction.popTermTokens ();
+							} else {
+								cout << "- Syntax Error : missing left parenthesis" << endl;
+								index->isValid = false;
+								return index;
+							}
+							break;
+						}
+						case 5 : {
+							if (tmpt == ",") {
+								// another attribute
+								step = 5;
+								instruction.popTermTokens ();
+							} else if (tmpt == ")") {
+								// end of targeting
+								//cout << "end of indexing" << endl;
+								step = 5;
+								instruction.popTermTokens ();
+							} else {
+								index->attrName.push_back (tmpt);
+								step = 5;
+								instruction.popTermTokens ();
+							}
+							break;
+						}
+					}
 				}
 				break;
 			}
@@ -1150,6 +1215,11 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 */
 			select->isValid = true;
 			return select;
+			break;
+		}
+		case CREATE_INDEX : {
+			index->isValid = true;
+			return index;
 			break;
 		}
 		default : {

@@ -3,11 +3,11 @@ CC = g++ -lm -std=c++11 -Wall
 SRCS = ./*.cpp
 OBS = ./*.o
 
-#QDBM_INCDIR := -I /usr/local/include
-QDBM_INCDIR := -I ./qdbm/include
+QDBM_INCDIR := -I /usr/local/include
+#QDBM_INCDIR := -I ./qdbm/include
 
-#QDBM_LIBDIR := -L /usr/local/lib
-QDBM_LIBDIR := -L ./qdbm/lib
+QDBM_LIBDIR := -L /usr/local/lib
+#QDBM_LIBDIR := -L ./qdbm/lib
 
 QDBM_LIB := -lxqdbm -lqdbm
 

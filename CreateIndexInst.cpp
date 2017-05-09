@@ -10,4 +10,5 @@ CreateIndexInst::CreateIndexInst()
 {
 	tableName = "";
 	type = CREATE_INDEX;
+	isValid = false;
 }

@@ -1057,7 +1057,7 @@ void Table::LoadTable ()
 			
 			key = depot->iternext ();
 		} catch (Depot_error& e) {
-			cerr << e << endl;
+			//cerr << e << endl;
 			return;
 		}
 	}
