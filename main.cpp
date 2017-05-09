@@ -117,6 +117,7 @@ void DBMS(string fileName)
 				break;
 			}
 			case CREATEIDX :{
+				cout << "creating index in main" << endl;
 				CreateIndexInst *ciinst = dynamic_cast<CreateIndexInst*>(inst);
 				
 				int tableIndex = tableSet.SearchTable(ciinst->tableName);

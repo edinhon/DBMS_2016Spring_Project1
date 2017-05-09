@@ -1218,6 +1218,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 			break;
 		}
 		case CREATE_INDEX : {
+			//cout << "is valid" << endl;
 			index->isValid = true;
 			return index;
 			break;
