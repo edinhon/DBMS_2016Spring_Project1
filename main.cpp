@@ -72,7 +72,6 @@ void DBMS(string fileName)
 			instructionSet->popInstruction();
 			continue;
 		}
-		cout << "type is " << inst->type << endl;
 		switch(inst->type){
 			case CREATE :{
 				CreateInst *cinst = dynamic_cast<CreateInst*>(inst);
@@ -117,7 +116,6 @@ void DBMS(string fileName)
 				break;
 			}
 			case CREATEIDX :{
-				cout << "creating index in main" << endl;
 				CreateIndexInst *ciinst = dynamic_cast<CreateIndexInst*>(inst);
 				
 				int tableIndex = tableSet.SearchTable(ciinst->tableName);
