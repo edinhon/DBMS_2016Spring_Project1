@@ -3,3 +3,5 @@ DBMSProject1
 qdbm.dll
 qdbm
 Makefile
+.DS_Store
+*.idx
