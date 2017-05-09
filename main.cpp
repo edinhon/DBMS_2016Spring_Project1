@@ -10,6 +10,7 @@
 #include "Table.h"
 #include "TableSet.h"
 #include <algorithm>
+#include <ctime>
 
 using namespace std;
 
@@ -96,6 +97,7 @@ void DBMS(string fileName)
 				break;
 			}
 			case SELECT :{
+				clock_t start = clock();
 				SelectInst *sinst = dynamic_cast<SelectInst*>(inst);
 				
 				if(tableSet.ContainTables(sinst->tableNames)){
@@ -113,6 +115,7 @@ void DBMS(string fileName)
 					}
 				}
 				//cout << "end select" << endl;
+				cout << "Time: " << (clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << endl;
 				break;
 			}
 			case CREATEIDX :{
