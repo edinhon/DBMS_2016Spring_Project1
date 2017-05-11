@@ -1190,5 +1190,5 @@ void TableSet::LoadTableSet ()
 	for (int i=0; i<(int)tableVector.size(); i++) {
 		tableVector[i].LoadTable ();
 	}
-	//cout << "- Finish Loading Table" << endl;
+	cout << "- Finish Loading Table" << endl;
 }

@@ -410,7 +410,7 @@ bool Table::CheckInsertInst(InsertInst *iinst)
 				string n1 = attributes[PKIndexes[i]].name;
 				transform(n1.begin(), n1.end(), n1.begin(), ::tolower);
 				for (int j = 0 ; j < (int)iinst->insertedAttributes.size() ; j++){
-					string n2 = iinst->insertedAttributes[PKIndexes[i]];
+					string n2 = iinst->insertedAttributes[j];
 					transform(n2.begin(), n2.end(), n2.begin(), ::tolower);
 					if(n1.compare(n2) == 0){
 						//For NULL

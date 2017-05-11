@@ -22,7 +22,7 @@ TableSet tableSet;
 
 int main () {
 	
-	DBMS ("input testcase.txt");
+	DBMS ("input testcase 1.txt");
 	/*
 	if (ChooseInputFileOrNot()){
 		string fileName;
@@ -112,7 +112,7 @@ void DBMS(string fileName)
 						} else if(sinst->isSUM){
 							t->Sum_ShowTable(sinst);
 						} else {
-							//t->ShowTable(sinst);
+							t->ShowTable(sinst);
 						}
 						tableSet.DeleteSelectedTable();
 					}

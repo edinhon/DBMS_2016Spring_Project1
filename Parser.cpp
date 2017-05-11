@@ -45,7 +45,11 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 				position += 1;
 				wordFlag = true;
 			}
-
+			if (inputString[position] == '-' && !wordFlag) {
+				//inputString.insert (position, "$");
+				position += 1;
+				wordFlag = true;
+			}
 			if (!isalpha (inputString[position]) && !isdigit (inputString[position])) {
 				if (!quotationFlag) {
 					wordFlag = false;
@@ -54,8 +58,13 @@ InstructionSet* Parser::ParseAllInstructions(fstream* inputFile)
 				if (inputString[position] == 39) {
 					quotationFlag = !quotationFlag;
 					
-					inputString.insert (position, "$");
-					position += 1;
+					if (quotationFlag){
+						inputString.insert (position+1, "$");
+						position += 2;
+					} else {
+						inputString.insert (position, "$");
+						position += 1;
+					}
 				}
 
 				if (!quotationFlag) {
@@ -264,11 +273,13 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								length *= 10;
 								length += tmpt[i] - '0';
 							}
+							/*
 							if (length > 40) {
 								cout << "- Syntax Error : varchar length cannot exceed 40" << endl;
 								table->isValid = false;
 								return table;
 							}
+							*/
 							table->varCharSizes[tableSize] = length;
 							instruction.popTermTokens();
 							step = 6;
@@ -280,6 +291,7 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								step = 7;
 							}
 							else {
+								//instruction.showTokens ();
 								cout << "- Syntax Error : 6" << endl;
 								table->isValid = false;
 								return table;
@@ -416,18 +428,8 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 							break;
 						}
 						case 6 : {
-							if (tmpt == "'" || catchcomma) {
 
-								/*
-								instruction.popTermTokens ();
-								attach = new string (instruction.getTermTokens());
-								cout << "attach : " << *attach << endl;
-								tuple->insertedValues.push_back (attach);
-								tuple->insertedValueTypes.push_back(1);
-								instruction.popTermTokens ();
-								instruction.popTermTokens ();
-								step = 7;
-								*/
+							if (tmpt == "'" || catchcomma) {
 								if (catchcomma) {
 									if (tmpt == "'") {
 										//cout << "attach :" << *attach << endl;
@@ -466,8 +468,13 @@ Instruction* Parser::ParseSingleInstruction(Instruction instruction)
 								tuple->insertedValueTypes.push_back(0);
 								instruction.popTermTokens();
 								step = 7;
-							}
-							else {
+							} else if (tmpt[0] == '-' && isdigit(tmpt[1])) {
+								string* toAdd = new string (tmpt);
+								tuple->insertedValues.push_back (toAdd);
+								tuple->insertedValueTypes.push_back(0);
+								instruction.popTermTokens();
+								step = 7;
+							} else {
 								tuple->isValid = false;
 								cout << "- Syntax Error : 6" << endl;
 								return tuple;
